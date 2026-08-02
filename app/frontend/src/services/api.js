@@ -104,12 +104,12 @@ export async function getHealth() {
 
 export async function getDiagnostics() {
   const res = await fetch("/api/diagnostics");
-  return await readJsonResponse(res, "The local server returned invalid diagnostics.");
+  return await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu diagnostics.");
 }
 
 export async function getCleanupCandidates() {
   const res = await fetch("/api/cleanup-candidates");
-  const data = await readJsonResponse(res, "The local server returned invalid cleanup data.");
+  const data = await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu cleanup data.");
   return data.candidates || [];
 }
 
@@ -119,7 +119,7 @@ export async function cleanupCandidates(ids) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ids }),
   });
-  return await readJsonResponse(res, "The local server returned invalid cleanup data.");
+  return await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu cleanup data.");
 }
 
 // Get CPU and GPU specifications
@@ -258,7 +258,7 @@ export async function startServer(modelPath, constraints) {
     return await invoke("start_server", { params: launchParams });
   }
 
-  // Web/portable mode — call serve.cjs management API
+  // Web/portable mode - call serve.cjs management API
   const backendType = constraints.backendType || (constraints.useGpu === false ? "cpu" : "auto");
   const modelName = modelPath ? modelPath.split(/[\\/]/).pop() : null;
   const isOpenVinoBackend = backendType === "openvino-npu";
@@ -327,7 +327,7 @@ export async function getBackendStatus() {
 export async function getLlmStatus() {
   try {
     const res = await fetch("/api/llm/status");
-    return await readJsonResponse(res, "The local server returned invalid text backend status.");
+    return await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu text backend status.");
   } catch (err) {
     return { ready: false, running: false, backendInstalled: false, error: err.message, settings: {} };
   }
@@ -335,12 +335,12 @@ export async function getLlmStatus() {
 
 export async function getLlmBackends(refresh = false) {
   const res = await fetch(`/api/llm/backends${refresh ? "?refresh=1" : ""}`);
-  return await readJsonResponse(res, "The local server returned invalid text backend data.");
+  return await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu text backend data.");
 }
 
 export async function getLlmStats() {
   const res = await fetch("/api/llm/stats");
-  return await readJsonResponse(res, "The local server returned invalid text runtime stats.");
+  return await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu text runtime stats.");
 }
 
 export async function benchmarkLlm(model, options = {}) {
@@ -356,18 +356,18 @@ export async function benchmarkLlm(model, options = {}) {
       gpuLayers: options.gpuLayers,
     }),
   });
-  return await readJsonResponse(res, "The local server returned invalid benchmark data.");
+  return await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu benchmark data.");
 }
 
 export async function listLlmModels() {
   const res = await fetch("/api/llm/models");
-  const data = await readJsonResponse(res, "The local server returned invalid text model data.");
+  const data = await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu text model data.");
   return (data.models || []).map(normalizeModel);
 }
 
 export async function listLlmConversations() {
   const res = await fetch("/api/llm/conversations");
-  const data = await readJsonResponse(res, "The local server returned invalid chat history.");
+  const data = await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu chat history.");
   return data.conversations || [];
 }
 
@@ -643,7 +643,7 @@ export async function deleteLlmModel(filename) {
 export async function getSpeechStatus() {
   try {
     const res = await fetch("/api/speech/status");
-    return await readJsonResponse(res, "The local server returned invalid speech backend status.");
+    return await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu speech backend status.");
   } catch (err) {
     return { ready: false, running: false, backendInstalled: false, error: err.message, settings: {} };
   }
@@ -651,7 +651,7 @@ export async function getSpeechStatus() {
 
 export async function listSpeechModels() {
   const res = await fetch("/api/speech/models");
-  const data = await readJsonResponse(res, "The local server returned invalid speech model data.");
+  const data = await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu speech model data.");
   return data.models || [];
 }
 
@@ -722,7 +722,7 @@ export async function deleteSpeechModel(filename) {
 
 export async function listSpeechTranscriptions() {
   const res = await fetch("/api/speech/transcriptions");
-  const data = await readJsonResponse(res, "The local server returned invalid transcription history.");
+  const data = await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu transcription history.");
   return data.transcriptions || [];
 }
 
@@ -738,7 +738,7 @@ export async function deleteSpeechTranscription(filename) {
 export async function getTtsStatus() {
   try {
     const res = await fetch("/api/tts/status");
-    return await readJsonResponse(res, "The local server returned invalid TTS runtime status.");
+    return await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu TTS runtime status.");
   } catch (err) {
     return { ready: false, running: false, runtimeInstalled: false, error: err.message, settings: {}, voices: [] };
   }
@@ -746,7 +746,7 @@ export async function getTtsStatus() {
 
 export async function listTtsModels() {
   const res = await fetch("/api/tts/models");
-  const data = await readJsonResponse(res, "The local server returned invalid TTS model data.");
+  const data = await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu TTS model data.");
   return data.models || [];
 }
 
@@ -811,7 +811,7 @@ export async function deleteTtsModel(filename) {
 
 export async function listTtsOutputs() {
   const res = await fetch("/api/tts/outputs");
-  const data = await readJsonResponse(res, "The local server returned invalid TTS output history.");
+  const data = await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu TTS output history.");
   return data.outputs || [];
 }
 
@@ -892,7 +892,7 @@ export async function listModelsFromDisk() {
 
 export async function listOpenVinoModels() {
   const res = await fetch("/api/openvino-models");
-  return await readJsonResponse(res, "The local server returned invalid OpenVINO model data.");
+  return await readJsonResponse(res, "Yerel sunucu gecersiz dondurdu OpenVINO model data.");
 }
 
 // Generate image (T2I / I2I)
@@ -956,7 +956,7 @@ export async function generateImage(prompt, negativePrompt, constraints, activeM
   const baseUrl = await getBackendBaseUrl();
 
 
-  // Use the sdapi endpoints for both modes. The OpenAI-compatible endpoint
+  // Kullan the sdapi endpoints for both modes. The OpenAI-compatible endpoint
   // ignores native generation fields such as seed, steps, CFG, and sampler.
   const isImg2Img = !!payload.image;
   let endpoint = `${baseUrl}/sdapi/v1/txt2img`;
@@ -1040,7 +1040,7 @@ export async function generateImage(prompt, negativePrompt, constraints, activeM
     console.warn("Could not reach local server.", err);
     throw new Error(
       "The image generation server is not responding or crashed. " +
-      "Try restarting the backend from Model Manager, or check the terminal for a backend error."
+      "Try restarting the backend from Model Yoneticisi, or check the terminal for a backend error."
     );
   }
 }
@@ -1124,13 +1124,13 @@ function uploadModelFileToEndpoint(file, endpoint, onProgress, signal) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     const startedAt = Date.now();
-    let abortedByUser = false;
+    let abortedByKullanr = false;
 
     xhr.open("POST", `${endpoint}?filename=${encodeURIComponent(file.name)}`);
     xhr.setRequestHeader("Content-Type", "application/octet-stream");
 
     const abortUpload = () => {
-      abortedByUser = true;
+      abortedByKullanr = true;
       xhr.abort();
     };
     if (signal) {
@@ -1179,7 +1179,7 @@ function uploadModelFileToEndpoint(file, endpoint, onProgress, signal) {
     };
 
     xhr.onerror = () => reject(new Error("Import failed while uploading the file."));
-    xhr.onabort = () => reject(new DOMException(abortedByUser ? "Import cancelled by user." : "Import aborted.", "AbortError"));
+    xhr.onabort = () => reject(new DOMException(abortedByKullanr ? "Import cancelled by user." : "Import aborted.", "AbortError"));
     xhr.send(file);
   });
 }
@@ -1279,6 +1279,36 @@ export async function cancelModelDownload() {
     return await res.json();
   } catch (e) {
     console.error("Failed to cancel model download:", e);
+    return { ok: false, error: e.message };
+  }
+}
+
+// Tum varsayilan modelleri indirme kuyrugunu baslatir (gorsel + metin + konusma + tts)
+export async function downloadDefaultModels() {
+  try {
+    const res = await fetch("/api/download-default-models", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({})
+    });
+    return await readJsonResponse(res, "Yerel sunucu gecersiz bir varsayilan-model indirme yaniti dondurdu.");
+  } catch (e) {
+    console.error("Varsayilan modeller indirmesi baslatilamadi:", e);
+    return { ok: false, error: e.message };
+  }
+}
+
+// Get which compatible models would be selected for this machine, and why.
+export async function getCompatibleModels() {
+  try {
+    const res = await fetch("/api/compatible-models");
+    const data = await res.json();
+    if (!data || data.ok === false) {
+      return { ok: false, error: data?.error || "Uyumlu modeller alinamadi." };
+    }
+    return { ok: true, tier: data.tier, vram: data.vram, ram: data.ram, models: data.models || [] };
+  } catch (e) {
+    console.error("Uyumlu modeller alinamadi:", e);
     return { ok: false, error: e.message };
   }
 }

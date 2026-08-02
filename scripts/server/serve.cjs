@@ -5305,6 +5305,8 @@ function cancelModelDownload() {
 function getCompatibleModels() {
   const specs = getHardwareSpecs();
   const tier = specs.tier || "low";
+  const vram = specs.gpu_vram_gb || 0;
+  const ram = specs.ram_total_gb || 0;
 
   // Goruntu: SD1.5 her kesimde calisir, tek uygun secenek.
   const image = {
@@ -5313,6 +5315,7 @@ function getCompatibleModels() {
     filename: "v1-5-pruned-emaonly.safetensors",
     url: "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors",
     dir: MODELS,
+    reason: "Goruntu uretimi icin en yaygin ve dusuk donanimda calisan model.",
   };
 
   // Metin: donanim gucline gore boyut sec.
@@ -5324,6 +5327,7 @@ function getCompatibleModels() {
       filename: "smollm2-7b-instruct-q4_k_m.gguf",
       url: "https://huggingface.co/HuggingFaceTB/SmolLM2-7B-Instruct-GGUF/resolve/main/smollm2-7b-instruct-q4_k_m.gguf",
       dir: LLM_MODELS,
+      reason: `${vram} GB VRAM seviyeniz yuksek oldugu icin 7B modeli rahat calistirir.`,
     };
   } else {
     text = {
@@ -5332,6 +5336,7 @@ function getCompatibleModels() {
       filename: "smollm2-1.7b-instruct-q4_k_m.gguf",
       url: "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct-GGUF/resolve/main/smollm2-1.7b-instruct-q4_k_m.gguf",
       dir: LLM_MODELS,
+      reason: `${vram} GB VRAM seviyeniz dusuk oldugu icin 1.7B model en uygun (hizli ve az bellek kullanir).`,
     };
   }
 
@@ -5342,9 +5347,20 @@ function getCompatibleModels() {
     filename: "ggml-base.en.bin",
     url: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin",
     dir: SPEECH_MODELS,
+    reason: "Konusma tanima icin kucuk ve hizli model, her bilgisayarda calisir.",
   };
 
-  return [image, text, speech];
+  // TTS: tek onerilen Kokoro modeli.
+  const tts = {
+    kind: "tts",
+    name: "Kokoro 82M ONNX Q8 (Uyumlu)",
+    filename: "kokoro-onnx-q8",
+    url: "",
+    dir: TTS_MODELS,
+    reason: "Metinden sese icin onerilen hafif Kokoro modeli (hizli baslar).",
+  };
+
+  return { tier, vram, ram, models: [image, text, speech, tts] };
 }
 
 const DEFAULT_MODELS = [
@@ -5387,7 +5403,8 @@ function startDefaultModelsDownload() {
   if (downloadState.active || defaultModelsQueue) {
     throw new Error("Baska bir indirme zaten aktif.");
   }
-  const items = getCompatibleModels().filter((item) => {
+  const compat = getCompatibleModels();
+  const items = compat.models.filter((item) => {
     const destPath = path.join(item.dir, item.filename);
     return !fs.existsSync(destPath);
   });
@@ -7069,6 +7086,16 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
     try {
       startOpenVinoModelDownload(modelId);
       return json(res, 200, { ok: true, message: "OpenVINO model download started" });
+    } catch (err) {
+      return json(res, 500, { ok: false, error: err.message || String(err) });
+    }
+  }
+
+  // GET /api/compatible-models  (hangi modellerin secilecegini ve nedenini dondurur)
+  if (req.url === "/api/compatible-models" && req.method === "GET") {
+    try {
+      const compat = getCompatibleModels();
+      return json(res, 200, { ok: true, tier: compat.tier, vram: compat.vram, ram: compat.ram, models: compat.models });
     } catch (err) {
       return json(res, 500, { ok: false, error: err.message || String(err) });
     }

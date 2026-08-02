@@ -36,7 +36,9 @@ import {
   deleteTtsModel,
   importTtsModel,
   getTtsStatus,
-  isLocalServerMode
+  isLocalServerMode,
+  downloadDefaultModels,
+  getCompatibleModels,
 } from "../services/api";
 
 const MODEL_FILTERS = [
@@ -293,6 +295,9 @@ function ModelManager({
   const [downloadSpeed, setDownloadSpeed] = useState("");
   const [loadingModelId, setLoadingModelId] = useState(null);
   const [modelLoadProgress, setModelLoadProgress] = useState(null);
+  const [compatibleModels, setCompatibleModels] = useState([]);
+  const [compatibleTier, setCompatibleTier] = useState("");
+  const [compatibleVram, setCompatibleVram] = useState(0);
   const [importProgress, setImportProgress] = useState(null); // null when not importing
   const [importInfo, setImportInfo] = useState({ filename: "", speed: "0.0", eta: 0, status: "" });
   const [downloadUrl, setDownloadUrl] = useState("");
@@ -315,6 +320,7 @@ function ModelManager({
   const [modelSearchError, setModelSearchError] = useState("");
   const [hasHuggingFaceResults, setHasHuggingFaceResults] = useState(false);
   const [modelSearchPage, setModelSearchPage] = useState(1);
+  const [isDownloadingDefaults, setIsDownloadingDefaults] = useState(false);
   const [hasMoreModels, setHasMoreModels] = useState(false);
   const [isLoadingMoreModels, setIsLoadingMoreModels] = useState(false);
   const searchRequestRef = React.useRef(0);
@@ -650,7 +656,7 @@ function ModelManager({
         const status = await getDownloadProgress();
         if (status.active) {
           setDownloadProgress(status.progress === -1 ? 0 : status.progress);
-          setDownloadSpeed(`${status.speed} • ETA ${status.eta}s`);
+          setDownloadSpeed(`${status.speed}  ETA ${status.eta}s`);
         } else {
           clearInterval(interval);
           setDownloadingModelId(null);
@@ -1204,6 +1210,58 @@ function ModelManager({
     }
   };
 
+  // Bilgisayarinizin ozelliklerine gore secilecek uyumlu modelleri yukle (aciklama icin)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const res = await getCompatibleModels();
+      if (!cancelled && res.ok) {
+        setCompatibleModels(res.models || []);
+        setCompatibleTier(res.tier || "");
+        setCompatibleVram(res.vram || 0);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleDownloadDefaultModels = async () => {
+    if (isDownloadingDefaults) return;
+    const ok = await showConfirm({
+      title: "Varsayilan Tum Modelleri Indir",
+      message: "Gorsel uretimi, metin sohbeti, konusma ve ses sentezi icin gerekli temel modeller sirali olarak indirilecek. Devam edilsin mi?",
+      confirmLabel: "Indir",
+      cancelLabel: "Iptal",
+    });
+    if (!ok) return;
+    setIsDownloadingDefaults(true);
+    try {
+      const result = await downloadDefaultModels();
+      if (!result || result.ok === false) {
+        throw new Error(result?.error || "Varsayilan modeller indirilemedi.");
+      }
+      showAlert({
+        title: "Indirme Basladi",
+        message: "Temel modeller arka planda indiriliyor. Ilerlemeyi yukaridaki genel indirme cubugundan takip edebilirsiniz.",
+      });
+      const poll = setInterval(async () => {
+        try {
+          const progress = await getDownloadProgress();
+          if (!progress.active) {
+            clearInterval(poll);
+            setIsDownloadingDefaults(false);
+            fetchModels();
+          }
+        } catch (_) {
+          clearInterval(poll);
+          setIsDownloadingDefaults(false);
+        }
+      }, 2000);
+    } catch (err) {
+      setIsDownloadingDefaults(false);
+      showAlert({ title: "Indirme Baslatilamadi", message: err.message || String(err), danger: true });
+    }
+  };
+
   const handleDeleteModel = async (filename) => {
     if (await showConfirm({
       title: "Delete Model?",
@@ -1326,7 +1384,7 @@ function ModelManager({
   return (
     <div className="workspace-area">
       <div className="workspace-title-section">
-        <h2 className="workspace-title">Model Manager</h2>
+        <h2 className="workspace-title">Model Yoneticisi</h2>
         <p className="workspace-subtitle">
           Manage local files and download recommended weights directly to your local models folder.
         </p>
@@ -1363,6 +1421,33 @@ function ModelManager({
           TTS Models (Kokoro)
         </button>
       </div>
+
+      {/* Uyumlu Modelleri Indir (bilgisayara gore secilen modeller) */}
+      <div style={{ marginBottom: "20px" }}>
+        <button
+          className="m3-btn m3-btn-filled"
+          style={{ height: "40px", padding: "0 20px", display: "inline-flex", alignItems: "center", gap: "8px" }}
+          disabled={isDownloadingDefaults}
+          onClick={handleDownloadDefaultModels}
+        >
+          <DownloadCloud size={18} />
+          {isDownloadingDefaults ? "Uyumlu Modelleri Indiriliyor..." : "Uyumlu Modelleri Indir"}
+        </button>
+        <p style={{ fontSize: "0.82rem", marginTop: "6px", opacity: 0.85 }}>
+          Bu bilgisayarin ozelliklerine (VRAM: {compatibleVram} GB, seviye: {compatibleTier || "-"}) gore en uygun modelleri otomatik indirir. Her alandan yalnizca bir model secilir.
+        </p>
+        {compatibleModels.length > 0 && (
+          <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "6px" }}>
+            {compatibleModels.map((m, i) => (
+              <div key={i} style={{ fontSize: "0.8rem", padding: "8px 10px", background: "var(--md-sys-color-surface-container-high)", borderRadius: "8px", borderLeft: "3px solid var(--md-sys-color-primary)" }}>
+                <strong>{m.name}</strong> <span style={{ opacity: 0.7 }}>({m.kind})</span>
+                <div style={{ opacity: 0.8, marginTop: "2px" }}>{m.reason}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
 
 
 
@@ -1467,7 +1552,7 @@ function ModelManager({
             <h4 style={{ fontWeight: 600 }}>Loading Weights: {modelLoadProgress.model}</h4>
             <button className="m3-btn m3-btn-error" style={{ height: "34px", padding: "0 14px" }} onClick={handleCancelLoad}>
               <Square size={14} />
-              <span>Cancel Load</span>
+              <span>Iptal Yukle</span>
             </button>
           </div>
           <div className="model-progress-section" style={{ margin: "12px 0 6px 0" }}>
@@ -1489,11 +1574,11 @@ function ModelManager({
               <div style={{ fontSize: "0.75rem", color: "var(--md-sys-color-outline)", marginTop: "6px", lineHeight: "1.4" }}>
                 <div>
                   Initializing {modelLoadProgress.backendMode || "backend"}
-                  {modelLoadProgress.device ? ` • ${modelLoadProgress.device}` : ""}
+                  {modelLoadProgress.device ? `  ${modelLoadProgress.device}` : ""}
                 </div>
                 {(modelLoadProgress.backendMode === "Apple NPU" || modelLoadProgress.backendMode === "Apple Neural Engine (NPU)") && (
                   <div style={{ color: "var(--md-sys-color-primary)", marginTop: "4px", fontWeight: "500" }}>
-                    ⚠️ Note: The first time loading this model, compilation on the Apple Neural Engine (NPU) can take 3–4 minutes. Subsequent loads will be almost instant.
+                     Note: The first time loading this model, compilation on the Apple Neural Engine (NPU) can take 3-4 minutes. Subsequent loads will be almost instant.
                   </div>
                 )}
               </div>
@@ -1524,7 +1609,7 @@ function ModelManager({
         {isLoadingModels ? (
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "10px", padding: "24px 0", color: "var(--md-sys-color-outline)" }}>
             <RefreshCw className="progress-spinner" size={16} />
-            <span style={{ fontSize: "0.9rem" }}>Scanning models folder...</span>
+            <span style={{ fontSize: "0.9rem" }}>Scanning modeller folder...</span>
           </div>
         ) : displayedLocalModels.length === 0 ? (
           <p style={{ fontSize: "0.9rem", color: "var(--md-sys-color-outline)", textAlign: "center", padding: "16px 0" }}>
@@ -1566,7 +1651,7 @@ function ModelManager({
                         : activeModelType === "speech"
                         ? `${model.language || "Whisper"} Model`
                         : "Kokoro ONNX Model"
-                      } • {model.size || formatBytes(model.sizeBytes)}
+                      }  {model.size || formatBytes(model.sizeBytes)}
                     </span>
                   </div>
                   
@@ -1659,7 +1744,7 @@ function ModelManager({
           {isSearchingModels && (
             <div className="model-discovery-loading">
               <RefreshCw className="progress-spinner" size={16} />
-              <span>Loading models from Hugging Face...</span>
+              <span>Yukleniyor modeller from Hugging Face...</span>
             </div>
           )}
           {modelSearchError && (
@@ -1711,7 +1796,7 @@ function ModelManager({
                         )}
                       </span>
                       <span style={{ fontSize: "0.75rem", color: "var(--md-sys-color-outline)" }}>
-                        {model.format} {model.resolution && model.resolution !== "N/A" && `• ${model.resolution}`}
+                        {model.format} {model.resolution && model.resolution !== "N/A" && ` ${model.resolution}`}
                       </span>
                       {model.size && model.size !== "Unknown" ? (
                         <span style={{ fontSize: "0.75rem", color: "var(--md-sys-color-on-surface-variant)", fontWeight: 600 }}>
@@ -1749,9 +1834,9 @@ function ModelManager({
                       className={installed ? "m3-btn m3-btn-tonal" : "m3-btn m3-btn-filled"}
                       style={{ height: "36px", marginTop: "auto" }}
                       onClick={() => handleLibraryDownload(model)}
-                      disabled={installed || downloadingModelId !== null}
+                      disabled={installed || downloadingModelId === model.id}
                     >
-                      {installed ? <HardDrive size={14} /> : downloading ? <RefreshCw className="progress-spinner" size={14} /> : <DownloadCloud size={14} />}
+                      {installed ? <HardDrive size={14} /> : indiriliyor ? <RefreshCw className="progress-spinner" size={14} /> : <DownloadCloud size={14} />}
                       <span>{installed ? "Downloaded" : downloading ? "Downloading" : needsProjector ? "Download Vision File" : "Download"}</span>
                     </button>
                     <a
@@ -1802,7 +1887,7 @@ function ModelManager({
             <h4 style={{ fontWeight: 600 }}>Copying Model to local folder: {importInfo.filename}</h4>
             <button className="m3-btn m3-btn-error" style={{ height: "34px", padding: "0 14px" }} onClick={handleCancelImport}>
               <Square size={14} />
-              <span>Stop Import</span>
+              <span>Ice Aktarmayi Durdur</span>
             </button>
           </div>
           <div className="model-progress-section" style={{ margin: "12px 0 6px 0" }}>
@@ -1827,7 +1912,7 @@ function ModelManager({
             disabled={importProgress !== null}
           />
           <FolderOpen className="import-icon" />
-          <span style={{ fontWeight: 600 }}>Choose weights file</span>
+          <span style={{ fontWeight: 600 }}>Choose weights dosya</span>
           <span style={{ fontSize: "0.75rem", color: "var(--md-sys-color-outline)", textAlign: "center" }}>
             Select {activeModelType === "image" ? "`.safetensors` or `.ckpt` weights." : activeModelType === "text" ? "`.gguf` weights." : activeModelType === "speech" ? "`whisper.cpp .bin` weights." : "`Kokoro .json` manifest."}
           </span>
@@ -1857,7 +1942,7 @@ function ModelManager({
               </div>
               <button className="m3-btn m3-btn-error" style={{ height: "34px", padding: "0 14px", marginTop: "10px" }} onClick={handleCancelDownload}>
                 <Square size={14} />
-                <span>Stop Download</span>
+                <span>Indirmeyi Durdur</span>
               </button>
             </div>
           ) : (
@@ -1889,7 +1974,7 @@ function ModelManager({
           <div className="m3-card" style={{ maxWidth: "460px", width: "100%", margin: 0, border: "1px solid var(--md-sys-color-outline-variant)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
               <AlertTriangle size={22} style={{ color: "var(--md-sys-color-error)" }} />
-              <h3 style={{ fontSize: "1.05rem", fontWeight: 700 }}>Model Already Active</h3>
+              <h3 style={{ fontSize: "1.05rem", fontWeight: 700 }}>Model Already Aktif</h3>
             </div>
             <p style={{ fontSize: "0.9rem", color: "var(--md-sys-color-on-surface-variant)", lineHeight: 1.45, marginBottom: "16px" }}>
               "{pendingLoadModel.activeRuntime?.model}" is already loaded as a {pendingLoadModel.activeRuntime?.label || "model"} model. Unload it before loading "{pendingLoadModel.modelId}" as a {getModelTypeLabel(pendingLoadModel.targetType)} model.
@@ -1900,11 +1985,11 @@ function ModelManager({
               </button>
               <button className="m3-btn m3-btn-error" onClick={handleUnloadPendingOnly} disabled={isUnloading}>
                 <Trash2 size={14} />
-                <span>Unload</span>
+                <span>Kaldir</span>
               </button>
               <button className="m3-btn m3-btn-filled" onClick={handleUnloadThenLoad} disabled={isUnloading}>
                 {isUnloading ? <RefreshCw className="progress-spinner" size={14} /> : <RefreshCw size={14} />}
-                <span>Unload and Load</span>
+                <span>Kaldir ve Yukle</span>
               </button>
             </div>
           </div>
