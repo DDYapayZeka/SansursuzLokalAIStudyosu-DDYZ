@@ -5316,6 +5316,7 @@ function getCompatibleModels() {
     url: "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors",
     dir: MODELS,
     reason: "Goruntu uretimi icin en yaygin ve dusuk donanimda calisan model.",
+    installed: fs.existsSync(path.join(MODELS, "v1-5-pruned-emaonly.safetensors")),
   };
 
   // Metin: donanim gucline gore boyut sec.
@@ -5328,6 +5329,7 @@ function getCompatibleModels() {
       url: "https://huggingface.co/HuggingFaceTB/SmolLM2-7B-Instruct-GGUF/resolve/main/smollm2-7b-instruct-q4_k_m.gguf",
       dir: LLM_MODELS,
       reason: `${vram} GB VRAM seviyeniz yuksek oldugu icin 7B modeli rahat calistirir.`,
+      installed: fs.existsSync(path.join(LLM_MODELS, "smollm2-7b-instruct-q4_k_m.gguf")),
     };
   } else {
     text = {
@@ -5337,6 +5339,7 @@ function getCompatibleModels() {
       url: "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct-GGUF/resolve/main/smollm2-1.7b-instruct-q4_k_m.gguf",
       dir: LLM_MODELS,
       reason: `${vram} GB VRAM seviyeniz dusuk oldugu icin 1.7B model en uygun (hizli ve az bellek kullanir).`,
+      installed: fs.existsSync(path.join(LLM_MODELS, "smollm2-1.7b-instruct-q4_k_m.gguf")),
     };
   }
 
@@ -5348,6 +5351,7 @@ function getCompatibleModels() {
     url: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin",
     dir: SPEECH_MODELS,
     reason: "Konusma tanima icin kucuk ve hizli model, her bilgisayarda calisir.",
+    installed: fs.existsSync(path.join(SPEECH_MODELS, "ggml-base.en.bin")),
   };
 
   // TTS: tek onerilen Kokoro modeli.
@@ -5360,7 +5364,7 @@ function getCompatibleModels() {
     reason: "Metinden sese icin onerilen hafif Kokoro modeli (hizli baslar).",
   };
 
-  return { tier, vram, ram, models: [image, text, speech, tts] };
+  return { tier, vram, ram, models: [image, text, speech] };
 }
 
 const DEFAULT_MODELS = [

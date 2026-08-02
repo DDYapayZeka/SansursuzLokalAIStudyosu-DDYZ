@@ -1439,9 +1439,19 @@ function ModelManager({
         {compatibleModels.length > 0 && (
           <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "6px" }}>
             {compatibleModels.map((m, i) => (
-              <div key={i} style={{ fontSize: "0.8rem", padding: "8px 10px", background: "var(--md-sys-color-surface-container-high)", borderRadius: "8px", borderLeft: "3px solid var(--md-sys-color-primary)" }}>
-                <strong>{m.name}</strong> <span style={{ opacity: 0.7 }}>({m.kind})</span>
-                <div style={{ opacity: 0.8, marginTop: "2px" }}>{m.reason}</div>
+              <div key={i} style={{ fontSize: "0.8rem", padding: "8px 10px", background: "var(--md-sys-color-surface-container-high)", borderRadius: "8px", borderLeft: "3px solid #10b981" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ background: "#10b981", color: "#fff", fontSize: "0.7rem", fontWeight: 700, padding: "2px 8px", borderRadius: "999px" }}>Uyumlu</span>
+                  <strong>{m.name}</strong> <span style={{ opacity: 0.7 }}>({m.kind})</span>
+                </div>
+                <div style={{ opacity: 0.8, marginTop: "4px" }}>{m.reason}</div>
+                <div style={{ marginTop: "4px", fontSize: "0.75rem", fontWeight: 600, color: downloadingModelId && m.filename && downloadingModelId.indexOf(m.filename) !== -1 ? "var(--md-sys-color-primary)" : (m.installed ? "#10b981" : "#f59e0b") }}>
+                  {downloadingModelId && m.filename && downloadingModelId.indexOf(m.filename) !== -1
+                    ? "Indiriliyor..."
+                    : m.installed
+                      ? "Indirildi"
+                      : "Bekliyor (Uyumlu Modelleri Indir ile alinir)"}
+                </div>
               </div>
             ))}
           </div>
@@ -1772,6 +1782,7 @@ function ModelManager({
                 const installed = hasMainModel && hasProjector;
                 const downloading = downloadingModelId === model.filename || downloadingModelId === model.projectorFilename || downloadingModelId === `${model.filename}.zip`;
                 const systemTier = getHardwareTier(specs);
+                const isCompatible = compatibleModels.some((c) => c.filename && model.filename && c.filename === model.filename);
                 const isRecommended = typeof model.recommendedFit === "boolean"
                   ? model.recommendedFit
                   : model.recommendedTiers && model.recommendedTiers.includes(systemTier);
@@ -1781,6 +1792,16 @@ function ModelManager({
                     <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                       <span style={{ fontWeight: 700, display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
                         {model.name}
+                        {isCompatible && (
+                          <span title="Bilgisayariniza uygun model (Uyumlu Modelleri Indir ile alinir)" style={{
+                            fontSize: "0.68rem",
+                            color: "#fff",
+                            background: "#10b981",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            fontWeight: "bold"
+                          }}>Uyumlu</span>
+                        )}
                         {isRecommended && (
                           <span title={model.fitReason || `Recommended for ${systemTier} tier hardware`} style={{
                             fontSize: "0.68rem", 
