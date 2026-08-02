@@ -7,7 +7,7 @@ $appDir    = Join-Path $rootDir "app"
 
 Write-Host ""
 Write-Host "  ============================================================" -ForegroundColor Yellow
-Write-Host "   Resetting Local AI Studio..." -ForegroundColor Yellow
+Write-Host "   Sansursuz Lokal AI Studyosu - DD:YZ sifirlaniyor..." -ForegroundColor Yellow
 Write-Host "  ============================================================" -ForegroundColor Yellow
 Write-Host ""
 

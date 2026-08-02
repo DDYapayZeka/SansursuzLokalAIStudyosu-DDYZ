@@ -1,4 +1,4 @@
-# Uncensored AI Studio - Setup Script
+# Sansursuz Lokal AI Studyosu - DD:YZ - Setup Script
 # scripts/setup/ lives under root, app/ is a root sibling of scripts/
 
 $scriptDir   = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -11,12 +11,12 @@ $nodeExe     = Join-Path $nodeDir  "node.exe"
 $npmCmd      = Join-Path $nodeDir  "npm.cmd"
 $distDir     = Join-Path $appDir   "dist"
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# -- Helpers -------------------------------------------------------------------
 function Print-Header {
     Write-Host ""
     Write-Host "  ============================================================" -ForegroundColor Cyan
-    Write-Host "   UNCENSORED AI STUDIO      -  First-Time Setup" -ForegroundColor Cyan
-    Write-Host "   100% Self-Contained  |  No System Install Required" -ForegroundColor DarkCyan
+    Write-Host "   Sansursuz Lokal AI Studyosu - DD:YZ   -  Ilk Kurulum" -ForegroundColor Cyan
+    Write-Host "   %100 Kendine Yeterli  |  Sistem Kurulumu Gerektirmez" -ForegroundColor DarkCyan
     Write-Host "  ============================================================" -ForegroundColor Cyan
     Write-Host ""
 }
@@ -191,12 +191,12 @@ function Expand-WithProgress {
     Write-Host ""
 }
 
-# ══════════════════════════════════════════════════════════════════════════════
+# 
 Print-Header
 
 $steps = 8
 
-# ── Step 1: Portable Node.js ──────────────────────────────────────────────────
+# -- Step 1: Portable Node.js --------------------------------------------------
 Print-Step 1 $steps "Setting up portable Node.js (app/tools/node-win/)"
 
 $nodeReady = $false
@@ -254,14 +254,14 @@ if (-not $nodeReady) {
     }
 
     if (-not $nodeReady) {
-        Print-Fail "Portable Node.js install is incomplete or corrupted. Close any running Uncensored AI Studio windows, delete app/tools/node-win, then run setup again."
+        Print-Fail "Portable Node.js install is incomplete or corrupted. Close any running Sansursuz Lokal AI Studyosu - DD:YZ windows, delete app/tools/node-win, then run setup again."
         Read-Host; exit 1
     }
 
     Print-OK "Portable Node.js ready: $v"
 }
 
-# ── Step 2: stable-diffusion.cpp GPU Backend (Dynamic Detection) ──────────────
+# -- Step 2: stable-diffusion.cpp GPU Backend (Dynamic Detection) --------------
 $hasNvidia = $false
 try {
     $gpus = Get-CimInstance Win32_VideoController -ErrorAction SilentlyContinue
@@ -511,7 +511,7 @@ if ($hasNvidia) {
     }
 }
 
-# ── Step 3: npm install ───────────────────────────────────────────────────────
+# -- Step 3: npm install -------------------------------------------------------
 Print-Step 3 $steps "Setting up llama.cpp text backends (Vulkan + CPU)"
 & (Join-Path $scriptDir "setup-llama.ps1")
 if (-not $?) {
@@ -554,7 +554,7 @@ Write-Host ""
 
 if (-not (Test-Path $npmCmd)) {
     Print-Fail "npm.cmd was not found at $npmCmd"
-    Print-Fail "Close any running Uncensored AI Studio windows, delete app/tools/node-win, then run setup again."
+    Print-Fail "Close any running Sansursuz Lokal AI Studyosu - DD:YZ windows, delete app/tools/node-win, then run setup again."
     Read-Host; exit 1
 }
 
@@ -602,7 +602,7 @@ try {
     Write-Host ""
     Print-OK "Dependencies installed!"
 
-    # ── Step 4: Build frontend ────────────────────────────────────────────────
+    # -- Step 4: Build frontend ------------------------------------------------
     Print-Step 8 $steps "Building frontend -> app/dist/"
     Write-Host ""
 
@@ -618,10 +618,10 @@ try {
     Pop-Location
 }
 
-# ── Done ─────────────────────────────────────────────────────────────────────
+# -- Done ---------------------------------------------------------------------
 Write-Host ""
 Write-Host "  ============================================================" -ForegroundColor Green
-Write-Host "   Setup complete! Just double-click windows.bat to launch." -ForegroundColor Green
+Write-Host "   Kurulum tamamlandi! Baslatmak icin windows.bat dosyasina cift tiklayin." -ForegroundColor Green
 Write-Host "  ============================================================" -ForegroundColor Green
 Write-Host ""
 Read-Host "  Press Enter to close..."

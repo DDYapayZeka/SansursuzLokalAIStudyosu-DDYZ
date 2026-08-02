@@ -1,6 +1,6 @@
-// serve.cjs — portable static file server + backend process manager
+// serve.cjs - portable static file server + backend process manager
 // Serves app/dist/, manages sd-vulkan.exe lifecycle with correct CLI flags
-// serve.cjs — portable static file server + backend process manager
+// serve.cjs - portable static file server + backend process manager
 // Serves app/dist/, manages sd-vulkan.exe lifecycle with correct CLI flags
 
 const http     = require("http");
@@ -226,11 +226,11 @@ const OPENVINO_NPU_MODELS = [
     folder: "LCM_Dreamshaper_v7-fp16-ov",
     approxSize: "2.0 GB",
     resolution: "512x512",
-    notes: "OpenVINO LCM image model. Uses CPU text encoder, NPU UNet, and GPU or CPU VAE decoder.",
+    notes: "OpenVINO LCM image model. Kullans CPU text encoder, NPU UNet, and GPU or CPU VAE decoder.",
   },
 ];
 
-// ── Backend process state ─────────────────────────────────────────────────────
+// -- Backend process state -----------------------------------------------------
 let backendProc  = null;
 let backendProcSeq = 0;
 let backendReady = false;
@@ -475,7 +475,7 @@ function roundGb(bytes) {
 }
 
 // Detect physical CPU cores (not logical/hyperthreaded cores)
-// llama.cpp docs: "Do NOT set threads too high — major cause of oversaturation"
+// llama.cpp docs: "Do NOT set threads too high - major cause of oversaturation"
 function getPhysicalCores() {
   const cpus = os.cpus();
   const logicalCores = cpus.length;
@@ -991,7 +991,7 @@ function getGpuInfo() {
   return cachedGpuInfo;
 }
 
-// ── NPU Detection ─────────────────────────────────────────────────────────────
+// -- NPU Detection -------------------------------------------------------------
 let cachedNpuInfo = null;
 let cachedHasNpuHardware = null;
 
@@ -1094,7 +1094,7 @@ function detectNpu() {
   return cachedNpuInfo;
 }
 
-// ── GPU Layer Auto-Tuning ─────────────────────────────────────────────────────
+// -- GPU Layer Auto-Tuning -----------------------------------------------------
 // Calculate optimal GPU layer count from free VRAM to prevent OOM
 function chooseAutoLayers(modelFilename, freeVramBytes, cacheTypeK = "q8_0", cacheTypeV = "q8_0") {
   let modelSizeGb = 4;
@@ -1386,7 +1386,7 @@ function parseLlamaDeviceList(output) {
   return devices.sort((a, b) => b.vram_gb - a.vram_gb);
 }
 
-let cachedMacRamUsedGb = null;
+let cachedMacRamKullandGb = null;
 function pollMacRam() {
   if (osPlatform !== "darwin") return;
   exec("vm_stat", (err, stdout) => {
@@ -1406,7 +1406,7 @@ function pollMacRam() {
       const speculativePages = getVal("Pages speculative");
       
       const totalFreeBytes = (freePages + inactivePages + speculativePages) * pageSize;
-      cachedMacRamUsedGb = roundGb(os.totalmem() - totalFreeBytes);
+      cachedMacRamKullandGb = roundGb(os.totalmem() - totalFreeBytes);
     } catch (e) {
       // Ignore parsing errors
     }
@@ -1583,8 +1583,8 @@ function getTelemetry() {
   const vram = getNvidiaVram();
   const llamaVram = vram || getLlamaVram();
   let ram_used_gb = roundGb(os.totalmem() - os.freemem());
-  if (osPlatform === "darwin" && cachedMacRamUsedGb !== null) {
-    ram_used_gb = cachedMacRamUsedGb;
+  if (osPlatform === "darwin" && cachedMacRamKullandGb !== null) {
+    ram_used_gb = cachedMacRamKullandGb;
   }
   const gpu = getGpuInfo();
   return {
@@ -1760,9 +1760,9 @@ function pathInside(childPath, parentPath) {
 function checkPort(port) {
   return new Promise((resolve) => {
     const tester = net.createServer()
-      .once("error", () => resolve({ port, available: false, inUse: true }))
+      .once("error", () => resolve({ port, available: false, inKullan: true }))
       .once("listening", () => {
-        tester.close(() => resolve({ port, available: true, inUse: false }));
+        tester.close(() => resolve({ port, available: true, inKullan: false }));
       })
       .listen(port, "127.0.0.1");
   });
@@ -1785,7 +1785,7 @@ async function findAvailableBackendPort() {
   for (let port = 28088; port <= 28120; port += 1) {
     const candidate = await checkPort(port);
     if (candidate.available) {
-      console.log(`  [backend] Preferred port ${PREFERRED_BACKEND_PORT} is busy; using ${port} instead.`);
+      console.log(`  [backend] Preferred port ${PREFERRED_BACKEND_PORT} mesgul; su kullaniliyor ${port} yerine.`);
       return port;
     }
   }
@@ -1800,7 +1800,7 @@ async function findAvailableLlmPort() {
   for (let port = 28121; port <= 28160; port += 1) {
     const candidate = await checkPort(port);
     if (candidate.available) {
-      console.log(`  [llm] Preferred port ${PREFERRED_LLM_PORT} is busy; using ${port} instead.`);
+      console.log(`  [llm] Preferred port ${PREFERRED_LLM_PORT} mesgul; su kullaniliyor ${port} yerine.`);
       return port;
     }
   }
@@ -1815,7 +1815,7 @@ async function findAvailableSpeechPort() {
   for (let port = 28161; port <= 28190; port += 1) {
     const candidate = await checkPort(port);
     if (candidate.available) {
-      console.log(`  [speech] Preferred port ${PREFERRED_SPEECH_PORT} is busy; using ${port} instead.`);
+      console.log(`  [speech] Preferred port ${PREFERRED_SPEECH_PORT} mesgul; su kullaniliyor ${port} yerine.`);
       return port;
     }
   }
@@ -2094,7 +2094,7 @@ function resolveSpeechModel(value) {
   const raw = String(value || "").trim();
   const model = getSpeechModels().find((item) => item.id === raw || item.filename === raw) ||
     getSpeechModels().find((item) => item.installed);
-  if (!model) throw new Error("Download or import a Whisper model first.");
+  if (!model) throw new Error("Download or import a Whisper modeli first.");
   const modelPath = path.join(SPEECH_MODELS, path.basename(model.filename));
   if (!pathInside(modelPath, SPEECH_MODELS) || !fs.existsSync(modelPath)) {
     throw new Error(`Speech model is not installed: ${model.filename}`);
@@ -2126,7 +2126,7 @@ function installTtsCatalogModel(modelIdOrFilename) {
     ...catalogModel,
     installed: true,
     createdAt: new Date().toISOString(),
-    notes: "Kokoro model files are cached under app/tts-cache by kokoro-js on first generation.",
+    notes: "Kokoro modeli files are cached under app/tts-cache by kokoro-js on first generation.",
   };
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), "utf8");
   return manifest;
@@ -2179,7 +2179,7 @@ function resolveTtsModel(value) {
   const raw = String(value || "").trim();
   const model = getTtsModels().find((item) => item.id === raw || item.filename === raw) ||
     getTtsModels().find((item) => item.installed);
-  if (!model) throw new Error("Download or import a Kokoro TTS model from Model Manager first.");
+  if (!model) throw new Error("Download or import a Kokoro TTS model from Model Yoneticisi first.");
   const manifestPath = getTtsManifestPath(model.filename);
   if (!manifestPath || !fs.existsSync(manifestPath)) {
     throw new Error(`TTS model is not installed: ${model.filename}`);
@@ -2433,7 +2433,7 @@ function synthesizeTts(text, options = {}) {
       ttsGenerationState = { active: false, phase: code === 0 ? "Complete" : "Failed", progress: code === 0 ? 100 : 0, model: model.filename, voice, output: "" };
       if (code !== 0) {
         try { fs.unlinkSync(tempWav); } catch (_) {}
-        const message = (stderr || stdout || `Kokoro TTS exited with code ${code}`).trim().slice(-1400);
+        const message = (stderr || stdout || `Kokoro TTS ile cikti kodu ${code}`).trim().slice(-1400);
         ttsError = message;
         reject(new Error(message));
         return;
@@ -2620,7 +2620,7 @@ function transcribeWavBuffer(buffer, options = {}) {
     }
 
     const startedAt = Date.now();
-    console.log("  [speech] Starting:", backend.cli, args.join(" "));
+    console.log("  [speech] Baslatiliyor:", backend.cli, args.join(" "));
     const proc = spawn(backend.cli, args, {
       stdio: "pipe",
       windowsHide: true,
@@ -2645,7 +2645,7 @@ function transcribeWavBuffer(buffer, options = {}) {
       try { fs.unlinkSync(wavPath); } catch (_) {}
       speechTranscriptionState = { active: false, phase: code === 0 ? "Complete" : "Failed", progress: code === 0 ? 100 : 0, model: model.filename, filename: sourceFilename };
       if (code !== 0) {
-        const message = (stderr || stdout || `whisper.cpp exited with code ${code}`).trim().slice(-1200);
+        const message = (stderr || stdout || `whisper.cpp ile cikti kodu ${code}`).trim().slice(-1200);
         speechError = message;
         reject(new Error(message));
         return;
@@ -2865,8 +2865,8 @@ async function getHealth() {
     .every((check) => check.ok) && backendInstalled;
 
   const ports = {
-    frontend: { ...(await checkPort(PORT_FRONTEND)), expectedInUse: true },
-    backend: { ...(await checkPort(PORT_BACKEND)), expectedInUse: backendProc !== null || openvinoProc !== null },
+    frontend: { ...(await checkPort(PORT_FRONTEND)), expectedInKullan: true },
+    backend: { ...(await checkPort(PORT_BACKEND)), expectedInKullan: backendProc !== null || openvinoProc !== null },
   };
   ports.frontend.ok = !ports.frontend.available;
   ports.backend.preferred = PREFERRED_BACKEND_PORT;
@@ -2926,7 +2926,7 @@ async function getHealth() {
 
 function addCleanupCandidate(candidates, id, targetPath, reason, options = {}) {
   if (!fs.existsSync(targetPath)) return;
-  if (!options.allowUserData && (
+  if (!options.allowKullanrData && (
     pathInside(targetPath, MODELS) ||
     pathInside(targetPath, OUTPUTS) ||
     pathInside(targetPath, CHAT_HISTORY) ||
@@ -2966,7 +2966,7 @@ function getCleanupCandidates() {
   if (fs.existsSync(MODELS)) {
     for (const item of fs.readdirSync(MODELS)) {
       if (item.toLowerCase().endsWith(".part") || item.toLowerCase().endsWith(".tmp")) {
-        addCleanupCandidate(candidates, `partial-model-${item}`, path.join(MODELS, item), "Incomplete model download/import file.", { allowUserData: true });
+        addCleanupCandidate(candidates, `partial-model-${item}`, path.join(MODELS, item), "Incomplete model download/import file.", { allowKullanrData: true });
       }
     }
   }
@@ -3030,7 +3030,7 @@ function getVulkanUnavailableReason() {
     const gpuName = getGpuInfo().name;
     const lowerGpu = gpuName.toLowerCase();
     if (lowerGpu.includes("intel") || lowerGpu.includes("arc")) {
-      return `Vulkan GPU is not available in WSL2 for Intel ${gpuName}. WSL2's GPU paravirtualization only exposes a DirectX interface — Intel Arc Vulkan requires running natively on Windows.`;
+      return `Vulkan GPU is not available in WSL2 for Intel ${gpuName}. WSL2's GPU paravirtualization only exposes a DirectX interface - Intel Arc Vulkan requires running natively on Windows.`;
     }
     return "Vulkan GPU is not available in WSL2. WSL2's GPU paravirtualization does not support hardware Vulkan for this GPU. Run natively on Windows or Linux for GPU acceleration.";
   }
@@ -3375,7 +3375,7 @@ function markBackendReady() {
     phase: "Model ready",
     progress: 100,
   };
-  console.log("  [backend] READY on port", PORT_BACKEND);
+  console.log("  [backend] PORT uzerinde HAZIR", PORT_BACKEND);
 
   // Force a single VRAM poll after the model settles in memory
   setTimeout(() => pollNvidiaVram(true), 1500);
@@ -3470,7 +3470,7 @@ function requestHttpsJson(url, timeoutMs = 30000) {
     const req = https.get(url, {
       headers: {
         "Accept": "application/json",
-        "User-Agent": "Uncensored-AI-Studio/1.0",
+        "Kullanr-Agent": "Uncensored-AI-Studio/1.0",
       },
       timeout: timeoutMs,
     }, (res) => {
@@ -3577,7 +3577,7 @@ async function resolveHuggingFaceProjector(fileUrl, localModelFilename = "") {
     hfProjectorCache.set(cacheKey, { createdAt: Date.now(), projector });
     return projector;
   } catch (err) {
-    console.warn(`  [download] Could not resolve vision projector for ${parsed.repoId}: ${err.message || err}`);
+    console.warn(`  [download] Gorsel projektoru cozumlenemedi ${parsed.repoId}: ${err.message || err}`);
     hfProjectorCache.set(cacheKey, { createdAt: Date.now(), projector: null });
     return null;
   }
@@ -3755,7 +3755,7 @@ async function killOpenVinoWorker() {
     openvinoReady = false;
     return;
   }
-  console.log("  [openvino-npu] Stopping worker...");
+  console.log("  [openvino-npu] Isci durduruluyor...");
   try { openvinoProc.kill("SIGTERM"); } catch (_) {}
   await new Promise((resolve) => setTimeout(resolve, 800));
   try { openvinoProc.kill("SIGKILL"); } catch (_) {}
@@ -3782,7 +3782,7 @@ async function startOpenVinoWorker(settings = {}) {
   }
   const model = requestedModel || getOpenVinoModelInfo().find((item) => item.installed);
   if (!model || !model.installed) {
-    throw new Error("OpenVINO NPU model is not downloaded. Download an OpenVINO NPU model from Model Manager first.");
+    throw new Error("OpenVINO NPU model is not downloaded. Download an OpenVINO NPU model from Model Yoneticisi first.");
   }
   const { width, height } = getOpenVinoResolution(settings);
   if (openvinoProc &&
@@ -3828,7 +3828,7 @@ async function startOpenVinoWorker(settings = {}) {
 
   const workerPath = path.join(ROOT, "scripts", "workers", "openvino_npu_worker.py");
   const cacheDir = path.join(ROOT, "app", "tools", "openvino-cache", "512x512");
-  console.log(`  [openvino-npu] Starting 512x512 worker on port ${openvinoPort}`);
+  console.log(`  [openvino-npu] 512x512 isci port uzerinde baslatiliyor ${openvinoPort}`);
   openvinoProc = spawn(npuInfo.python, [
     workerPath,
     "--model-dir", model.path,
@@ -3875,11 +3875,11 @@ async function startOpenVinoWorker(settings = {}) {
     }
   });
   openvinoProc.on("exit", (code) => {
-    console.log("  [openvino-npu] worker exited with code", code);
+    console.log("  [openvino-npu] isci cikti kodu ile cikti", code);
     openvinoProc = null;
     openvinoReady = false;
     backendReady = false;
-    if (code !== 0 && code !== null && !backendError) backendError = `OpenVINO NPU worker exited with code ${code}`;
+    if (code !== 0 && code !== null && !backendError) backendError = `OpenVINO NPU isci cikti kodu ile cikti ${code}`;
     backendLoadState.active = false;
   });
 
@@ -4300,14 +4300,14 @@ async function startLlmWithBackend(settings = {}, backend) {
     "--threads", String(llmSettings.threads),
     "--n-gpu-layers", String(llmSettings.gpuLayers),
     "--parallel", "1",
-    "--cache-type-k", String(llmSettings.cacheTypeK),   // ✅ KV cache quantization K
-    "--cache-type-v", String(llmSettings.cacheTypeV),   // ✅ KV cache quantization V
-    "--cache-prompt",                        // ✅ Prompt caching for multi-turn (major UX win)
-    "--ctx-checkpoints", "8",                // ✅ Context shifting recovery
-    "--poll", "30",                          // ✅ More aggressive polling
-    "--metrics",                             // ✅ Metrics endpoint for tuning
-    "--batch-size", String(llmSettings.batchSize),       // ✅ Prompt processing batch
-    "--ubatch-size", String(llmSettings.ubatchSize),     // ✅ Micro-batch size
+    "--cache-type-k", String(llmSettings.cacheTypeK),   //  KV cache quantization K
+    "--cache-type-v", String(llmSettings.cacheTypeV),   //  KV cache quantization V
+    "--cache-prompt",                        //  Prompt caching for multi-turn (major UX win)
+    "--ctx-checkpoints", "8",                //  Context shifting recovery
+    "--poll", "30",                          //  More aggressive polling
+    "--metrics",                             //  Metrics endpoint for tuning
+    "--batch-size", String(llmSettings.batchSize),       //  Prompt processing batch
+    "--ubatch-size", String(llmSettings.ubatchSize),     //  Micro-batch size
   ];
   if (llmSettings.flashAttn) {
     args.push("--flash-attn", "on");
@@ -4322,21 +4322,21 @@ async function startLlmWithBackend(settings = {}, backend) {
                     backend.mode.includes("Vulkan") || backend.mode.includes("Metal") ||
                     backend.mode.includes("SYCL");
   if (!isGpuMode && llmSettings.mlock) {
-    args.push("--mlock");                    // ✅ Prevent OS swapping on CPU
+    args.push("--mlock");                    //  Prevent OS swapping on CPU
   }
   
   // All modes: memory-mapped loading for faster startup
   if (llmSettings.mmap) {
-    args.push("--mmap");                     // ✅ Faster model loading
+    args.push("--mmap");                     //  Faster model loading
   }
   
   if (llmSettings.enableThinking === false) {
-    args.push("--reasoning", "off");           // ✅ Disable reasoning/thinking completely
+    args.push("--reasoning", "off");           //  Disable reasoning/thinking completely
   } else if (llmSettings.supportsThinking) {
-    args.push("--reasoning", "on");            // ✅ Enable reasoning for supported models
+    args.push("--reasoning", "on");            //  Enable reasoning for supported models
   }
   if (llmSettings.enableThinking === true && llmSettings.supportsThinking) {
-    args.push("--reasoning-format", "deepseek"); // ✅ Extract thoughts into reasoning_content
+    args.push("--reasoning-format", "deepseek"); //  Extract thoughts into reasoning_content
   }
   if (mmprojPath) {
     args.push("--mmproj", mmprojPath);
@@ -4373,7 +4373,7 @@ async function startLlmWithBackend(settings = {}, backend) {
     spawnEnv.ZES_ENABLE_SYSMAN = "1";
   }
 
-  console.log("  [llm] Starting:", backend.path, args.join(" "));
+  console.log("  [llm] Baslatiliyor:", backend.path, args.join(" "));
   const proc = spawn(backend.path, args, { stdio: "pipe", env: spawnEnv });
   const procSeq = ++llmProcSeq;
   llmProc = proc;
@@ -4397,13 +4397,13 @@ async function startLlmWithBackend(settings = {}, backend) {
   });
   proc.on("exit", (code) => {
     if (llmProc !== proc) {
-      console.log("  [llm] stale process exited with code", code);
+      console.log("  [llm] stale process ile cikti kodu", code);
       return;
     }
     llmReady = false;
     llmProc = null;
-    if (code !== 0 && code !== null && !llmError) llmError = `llama.cpp exited with code ${code}`;
-    console.log("  [llm] exited with code", code, `(process ${procSeq})`);
+    if (code !== 0 && code !== null && !llmError) llmError = `llama.cpp ile cikti kodu ${code}`;
+    console.log("  [llm] ile cikti kodu", code, `(process ${procSeq})`);
   });
 
   await waitForLlmReady(backend.key === "cpu" ? 720 : 360, proc, filename);
@@ -4423,7 +4423,7 @@ async function startBackend(settings = {}) {
   backendError = null;
   currentSettings = requestedSettings;
   if (!currentSettings.model) {
-    console.log("  [backend] No model found in app/models/ — backend not started");
+    console.log("  [backend] app/models/ icinde model bulunamadi - arka uc baslatilmadi");
     return;
   }
 
@@ -4576,7 +4576,7 @@ async function startBackend(settings = {}) {
     spawnEnv.DYLD_LIBRARY_PATH = backendDir + (existing ? ":" + existing : "");
   }
 
-  console.log("  [backend] Starting:", path.basename(backendPath), args.join(" "));
+  console.log("  [backend] Baslatiliyor:", path.basename(backendPath), args.join(" "));
   backendReady = false;
 
   const procSeq = ++backendProcSeq;
@@ -4714,12 +4714,12 @@ async function startBackend(settings = {}) {
   proc.on("exit", (code, signal) => {
     if (coremlLoadHeartbeat) clearInterval(coremlLoadHeartbeat);
     if (backendProc !== proc) {
-      console.log("  [backend] stale process exited with code", code, signal ? `(signal ${signal})` : "", `(process ${procSeq})`);
+      console.log("  [backend] stale process ile cikti kodu", code, signal ? `(signal ${signal})` : "", `(process ${procSeq})`);
       return;
     }
     backendReady = false;
     backendProc  = null;
-    console.log("  [backend] exited with code", code, signal ? `(signal ${signal})` : "", `(process ${procSeq})`);
+    console.log("  [backend] ile cikti kodu", code, signal ? `(signal ${signal})` : "", `(process ${procSeq})`);
     if (code !== null && code !== 0) {
       if (!backendError) {
         backendError = describeBackendExitCode(code, currentSettings.backendBinary || BACKEND_PATH);
@@ -4737,7 +4737,7 @@ async function startBackend(settings = {}) {
   });
 }
 
-// ── Model Downloader ─────────────────────────────────────────────────────────
+// -- Model Downloader ---------------------------------------------------------
 let downloadState = {
   active: false,
   filename: "",
@@ -4878,14 +4878,14 @@ function installImageBackendArchive(zipPath, backend) {
 
 function startImageBackendDownload(backendId, redirectCount = 0, redirectUrl = "") {
   if (downloadState.active && redirectCount === 0) {
-    throw new Error("Another download is already active.");
+    throw new Error("Baska bir indirme zaten aktif.");
   }
   if (osPlatform !== "win32") {
     throw new Error("In-app backend downloads are currently available for Windows image backends.");
   }
   const backend = IMAGE_BACKEND_DOWNLOADS[String(backendId || "").toLowerCase()];
   if (!backend) {
-    throw new Error("This backend cannot be installed from the app yet. Use the platform setup script.");
+    throw new Error("This backend cannot be installed from the app yet. Kullan the platform setup script.");
   }
 
   fs.mkdirSync(TOOLS, { recursive: true });
@@ -4928,7 +4928,7 @@ function startImageBackendDownload(backendId, redirectCount = 0, redirectUrl = "
   const client = url.startsWith("https") ? https : http;
   const request = client.get(url, {
     headers: {
-      "User-Agent": "Uncensored-AI-Studio/1.0 (+https://github.com/techjarves/Uncensored-AI-Studio)",
+      "Kullanr-Agent": "Uncensored-AI-Studio/1.0 (+https://github.com/techjarves/Uncensored-AI-Studio)",
       "Accept": "application/zip, application/octet-stream, */*",
     },
   }, (response) => {
@@ -5013,7 +5013,7 @@ function startImageBackendDownload(backendId, redirectCount = 0, redirectUrl = "
   activeDownload = { request, fileStream, destPath, tempPath };
 }
 
-// ── Generation State (Real-time progress parser) ─────────────────────────────
+// -- Generation State (Real-time progress parser) -----------------------------
 let generationState = {
   active: false,
   step: 0,
@@ -5054,7 +5054,7 @@ function describeDownloadHttpError(statusCode, url, headers = {}) {
   if (statusCode === 401 || statusCode === 403) {
     return isHuggingFace
       ? `HTTP ${statusCode}: Hugging Face rejected the download request. If this model is public, retry after restarting the app; otherwise open the model page in your browser and accept any license/login requirement.`
-      : `HTTP ${statusCode}: This download URL requires authorization or permission. Use a public direct download URL.`;
+      : `HTTP ${statusCode}: This download URL requires authorization or permission. Kullan a public direct download URL.`;
   }
   if (statusCode === 404) {
     return `HTTP 404: Model file not found. Check that the URL points directly to a .safetensors, .gguf, or .ckpt file.`;
@@ -5064,7 +5064,7 @@ function describeDownloadHttpError(statusCode, url, headers = {}) {
 
 function startModelDownload(url, overrideFilename = null, targetDir = MODELS, kind = "image", redirectCount = 0) {
   if (downloadState.active && !overrideFilename) {
-    console.log("  [download] Already downloading a model");
+    console.log("  [download] Zaten bir model indiriliyor");
     return;
   }
 
@@ -5100,9 +5100,9 @@ function startModelDownload(url, overrideFilename = null, targetDir = MODELS, ki
   };
 
   if (redirectCount > 0) {
-    console.log(`  [download] Continuing redirected download of ${filename}`);
+    console.log(`  [download] Yonlendirilen indirme surduruluyor ${filename}`);
   } else {
-    console.log(`  [download] Starting download of ${filename} from ${url}`);
+    console.log(`  [download] Indirme baslati ${filename} from ${url}`);
   }
 
   let downloadFinalized = false;
@@ -5129,7 +5129,7 @@ function startModelDownload(url, overrideFilename = null, targetDir = MODELS, ki
   const client = url.startsWith("https") ? https : http;
   const request = client.get(url, {
     headers: {
-      "User-Agent": "Uncensored-AI-Studio/1.0 (+https://github.com/techjarves/Uncensored-AI-Studio)",
+      "Kullanr-Agent": "Uncensored-AI-Studio/1.0 (+https://github.com/techjarves/Uncensored-AI-Studio)",
       "Accept": "application/octet-stream, application/x-safetensors, */*",
       "Referer": "https://huggingface.co/",
     },
@@ -5146,7 +5146,7 @@ function startModelDownload(url, overrideFilename = null, targetDir = MODELS, ki
         failDownload("Too many redirects");
         return;
       }
-      console.log(`  [download] Following redirect for ${filename}`);
+      console.log(`  [download] Yonlendirme izleniyor ${filename}`);
       downloadState.speed = "Following redirect";
       
       // Clean up redirected request to avoid triggering error handlers later
@@ -5242,7 +5242,7 @@ function startModelDownload(url, overrideFilename = null, targetDir = MODELS, ki
           downloadState.downloadedBytes = downloadedBytes;
           downloadState.error = null;
           activeDownload = null;
-          console.log(`  [download] Completed download of ${filename}`);
+          console.log(`  [download] Indirme tamamlandi ${filename}`);
         } catch (err) {
           failDownload(`Could not finalize ${filename}: ${err.message}`);
         }
@@ -5292,11 +5292,138 @@ function cancelModelDownload() {
     error: "Download cancelled",
     kind: downloadState.kind || "image",
   };
-  console.log(`  [download] Cancelled download of ${filename}`);
+  console.log(`  [download] Indirme iptal edildi ${filename}`);
   return true;
 }
 
-// ── MIME types ────────────────────────────────────────────────────────────────
+// -- Varsayilan model seti (her yetenek icin bir hafif model) -------------------
+// Bunlar, gorsel uretimi, yerel metin sohbeti, konusma ve ses sentezi icin
+// standart baslangic modelleridir. "Tum Varsayilan Modelleri Indir" ozelligi
+// ile sirali olarak kendi klasorlerine indirilir.
+const DEFAULT_MODELS = [
+  {
+    kind: "image",
+    name: "Stable Diffusion 1.5 (Varsayilan)",
+    filename: "v1-5-pruned-emaonly.safetensors",
+    url: "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors",
+    dir: MODELS,
+  },
+  {
+    kind: "text",
+    name: "SmolLM2 1.7B Instruct (Varsayilan)",
+    filename: "smollm2-1.7b-instruct-q4_k_m.gguf",
+    url: "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct-GGUF/resolve/main/smollm2-1.7b-instruct-q4_k_m.gguf",
+    dir: LLM_MODELS,
+  },
+  {
+    kind: "speech",
+    name: "Whisper Base English (Varsayilan)",
+    filename: "ggml-base.en.bin",
+    url: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin",
+    dir: SPEECH_MODELS,
+  },
+];
+
+// Varsayilan TTS bildirimini (buyuk ikili indirme olmadan) kurar.
+function installDefaultTtsManifest() {
+  try {
+    const model = installTtsCatalogModel("kokoro-onnx-q8");
+    return { ok: true, model };
+  } catch (err) {
+    return { ok: false, error: err.message || String(err) };
+  }
+}
+
+let defaultModelsQueue = null;
+
+function startDefaultModelsDownload() {
+  if (downloadState.active || defaultModelsQueue) {
+    throw new Error("Baska bir indirme zaten aktif.");
+  }
+  const items = DEFAULT_MODELS.filter((item) => {
+    const destPath = path.join(item.dir, item.filename);
+    return !fs.existsSync(destPath);
+  });
+
+  defaultModelsQueue = items.slice();
+
+  const finishAll = (error) => {
+    const finished = defaultModelsQueue === null;
+    defaultModelsQueue = null;
+    downloadState = {
+      active: false,
+      filename: "",
+      progress: error ? downloadState.progress : 100,
+      speed: error ? "0 MB/s" : "Tum varsayilan modeller hazir",
+      eta: 0,
+      totalBytes: downloadState.totalBytes,
+      downloadedBytes: downloadState.downloadedBytes,
+      error,
+      defaultModels: true,
+    };
+    if (!finished) console.log("  [default-models] Indirme kuyrugu bitti.");
+  };
+
+  const runNext = () => {
+    if (!defaultModelsQueue || defaultModelsQueue.length === 0) {
+      const tts = installDefaultTtsManifest();
+      if (!tts.ok) {
+        finishAll(`Varsayilan TTS bildirimi basarisiz: ${tts.error}`);
+        return;
+      }
+      finishAll(null);
+      return;
+    }
+    const item = defaultModelsQueue[0];
+    downloadState.filename = item.filename;
+    downloadState.speed = `Varsayilan model indiriliyor ${DEFAULT_MODELS.length - defaultModelsQueue.length + 1}/${DEFAULT_MODELS.length}: ${item.name}`;
+    const onComplete = () => {
+      if (!defaultModelsQueue) return; // iptal edildi
+      if (downloadState.error) {
+        finishAll(downloadState.error);
+        return;
+      }
+      defaultModelsQueue.shift();
+      runNext();
+    };
+    startModelDownload(item.url, item.filename, item.dir, item.kind);
+    waitForDownloadCompletion(onComplete);
+  };
+
+  if (items.length === 0) {
+    const tts = installDefaultTtsManifest();
+    defaultModelsQueue = null;
+    downloadState = {
+      active: false,
+      filename: "",
+      progress: 100,
+      speed: tts.ok ? "Tum varsayilan modeller zaten mevcut" : "TTS bildirimi kuruldu",
+      eta: 0,
+      totalBytes: 0,
+      downloadedBytes: 0,
+      error: null,
+      defaultModels: true,
+    };
+    return;
+  }
+  runNext();
+}
+
+// Ortak downloadState bitene kadar kontrol edip geri cagirma yapar.
+function waitForDownloadCompletion(callback, attempts = 0) {
+  if (!downloadState.active) {
+    callback();
+    return;
+  }
+  if (attempts > 6000) { // dosya basina ~10 dk guvenlik siniri
+    downloadState.error = "Varsayilan model indirme zamana asimi.";
+    callback();
+    return;
+  }
+  setTimeout(() => waitForDownloadCompletion(callback, attempts + 1), 100);
+}
+
+// -- MIME types ----------------------------------------------------------------
 const MIME = {
   ".html": "text/html", ".js": "application/javascript",
   ".css":  "text/css",  ".png": "image/png",
@@ -5382,7 +5509,7 @@ function getModelLoadIssue(modelPath) {
 
     if (requiresSeparateComponents) {
       if (knownDiffusionOnlyGguf) {
-        return `${filename} is not supported as a one-click model in this app. This SDXL GGUF is a diffusion-only component and needs matching VAE/text encoder files instead of being loaded with --model. Use one of the recommended Safetensors SDXL/SD 1.5 checkpoints, or import a complete single-file GGUF checkpoint.`;
+        return `${filename} is not supported as a one-click model in this app. This SDXL GGUF is a diffusion-only component and needs matching VAE/text encoder files instead of being loaded with --model. Kullan one of the recommended Safetensors SDXL/SD 1.5 checkpoints, or import a complete single-file GGUF checkpoint.`;
       }
       return `${filename} looks like a multi-file diffusion GGUF. This app currently loads single-file SD 1.5/SDXL checkpoints directly. Models like Z-Image, Qwen, Flux, HiDream, Hunyuan, and Wan usually need extra files such as VAE/text encoders and must be launched with --diffusion-model instead of --model.`;
     }
@@ -5404,7 +5531,7 @@ function describeBackendError(rawError, modelPath) {
 
   if (lower.endsWith(".gguf")) {
     if (lower === "stable-diffusion-xl-base-1.0-q4_0.gguf" || lower.includes("stable-diffusion-xl-base-1.0")) {
-      return `${raw}\n\n${filename} is not supported as a one-click model in this app. This SDXL GGUF is a diffusion-only component and needs matching VAE/text encoder files instead of being loaded with --model. Use one of the recommended Safetensors SDXL/SD 1.5 checkpoints, or import a complete single-file GGUF checkpoint.`;
+      return `${raw}\n\n${filename} is not supported as a one-click model in this app. This SDXL GGUF is a diffusion-only component and needs matching VAE/text encoder files instead of being loaded with --model. Kullan one of the recommended Safetensors SDXL/SD 1.5 checkpoints, or import a complete single-file GGUF checkpoint.`;
     }
     return `${raw}\n\n${filename} could not be loaded as a single checkpoint. Some GGUF files are only the diffusion part of a larger workflow and need separate VAE/text encoder files. Try a recommended SD 1.5/SDXL model, or re-download/import the file if this is meant to be a single-file SD/SDXL GGUF.`;
   }
@@ -5425,7 +5552,7 @@ function describeLinuxRuntimeLinkerError(rawError) {
   if (needsGlibcxx) requirements.push(`GLIBCXX_${needsGlibcxx}+`);
   const requirementText = requirements.length ? requirements.join(" and ") : "newer glibc/libstdc++ runtime libraries";
 
-  return `${raw}\n\nThe selected model is not the problem. The Linux backend binary cannot start because this OS is missing ${requirementText}. The bundled Linux backends are built for Ubuntu 24.04-era systems. Use Ubuntu 24.04+, Fedora 40+, another glibc 2.38+ distro, or build stable-diffusion.cpp from source on this machine.`;
+  return `${raw}\n\nThe selected model is not the problem. The Linux backend binary cannot start because this OS is missing ${requirementText}. The bundled Linux backends are built for Ubuntu 24.04-era systems. Kullan Ubuntu 24.04+, Fedora 40+, another glibc 2.38+ distro, or build stable-diffusion.cpp from source on this machine.`;
 }
 
 function describeBackendExitCode(code, backendPath) {
@@ -5446,10 +5573,10 @@ function describeBackendExitCode(code, backendPath) {
         ? "Install or update the NVIDIA driver, then run setup again so the CUDA backend folder is repaired."
         : "Update the GPU driver, then run setup again so the backend folder is repaired.";
 
-    return `exited with code ${code} (0xC0000135: required DLL not found).\n\nWindows could not start ${backendName} because ${likelyMissing} is missing or not loadable. ${driverHint}\n\nIf you are using an AMD/Intel GPU, update the AMD/Intel graphics driver first. If the GPU is too old for the current Vulkan backend, switch the backend to CPU.`;
+    return `ile cikti kodu ${code} (0xC0000135: required DLL not found).\n\nWindows could not start ${backendName} because ${likelyMissing} is missing or not loadable. ${driverHint}\n\nIf you are using an AMD/Intel GPU, update the AMD/Intel graphics driver first. If the GPU is too old for the current Vulkan backend, switch the backend to CPU.`;
   }
 
-  return `exited with code ${code}`;
+  return `ile cikti kodu ${code}`;
 }
 
 function getModelInfo(filename) {
@@ -5652,7 +5779,7 @@ function saveGeneratedOutput(imageDataUrl, metadata = {}) {
     metadata: metadataFilename,
   };
   fs.writeFileSync(metadataPath, JSON.stringify(savedMetadata, null, 2), "utf8");
-  console.log(`  [api] Saved generated output: ${imageFilename}`);
+  console.log(`  [api] Uretilen cikti kaydedildi: ${imageFilename}`);
   return savedMetadata;
 }
 
@@ -5760,7 +5887,7 @@ function streamModelUpload(req, filename, targetDir = MODELS, mode = "image") {
       try {
         finished = true;
         fs.renameSync(tempPath, destPath);
-        console.log(`  [api] Imported model file: ${safeFilename}`);
+        console.log(`  [api] Model dosyasi ice aktarildi: ${safeFilename}`);
         if (mode === "text" || mode === "speech") {
           const stats = fs.statSync(destPath);
           resolve({ filename: safeFilename, name: safeFilename, sizeBytes: stats.size, size: formatBytes(stats.size), format: mode === "speech" ? "Whisper GGML" : "GGUF" });
@@ -5781,7 +5908,7 @@ function json(res, code, obj) {
   res.end(body);
 }
 
-// ── HTTP Server ───────────────────────────────────────────────────────────────
+// -- HTTP Server ---------------------------------------------------------------
 const server = http.createServer(async (req, res) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
@@ -5792,7 +5919,7 @@ const server = http.createServer(async (req, res) => {
   if ((req.url.startsWith("/v1/") || req.url.startsWith("/sdapi/")) && ["GET", "POST"].includes(req.method)) {
     return proxyImageBackendRequest(req, res);
   }
-  // ── Management API ────────────────────────────────────────────────────────
+  // -- Management API --------------------------------------------------------
   // GET /api/health
   if (req.url === "/api/health" && req.method === "GET") {
     return json(res, 200, await getHealth());
@@ -5838,7 +5965,7 @@ const server = http.createServer(async (req, res) => {
       const deleted = cleanupSelected(Array.isArray(body.ids) ? body.ids : []);
       return json(res, 200, { ok: true, deleted });
     } catch (err) {
-      console.error("  [api] Cleanup failed:", err);
+      console.error("  [api] Temizlik basarisiz:", err);
       return json(res, 500, { ok: false, error: err.message });
     }
   }
@@ -5893,7 +6020,7 @@ const server = http.createServer(async (req, res) => {
     const body = await readJsonBody(req, res);
     if (!body) return;
     const filename = path.basename(String(body.model || ""));
-    if (!filename) return json(res, 400, { ok: false, error: "model is required" });
+    if (!filename) return json(res, 400, { ok: false, error: "model gereklidir" });
     const updated = updateLlmModelSettings(filename, {
       preferredBackend: body.preferredBackend ? String(body.preferredBackend).toLowerCase() : undefined,
     });
@@ -5911,7 +6038,7 @@ const server = http.createServer(async (req, res) => {
       const conversation = saveChatConversation(body.conversation || body);
       return json(res, 200, { ok: true, conversation });
     } catch (err) {
-      console.error("  [api] Failed to save chat conversation:", err);
+      console.error("  [api] Sohbet kaydi kaydedilemedi:", err);
       return json(res, 500, { ok: false, error: err.message || String(err) });
     }
   }
@@ -5923,7 +6050,7 @@ const server = http.createServer(async (req, res) => {
       const deleted = deleteChatConversation(body.id);
       return json(res, 200, { ok: true, deleted });
     } catch (err) {
-      console.error("  [api] Failed to delete chat conversation:", err);
+      console.error("  [api] Sohbet kaydi silinemedi:", err);
       return json(res, 500, { ok: false, error: err.message || String(err) });
     }
   }
@@ -6058,7 +6185,7 @@ const server = http.createServer(async (req, res) => {
     const url = body.url ? String(body.url) : (catalogModel ? `https://huggingface.co/ggerganov/whisper.cpp/resolve/main/${catalogModel.filename}` : "");
     const filename = path.basename(String(body.filename || catalogModel?.filename || ""));
     if (!url || !filename || !filename.toLowerCase().endsWith(".bin")) {
-      return json(res, 400, { ok: false, error: "A speech model .bin URL or catalog model id is required." });
+      return json(res, 400, { ok: false, error: "Bir konusma modeli .bin URL'i veya katalog model kimligi gereklidir." });
     }
     startModelDownload(url, filename, SPEECH_MODELS, "speech");
     return json(res, 200, { ok: true, message: "Speech model download started", filename });
@@ -6109,7 +6236,7 @@ const server = http.createServer(async (req, res) => {
     }
     try {
       if (!fs.existsSync(jsonPath)) {
-        return json(res, 404, { ok: false, error: "Transcription metadata not found" });
+        return json(res, 404, { ok: false, error: "Transkripsiyon meta verisi bulunamadi" });
       }
       
       const metadata = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
@@ -6243,7 +6370,7 @@ const server = http.createServer(async (req, res) => {
     }
     try {
       if (!fs.existsSync(jsonPath)) {
-        return json(res, 404, { ok: false, error: "TTS output metadata not found" });
+        return json(res, 404, { ok: false, error: "TTS cikti meta verisi bulunamadi" });
       }
       const metadata = JSON.parse(fs.readFileSync(jsonPath, "utf8"));
       const audioFile = metadata.audioFile ? path.basename(String(metadata.audioFile)) : "";
@@ -6311,7 +6438,7 @@ function getMessageText(content) {
   return "";
 }
 
-function getLastUserQuery(messages) {
+function getLastKullanrQuery(messages) {
   for (let i = messages.length - 1; i >= 0; i -= 1) {
     if (messages[i]?.role === "user") {
       return getMessageText(messages[i].content).trim();
@@ -6324,7 +6451,7 @@ async function augmentMessagesWithWebSearch(messages, body) {
   if (body.useWeb !== true && body.use_web !== true) {
     return { messages, webSources: [], webContext: "" };
   }
-  const query = String(body.webQuery || body.query || getLastUserQuery(messages) || "").trim();
+  const query = String(body.webQuery || body.query || getLastKullanrQuery(messages) || "").trim();
   if (!query) return { messages, webSources: [], webContext: "" };
 
   const result = await comprehensiveWebSearch(query, {
@@ -6384,7 +6511,7 @@ async function doLlmChat(req, res, body, retryCount = 0) {
           "Content-Type": "application/json",
           "Content-Length": Buffer.byteLength(requestData),
         },
-        agent: llmHttpAgent,  // ✅ HTTP keep-alive: eliminates TCP handshake per turn
+        agent: llmHttpAgent,  //  HTTP keep-alive: eliminates TCP handshake per turn
       }, (clientRes) => {
         if (clientRes.statusCode < 200 || clientRes.statusCode >= 300) {
           let errorBody = "";
@@ -6592,7 +6719,7 @@ async function benchmarkLlmModel(settings = {}) {
   return { ok: true, model: filename, winner, results };
 }
 
-// ── llmfit Integration ──────────────────────────────────────────────────────────
+// -- llmfit Integration ----------------------------------------------------------
 let cachedLlmfitResults = new Map();
 
 function getHardwareHash() {
@@ -6691,7 +6818,7 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
     return;
   }
 
-  // GET /api/llm/recommend — llmfit recommendations
+  // GET /api/llm/recommend - llmfit recommendations
   if (req.url.startsWith("/api/llm/recommend") && req.method === "GET") {
     const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
     const useCase = url.searchParams.get("useCase") || "chat";
@@ -6715,7 +6842,7 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
     return json(res, 200, getTelemetry());
   }
 
-  // GET /api/models — list available model files
+  // GET /api/models - list available model files
   if (req.url === "/api/models" && req.method === "GET") {
     try {
       let files = fs.readdirSync(MODELS).filter(isModelFile).map(getModelInfo);
@@ -6737,7 +6864,7 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
     });
   }
 
-  // POST /api/restart-backend — restart with new settings
+  // POST /api/restart-backend - restart with new settings
   if (req.url === "/api/restart-backend" && req.method === "POST") {
     const body = await readJsonBody(req, res);
     if (!body) return;
@@ -6837,7 +6964,7 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
   if (req.url === "/api/download-backend" && req.method === "POST") {
     const body = await readJsonBody(req, res);
     if (!body) return;
-    if (downloadState.active) return json(res, 409, { ok: false, error: "Another download is already active." });
+    if (downloadState.active) return json(res, 409, { ok: false, error: "Baska bir indirme zaten aktif." });
     try {
       const backendId = String(body.backend_id || body.backendId || body.id || "");
       startImageBackendDownload(backendId);
@@ -6897,6 +7024,19 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
       return json(res, 200, { ok: true, message: "OpenVINO model download started" });
     } catch (err) {
       return json(res, 500, { ok: false, error: err.message || String(err) });
+    }
+  }
+
+  // POST /api/download-default-models
+  if (req.url === "/api/download-default-models" && req.method === "POST") {
+    if (downloadState.active || defaultModelsQueue) {
+      return json(res, 409, { ok: false, error: "Baska bir indirme zaten aktif." });
+    }
+    try {
+      startDefaultModelsDownload();
+      return json(res, 200, { ok: true, message: "Varsayilan modeller indirmesi basladi" });
+    } catch (err) {
+      return json(res, 400, { ok: false, error: err.message || String(err) });
     }
   }
 
@@ -7137,7 +7277,7 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
     return json(res, 404, { ok: false, error: "Unknown API endpoint" });
   }
 
-  // ── Static frontend files ─────────────────────────────────────────────────
+  // -- Static frontend files -------------------------------------------------
   let filePath = path.join(DIST, req.url === "/" ? "index.html" : req.url);
   filePath = filePath.split("?")[0];
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
@@ -7159,7 +7299,7 @@ server.timeout = 0; // Disable socket timeout for large model uploads/downloads
 server.listen(PORT_FRONTEND, "0.0.0.0", () => {
   console.log("");
   console.log("  ============================================================");
-  console.log("   UNCENSORED AI STUDIO      |  Running");
+  console.log("   Sansursuz Lokal AI Studyosu - DD:YZ   |  Calisiyor");
   console.log("   Server Build: " + SERVER_BUILD);
   console.log("   Frontend : http://localhost:" + PORT_FRONTEND);
   console.log("   Image API: http://127.0.0.1:" + PORT_BACKEND);
