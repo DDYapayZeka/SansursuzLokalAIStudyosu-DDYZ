@@ -5300,6 +5300,53 @@ function cancelModelDownload() {
 // Bunlar, gorsel uretimi, yerel metin sohbeti, konusma ve ses sentezi icin
 // standart baslangic modelleridir. "Tum Varsayilan Modelleri Indir" ozelligi
 // ile sirali olarak kendi klasorlerine indirilir.
+// Bilgisayarin donanimina (tier) gore her kategoriden en uygun varsayilan modeli secer.
+// tier degeri getHardwareSpecs() tarafindan hesaplanir (low / mid / high).
+function getCompatibleModels() {
+  const specs = getHardwareSpecs();
+  const tier = specs.tier || "low";
+
+  // Goruntu: SD1.5 her kesimde calisir, tek uygun secenek.
+  const image = {
+    kind: "image",
+    name: "Stable Diffusion 1.5 (Uyumlu)",
+    filename: "v1-5-pruned-emaonly.safetensors",
+    url: "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors",
+    dir: MODELS,
+  };
+
+  // Metin: donanim gucline gore boyut sec.
+  let text;
+  if (tier === "high") {
+    text = {
+      kind: "text",
+      name: "SmolLM2 7B Instruct (Uyumlu - Yuksek donanim)",
+      filename: "smollm2-7b-instruct-q4_k_m.gguf",
+      url: "https://huggingface.co/HuggingFaceTB/SmolLM2-7B-Instruct-GGUF/resolve/main/smollm2-7b-instruct-q4_k_m.gguf",
+      dir: LLM_MODELS,
+    };
+  } else {
+    text = {
+      kind: "text",
+      name: "SmolLM2 1.7B Instruct (Uyumlu)",
+      filename: "smollm2-1.7b-instruct-q4_k_m.gguf",
+      url: "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct-GGUF/resolve/main/smollm2-1.7b-instruct-q4_k_m.gguf",
+      dir: LLM_MODELS,
+    };
+  }
+
+  // Konusma: kucuk base model herkes icin uygun.
+  const speech = {
+    kind: "speech",
+    name: "Whisper Base English (Uyumlu)",
+    filename: "ggml-base.en.bin",
+    url: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin",
+    dir: SPEECH_MODELS,
+  };
+
+  return [image, text, speech];
+}
+
 const DEFAULT_MODELS = [
   {
     kind: "image",
@@ -5340,7 +5387,7 @@ function startDefaultModelsDownload() {
   if (downloadState.active || defaultModelsQueue) {
     throw new Error("Baska bir indirme zaten aktif.");
   }
-  const items = DEFAULT_MODELS.filter((item) => {
+  const items = getCompatibleModels().filter((item) => {
     const destPath = path.join(item.dir, item.filename);
     return !fs.existsSync(destPath);
   });
@@ -5354,7 +5401,7 @@ function startDefaultModelsDownload() {
       active: false,
       filename: "",
       progress: error ? downloadState.progress : 100,
-      speed: error ? "0 MB/s" : "Tum varsayilan modeller hazir",
+      speed: error ? "0 MB/s" : "Tum uyumlu modeller hazir",
       eta: 0,
       totalBytes: downloadState.totalBytes,
       downloadedBytes: downloadState.downloadedBytes,
@@ -5376,7 +5423,7 @@ function startDefaultModelsDownload() {
     }
     const item = defaultModelsQueue[0];
     downloadState.filename = item.filename;
-    downloadState.speed = `Varsayilan model indiriliyor ${DEFAULT_MODELS.length - defaultModelsQueue.length + 1}/${DEFAULT_MODELS.length}: ${item.name}`;
+    downloadState.speed = `Uyumlu model indiriliyor ${items.length - defaultModelsQueue.length + 1}/${items.length}: ${item.name}`;
     const onComplete = () => {
       if (!defaultModelsQueue) return; // iptal edildi
       if (downloadState.error) {
@@ -5397,7 +5444,7 @@ function startDefaultModelsDownload() {
       active: false,
       filename: "",
       progress: 100,
-      speed: tts.ok ? "Tum varsayilan modeller zaten mevcut" : "TTS bildirimi kuruldu",
+      speed: tts.ok ? "Tum uyumlu modeller zaten mevcut" : "TTS bildirimi kuruldu",
       eta: 0,
       totalBytes: 0,
       downloadedBytes: 0,
