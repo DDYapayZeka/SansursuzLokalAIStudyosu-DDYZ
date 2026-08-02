@@ -15,7 +15,8 @@
 </p>
 
 <p align="center">
-  <a href="https://youtu.be/yeFvP3SWMak">Kurulum ve Tanitim Videosunu Izleyin</a>
+  <a href="https://www.youtube.com/@derinedaliyoruzyapayzeka">Kurulum ve Tanitim Videosunu Izleyin (DD:YZ Kanal)</a>
+  <!-- VIDEO_LINK: https://www.youtube.com/@derinedaliyoruzyapayzeka -- videoyu hazirlayinca buraya video linkini koy -->
 </p>
 
 ---
@@ -294,3 +295,12 @@ Bu proje, [techjarves](https://github.com/techjarves)'in ozgun **[Uncensored-Loc
 
 * Ozgun proje: [https://github.com/techjarves/Uncensored-Local-Studio](https://github.com/techjarves/Uncensored-Local-Studio)
 * Bu repo, ozgun kod tabaninin Turkce (ASCII) yerellestirme, arayuz iyilestirme ve "Tum Varsayilan Modelleri Indir" ozelligi eklenmis surumudur.
+
+---
+
+## <a id="iletisim"></a> Iletisim ve Kanal
+
+* YouTube Kanalimiz: [Derine Daliyoruz: Yapay Zeka (DD:YZ)](https://www.youtube.com/@derinedaliyoruzyapayzeka)
+* Iletisim (e-posta): [divingdeep.ai.tr@gmail.com](mailto:divingdeep.ai.tr@gmail.com)
+
+Orijinal tanitim videosu yakinda kanalimizda yayinlanacaktir; videoyu hazirlayinca buraya baglanti eklenecektir.
