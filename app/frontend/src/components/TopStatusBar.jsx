@@ -48,10 +48,10 @@ function TopStatusBar({
   };
 
   const getStatusText = () => {
-    if (isLlmLoaded) return "Model Loaded (Text)";
-    if (activeModel) return "Model Loaded (Image)";
-    if (serverRunning) return "Server Active";
-    return "Local Mode";
+    if (isLlmLoaded) return "Model Yuklu (Metin)";
+    if (activeModel) return "Model Yuklu (Gorsel)";
+    if (serverRunning) return "Sunucu Calisiyor";
+    return "Yerel Mod";
   };
 
   const getStatusClass = () => {
@@ -68,7 +68,7 @@ function TopStatusBar({
         <button
           onClick={onToggleSidebar}
           className="sidebar-toggle-btn"
-          title={sidebarVisible ? "Collapse Sidebar" : "Expand Sidebar"}
+          title={sidebarVisible ? "Yan Menuyu Daralt" : "Yan Menuyu Genislet"}
         >
           {sidebarVisible ? <PanelLeftClose size={18} /> : <PanelLeft size={18} />}
         </button>
@@ -96,7 +96,7 @@ function TopStatusBar({
         <button
           className="theme-toggle-btn"
           onClick={() => setTheme(isDark ? "light" : "dark")}
-          title={`Switch to ${isDark ? "light" : "dark"} theme`}
+          title={`${isDark ? "acik" : "koyu"} temaya gec`}
         >
           {isDark ? <Sun size={18} /> : <Moon size={18} />}
         </button>
@@ -105,7 +105,7 @@ function TopStatusBar({
           <button
             className={`theme-toggle-btn ${showThemeMenu ? "active" : ""}`}
             onClick={() => setShowThemeMenu(!showThemeMenu)}
-            title="Choose a custom color theme"
+            title="Ozel bir renk temasi secin"
             style={{ marginRight: "12px" }}
           >
             <Palette size={18} />
@@ -113,7 +113,7 @@ function TopStatusBar({
           
           {showThemeMenu && (
             <div className="theme-dropdown-menu">
-              <div className="theme-dropdown-header">Select Theme</div>
+              <div className="theme-dropdown-header">Tema Sec</div>
               <div className="theme-dropdown-divider"></div>
               {THEMES.map((t) => {
                 const isActive = theme === t.id;
@@ -147,10 +147,10 @@ function TopStatusBar({
             style={{ height: "34px", padding: "0 14px" }}
             onClick={onStopServer}
             disabled={isStoppingServer}
-            title="Stop local model server"
+            title="Yerel model sunucusunu durdur"
           >
             {isStoppingServer ? <RefreshCw className="progress-spinner" size={14} /> : <Square size={14} />}
-            <span>{isStoppingServer ? "Stopping" : "Stop Server"}</span>
+            <span>{isStoppingServer ? "Durduruluyor" : "Sunucuyu Durdur"}</span>
           </button>
         )}
 

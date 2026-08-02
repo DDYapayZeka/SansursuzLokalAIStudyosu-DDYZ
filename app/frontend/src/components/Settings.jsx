@@ -101,9 +101,9 @@ function HardwareTierBadge({ specs }) {
   if (!specs?.tier) return null;
 
   const tierConfig = {
-    high: { icon: "", label: "High-End PC", color: "tier-high", accent: "#22c55e" },
-    mid: { icon: "", label: "Balanced PC", color: "tier-mid", accent: "#3b82f6" },
-    low: { icon: "", label: "Potato PC", color: "tier-low", accent: "#f59e0b" },
+    high: { icon: "", label: "Yuksek Performansli PC", color: "tier-high", accent: "#22c55e" },
+    mid: { icon: "", label: "Dengeli PC", color: "tier-mid", accent: "#3b82f6" },
+    low: { icon: "", label: "Dusuk Performansli PC", color: "tier-low", accent: "#f59e0b" },
   };
 
   const tier = tierConfig[specs.tier] || tierConfig.low;
@@ -190,7 +190,7 @@ function SectionHeader({ icon: Icon, title, count, color, isExpanded, onToggle }
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         {count && (
-          <span className="settings-section-count">{count} settings</span>
+          <span className="settings-section-count">{count} ayar</span>
         )}
         <ChevronDown
           size={20}
@@ -282,18 +282,18 @@ function Settings({
         await stopLlm();
         setLlmStatus((prev) => ({ ...prev, ready: false, running: false }));
         showAlert({
-          title: "Settings Saved & Applied",
-          message: "Text settings saved successfully. The running text model has been unloaded to apply these changes."
+          title: "Ayarlar Kaydedildi ve Uygulandi",
+          message: "Metin ayarlari basariyla kaydedildi. Bu degisiklikleri uygulamak icin calisan metin modeli bellekten cikarildi."
         });
       } else {
         showAlert({
-          title: "Settings Saved",
-          message: "Text settings saved successfully."
+          title: "Ayarlar Kaydedildi",
+          message: "Metin ayarlari basariyla kaydedildi."
         });
       }
     } catch (err) {
       showAlert({
-        title: "Save Failed",
+        title: "Kayit Basarisiz",
         message: err.message || String(err),
         danger: true
       });
@@ -502,7 +502,7 @@ function Settings({
   const handleBenchmarkTextBackend = async () => {
     const model = llmStatus.settings?.model;
     if (!model) {
-      showAlert({ title: "No Text Model Loaded", message: "Load a GGUF text model before benchmarking.", danger: true });
+      showAlert({ title: "Metin Modeli Yuklu Degil", message: "Kiyaslama yapmadan once bir GGUF metin modeli yukleyin.", danger: true });
       return;
     }
     setBenchmarkBusy(true);
@@ -514,17 +514,17 @@ function Settings({
       });
       const winner = result.winner;
       showAlert({
-        title: winner ? "Benchmark Complete" : "Benchmark Finished",
+        title: winner ? "Kiyaslama Tamamlandi" : "Kiyaslama Bitti",
         message: winner
-          ? `Fastest backend: ${winner.backendMode} at ${Number(winner.predicted_per_second || 0).toFixed(1)} tokens/sec.`
-          : "Benchmark finished, but no backend returned usable timing data.",
+          ? `En hizli arka uc: ${winner.backendMode}, ${Number(winner.predicted_per_second || 0).toFixed(1)} jeton/sn.`
+          : "Kiyaslama bitti ancak hicbir arka uc kullanilabilir zaman verisi dondurmedi.",
       });
       const [status, backends, stats] = await Promise.all([getLlmStatus(), getLlmBackends(true), getLlmStats()]);
       setLlmStatus(status);
       setLlmBackends(backends);
       setLlmStats(stats);
     } catch (err) {
-      showAlert({ title: "Benchmark Failed", message: err.message || String(err), danger: true });
+      showAlert({ title: "Kiyaslama Basarisiz", message: err.message || String(err), danger: true });
     } finally {
       setBenchmarkBusy(false);
     }
@@ -544,10 +544,10 @@ function Settings({
     }
 
     const reload = await showConfirm({
-      title: enabled ? "Reload With DeepThink?" : "Reload Without DeepThink?",
-      message: "Changing DeepThink requires reloading the text model before it affects new replies. Reload now, or skip and keep the currently loaded model as-is?",
-      confirmLabel: "Reload",
-      cancelLabel: "Skip",
+      title: enabled ? "DeepThink ile Yeniden Yukle?" : "DeepThink olmadan Yeniden Yukle?",
+      message: "DeepThink'i degistirmek, yeni yanitlari etkilemeden once metin modelinin yeniden yuklenmesini gerektirir. Simdi yeniden yukleyim mi, yoksa atlayip su anki yuklu modeli oldugu gibi mi birakayim?",
+      confirmLabel: "Yeniden Yukle",
+      cancelLabel: "Atla",
     });
     if (!reload) return;
 
@@ -558,7 +558,7 @@ function Settings({
       await startLlm(status.settings.model, buildTextStartOptions(nextSettings));
     } catch (err) {
       await showAlert({
-        title: "Reload Failed",
+        title: "Yeniden Yukleme Basarisiz",
         message: err.message || String(err),
         danger: true,
       });
@@ -603,12 +603,12 @@ function Settings({
     if (serverRunning && switchesAccelerator) {
       const leavingNpu = currentBackend === "openvino-npu";
       const confirmed = await showConfirm({
-        title: leavingNpu ? "Unload NPU Model?" : "Unload Model?",
+        title: leavingNpu ? "NPU Modeli Cikarilsin mi?" : "Model Cikarilsin mi?",
         message: leavingNpu
-          ? "The OpenVINO NPU model must be unloaded before switching to the standard backend."
-          : "The active model must be unloaded before switching to the OpenVINO NPU backend.",
-        confirmLabel: "Unload",
-        cancelLabel: "Cancel",
+          ? "OpenVINO NPU modeli, standart arka uca gecmeden once cikarilmalidir."
+          : "OpenVINO NPU arka ucuna gecmeden once aktif model cikarilmalidir.",
+        confirmLabel: "Cikar",
+        cancelLabel: "Iptal",
         danger: true,
       });
       if (!confirmed) return;
@@ -619,7 +619,7 @@ function Settings({
         setActiveModel(null);
       } catch (err) {
         await showAlert({
-          title: "Unload Failed",
+          title: "Cikarma Basarisiz",
           message: err.message || String(err),
           danger: true,
         });
@@ -663,8 +663,8 @@ function Settings({
         error: err.message || "Download failed",
       });
       await showAlert({
-        title: "Backend Download Failed",
-        message: err.message || "Could not start backend download.",
+        title: "Arka Uc Indirme Basarisiz",
+        message: err.message || "Arka uc indirmesi baslatilamadi.",
         danger: true,
       });
     }
@@ -675,7 +675,7 @@ function Settings({
     <>
       <SectionHeader 
         icon={Image} 
-        title="Image Generation" 
+        title="Gorsel Uretim" 
         count={4}
         color="#3b82f6"
         isExpanded={expandedSections.image}
@@ -685,18 +685,18 @@ function Settings({
       {expandedSections.image && (
         <div className="settings-expanded-content">
           <div className="settings-two-column">
-        {/* Left Column */}
+        {/* Sol Sutun */}
         <div className="settings-column">
-          {/* Size & Shape */}
+          {/* Boyut ve Sekli */}
           <div className="settings-subsection">
             <div className="settings-subsection-title">
               <Crop size={16} />
-              Size & Shape
+              Boyut ve Sekli
             </div>
             <div className="m3-field-group">
               <div className="m3-slider-group">
                 <div className="m3-slider-header">
-                  <span className="m3-slider-label">Resolution</span>
+                  <span className="m3-slider-label">Cozunurluk</span>
                   <span className="settings-value-badge">
                     {constraints.width >= 1024 ? "SDXL" : "SD 1.5"}
                   </span>
@@ -724,7 +724,7 @@ function Settings({
 
               <div className="m3-slider-group">
                 <div className="m3-slider-header">
-                  <span className="m3-slider-label">Aspect Ratio</span>
+                  <span className="m3-slider-label">En Boy Orani</span>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
                   {ASPECT_RATIOS.map((ratio) => {
@@ -752,7 +752,7 @@ function Settings({
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                 <div className="m3-text-field">
-                  <label className="m3-text-field-label">Width</label>
+                  <label className="m3-text-field-label">Genislik</label>
                   <input
                     type="number"
                     className="m3-input"
@@ -764,7 +764,7 @@ function Settings({
                   />
                 </div>
                 <div className="m3-text-field">
-                  <label className="m3-text-field-label">Height</label>
+                  <label className="m3-text-field-label">Yukseklik</label>
                   <input
                     type="number"
                     className="m3-input"
@@ -779,16 +779,16 @@ function Settings({
             </div>
           </div>
 
-          {/* Quality & Speed */}
+          {/* Kalite ve Hiz */}
           <div className="settings-subsection">
             <div className="settings-subsection-title">
               <Sliders size={16} />
-              Quality & Speed
+              Kalite ve Hiz
             </div>
             <div className="m3-field-group">
               <div className="m3-slider-group">
                 <div className="m3-slider-header">
-                  <span className="m3-slider-label">Detail Steps</span>
+                  <span className="m3-slider-label">Detay Adimi</span>
                   <span className="settings-value-badge">{constraints.steps}</span>
                 </div>
                 <input
@@ -802,27 +802,27 @@ function Settings({
                 />
                 <span className="settings-option-desc">
                   {isOpenVinoNpu
-                    ? "LCM OpenVINO: 1-8 fast steps"
-                    : "More steps = sharper details, longer time"}
+                    ? "LCM OpenVINO: 1-8 hizli adim"
+                    : "Daha cok adim = daha keskin detay, daha uzun sure"}
                 </span>
               </div>
 
               <div className="m3-text-field">
-                <label className="m3-text-field-label">Random Seed</label>
+                <label className="m3-text-field-label">Rastgele Tohum</label>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <input
                     type="number"
                     className="m3-input"
                     value={constraints.seed}
                     onChange={(e) => updateConstraint("seed", parseInt(e.target.value) || -1)}
-                    placeholder="-1 for random"
+                    placeholder="-1 rastgele icin"
                     style={{ flex: 1 }}
                   />
                   <button
                     className="m3-btn m3-btn-tonal"
                     onClick={() => updateConstraint("seed", -1)}
                   >
-                    Random
+                    Rastgele
                   </button>
                 </div>
               </div>
@@ -830,46 +830,46 @@ function Settings({
           </div>
         </div>
 
-        {/* Right Column */}
+        {/* Sag Sutun */}
         <div className="settings-column">
-          {/* Memory Optimizations */}
+          {/* Bellek Optimizasyonlari */}
           <div className="settings-subsection">
             <div className="settings-subsection-title">
               <SlidersHorizontal size={16} />
-              Memory Optimizations
+              Bellek Optimizasyonlari
             </div>
             <div className="m3-field-group">
               <PremiumToggle
                 checked={constraints.vaeTiling}
                 onChange={(v) => updateConstraint("vaeTiling", v)}
-                label="VAE Tiling"
-                description="Process image in tiles to save VRAM"
+                label="VAE Dosesi"
+                description="VRAM kazanmak icin gorseli dosemelere bolerek isle"
               />
               <PremiumToggle
                 checked={constraints.vaeOnCpu}
                 onChange={(v) => updateConstraint("vaeOnCpu", v)}
-                label="VAE on CPU"
-                description="Run decoder on CPU if GPU OOM"
+                label="VAE islemi CPU'da"
+                description="GPU bellegi yetersizse (OOM) cozucuyu CPU'da calistir"
               />
               <PremiumToggle
                 checked={constraints.useFlashAttn}
                 onChange={(v) => updateConstraint("useFlashAttn", v)}
                 label="Flash Attention"
-                description="Faster attention with less memory"
+                description="Daha az bellekle daha hizli dikkat mekanizmasi"
               />
             </div>
           </div>
 
-          {/* Backend & Acceleration */}
+          {/* Arka Uc ve Hizlandirma */}
           <div className="settings-subsection">
             <div className="settings-subsection-title">
               <Monitor size={16} />
-              Backend & Acceleration
+              Arka Uc ve Hizlandirma
             </div>
             <div className="m3-field-group">
               <div className="m3-slider-group">
                 <div className="m3-slider-header">
-                  <span className="m3-slider-label">Accelerator</span>
+                  <span className="m3-slider-label">Hizlandirici</span>
                 </div>
                 <div className="m3-segmented-button" style={{ flexWrap: "wrap" }}>
                   {visibleBackends.map((b) => {
@@ -938,7 +938,7 @@ function Settings({
                             style={{ flexShrink: 0 }}
                           >
                             {isDownloading ? <RefreshCw className="progress-spinner" size={14} /> : <DownloadCloud size={14} />}
-                            <span>{isDownloading ? "Downloading" : "Download"}</span>
+                            <span>{isDownloading ? "Indiriliyor" : "Indir"}</span>
                           </button>
                         </div>
                       );
@@ -960,7 +960,7 @@ function Settings({
     <>
       <SectionHeader 
         icon={Type} 
-        title="Text Generation" 
+        title="Metin Uretim" 
         count={5}
         color="#8b5cf6"
         isExpanded={expandedSections.text}
@@ -970,13 +970,13 @@ function Settings({
       {expandedSections.text && (
         <div className="settings-expanded-content">
           <div className="settings-two-column">
-        {/* Left Column */}
+        {/* Sol Sutun */}
         <div className="settings-column">
-          {/* Model & Context */}
+          {/* Model ve Baglam */}
           <div className="settings-subsection">
             <div className="settings-subsection-title">
               <MessageSquare size={16} />
-              Model & Context
+              Model ve Baglam
             </div>
             <div className="m3-field-group">
               <div className="m3-text-field">
@@ -985,18 +985,18 @@ function Settings({
                    className="m3-input"
                    value={pendingTextSettings.systemPrompt || ""}
                    onChange={(e) => updateTextSetting("systemPrompt", e.target.value)}
-                   placeholder="Enter system prompt..."
+                   placeholder="Sistem ipucu girin..."
                    rows={3}
                    style={{ resize: "vertical", minHeight: "60px" }}
                 />
                 <span className="settings-option-desc" style={{ marginTop: "4px", display: "block" }}>
-                  Defines assistant personality/instructions. (Recommended: Default)
+                  Asistanin kisiligini/talimatlarini tanimlar. (Onerilen: Varsayilan)
                 </span>
               </div>
 
               <div className="m3-slider-group">
                 <div className="m3-slider-header">
-                  <span className="m3-slider-label">Context Size</span>
+                  <span className="m3-slider-label">Baglam Boyutu</span>
                   <span className="settings-value-badge">{pendingTextSettings.contextSize || 0}</span>
                 </div>
                 <input
@@ -1010,22 +1010,22 @@ function Settings({
                   style={getSliderStyle(pendingTextSettings.contextSize || 0, 0, 32768)}
                 />
                 <span className="settings-option-desc">
-                  Model memory limit. 0 uses default limit. (Recommended: 0)
+                  Model bellek siniri. 0, varsayilan siniri kullanir. (Onerilen: 0)
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Generation Parameters */}
+          {/* Uretim Parametreleri */}
           <div className="settings-subsection">
             <div className="settings-subsection-title">
               <Settings2 size={16} />
-              Generation Parameters
+              Uretim Parametreleri
             </div>
             <div className="m3-field-group">
               <div className="m3-slider-group">
                 <div className="m3-slider-header">
-                  <span className="m3-slider-label">Temperature</span>
+                  <span className="m3-slider-label">Sicaklik</span>
                   <span className="settings-value-badge">{pendingTextSettings.temperature}</span>
                 </div>
                 <input
@@ -1039,22 +1039,22 @@ function Settings({
                   style={getSliderStyle(pendingTextSettings.temperature, 0, 2)}
                 />
                 <span className="settings-option-desc">
-                  Controls creativity. Lower = focused & factual, Higher = creative & diverse. (Recommended: 0.7)
+                  Yaratilicigi kontrol eder. Dusuk = odakli ve gercekci, Yuksek = yaratici ve cesitli. (Onerilen: 0.7)
                 </span>
               </div>
 
 
               <div className="m3-slider-group">
                 <div className="m3-slider-header">
-                  <span className="m3-slider-label">Max Response Tokens</span>
+                  <span className="m3-slider-label">Azami Yanit Jetonu</span>
                   <span className="settings-value-badge">
-                    {(pendingTextSettings.responseTokenMode || "auto") === "auto" ? "Auto" : (pendingTextSettings.maxTokens || 1024)}
+                    {(pendingTextSettings.responseTokenMode || "auto") === "auto" ? "Otomatik" : (pendingTextSettings.maxTokens || 1024)}
                   </span>
                 </div>
                 <div className="m3-segmented-button" style={{ marginBottom: "10px" }}>
                   {[
-                    { id: "auto", label: "Auto" },
-                    { id: "manual", label: "Manual" },
+                    { id: "auto", label: "Otomatik" },
+                    { id: "manual", label: "Manuel" },
                   ].map((mode) => (
                     <button
                       key={mode.id}
@@ -1078,18 +1078,18 @@ function Settings({
                       style={getSliderStyle(pendingTextSettings.maxTokens || 1024, 64, 4096)}
                     />
                     <span className="settings-option-desc">
-                      Manual uses the slider value.
+                      Manuel mod kaydirici degerini kullanir.
                     </span>
                   </>
                 ) : (
                   <span className="settings-option-desc">
-                    Auto adjusts length dynamically based on context window. (Recommended)
+                    Otomatik, uzunlugu baglam penceresine gore dinamik olarak ayarlar. (Onerilen)
                   </span>
                 )}
               </div>
 
               <div className="m3-text-field">
-                <label className="m3-text-field-label">Seed</label>
+                <label className="m3-text-field-label">Tohum</label>
                 <input
                   type="number"
                   className="m3-input"
@@ -1098,25 +1098,25 @@ function Settings({
                   placeholder="-1"
                 />
                 <span className="settings-option-desc" style={{ marginTop: "4px", display: "block" }}>
-                  Controls repeatability. Use -1 for random, positive integer for identical replies. (Recommended: -1)
+                  Tekrarlanabilirligi kontrol eder. Rastgele icin -1, ayni yanitlar icin pozitif tamsayi kullanin. (Onerilen: -1)
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column */}
+        {/* Sag Sutun */}
         <div className="settings-column">
-          {/* Performance Profile */}
+          {/* Performans Profili */}
           <div className="settings-subsection">
             <div className="settings-subsection-title">
               <Gauge size={16} />
-              Performance Profile
+              Performans Profili
             </div>
             <div className="m3-field-group">
               <div className="m3-slider-group">
                 <div className="m3-slider-header">
-                  <span className="m3-slider-label">Profile</span>
+                  <span className="m3-slider-label">Profil</span>
                 </div>
                 <div className="m3-segmented-button">
                   {["potato", "balanced", "high", "custom"].map((profile) => (
@@ -1125,7 +1125,7 @@ function Settings({
                       className={`m3-segment-item ${(pendingTextSettings.performanceProfile || "balanced") === profile ? "active" : ""}`}
                       onClick={() => updateTextSetting("performanceProfile", profile)}
                     >
-                      {profile.charAt(0).toUpperCase() + profile.slice(1)}
+                      {profile === "potato" ? "Dusuk" : profile === "balanced" ? "Dengeli" : profile === "high" ? "Yuksek" : "Ozel"}
                     </button>
                   ))}
                 </div>
@@ -1145,7 +1145,7 @@ function Settings({
                         className={`m3-segment-item ${(pendingTextSettings.preferredBackend || "auto") === backend.key ? "active" : ""}`}
                         onClick={() => updateTextSetting("preferredBackend", backend.key)}
                       >
-                        {backend.key === "cpu" ? "CPU Only" : backend.key.toUpperCase()}
+                        {backend.key === "cpu" ? "Sadece CPU" : backend.key.toUpperCase()}
                       </button>
                     ))}
                   </div>
@@ -1170,8 +1170,8 @@ function Settings({
 
               <div className="m3-slider-group">
                 <div className="m3-slider-header">
-                  <span className="m3-slider-label">GPU Layers</span>
-                  <span className="settings-value-badge">{pendingTextSettings.gpuLayers === -1 ? "All" : pendingTextSettings.gpuLayers}</span>
+                  <span className="m3-slider-label">GPU Katmani</span>
+                  <span className="settings-value-badge">{pendingTextSettings.gpuLayers === -1 ? "Tumu" : pendingTextSettings.gpuLayers}</span>
                 </div>
                 <input
                   type="range"
@@ -1186,13 +1186,13 @@ function Settings({
                   style={getSliderStyle(pendingTextSettings.gpuLayers === -1 ? 50 : pendingTextSettings.gpuLayers, 0, 50)}
                 />
                 <span className="settings-option-desc">
-                  50 = All layers on GPU
+                  50 = Tum katmanlar GPU'da
                 </span>
               </div>
 
               <div className="m3-slider-group">
                 <div className="m3-slider-header">
-                  <span className="m3-slider-label">Batch Size</span>
+                  <span className="m3-slider-label">Toplu Islem Boyutu</span>
                   <span className="settings-value-badge">{pendingTextSettings.batchSize || 512}</span>
                 </div>
                 <input
@@ -1209,7 +1209,7 @@ function Settings({
 
               <div className="m3-slider-group">
                 <div className="m3-slider-header">
-                  <span className="m3-slider-label">KV Cache</span>
+                  <span className="m3-slider-label">KV Onbellek</span>
                 </div>
                 <div className="m3-segmented-button">
                   {["q4_0", "q8_0", "f16"].map((type) => (
@@ -1246,11 +1246,11 @@ function Settings({
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <Brain size={18} style={{ color: "var(--md-sys-color-primary)" }} />
                     <div>
-                      <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>Unsaved Metin Uretim Ayarlar</div>
+                      <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>Kaydedilmemis Metin Uretim Ayarlari</div>
                       <div style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: "2px" }}>
                         {llmStatus.ready
-                          ? "Saving will unload the active text model to apply changes."
-                          : "Changes will be applied on the next model load."}
+                          ? "Kaydetme, degisiklikleri uygulamak icin aktif metin modelini bellekten cikarir."
+                          : "Degisiklikler bir sonraki model yuklemesinde uygulanir."}
                       </div>
                     </div>
                   </div>
@@ -1269,7 +1269,7 @@ function Settings({
                       boxShadow: "0 2px 8px color-mix(in srgb, var(--md-sys-color-primary) 30%, transparent)",
                     }}
                   >
-                    Save & Apply Changes
+                    Kaydet ve Uygula
                   </button>
                 </div>
               )}
@@ -1287,24 +1287,24 @@ function Settings({
   // --- Konusma Ayarlar ---
   const renderSpeechSettings = () => {
     const SPEECH_LANGUAGES = [
-      { value: "auto", label: "Auto detect" },
-      { value: "en", label: "English" },
-      { value: "es", label: "Spanish" },
-      { value: "fr", label: "French" },
-      { value: "de", label: "German" },
-      { value: "it", label: "Italian" },
-      { value: "pt", label: "Portuguese" },
-      { value: "hi", label: "Hindi" },
-      { value: "ja", label: "Japanese" },
-      { value: "ko", label: "Korean" },
-      { value: "zh", label: "Chinese" },
+      { value: "auto", label: "Otomatik algila" },
+      { value: "en", label: "Ingilizce" },
+      { value: "es", label: "Ispanyolca" },
+      { value: "fr", label: "Fransizca" },
+      { value: "de", label: "Almanca" },
+      { value: "it", label: "Italyanca" },
+      { value: "pt", label: "Portekizce" },
+      { value: "hi", label: "Hintce" },
+      { value: "ja", label: "Japonca" },
+      { value: "ko", label: "Korece" },
+      { value: "zh", label: "Cince" },
     ];
 
     return (
       <>
         <SectionHeader 
           icon={Volume2} 
-          title="Speech Transcription" 
+          title="Konusma Yazima Cevirme" 
           count={4}
           color="#10b981"
           isExpanded={expandedSections.speech}
@@ -1314,34 +1314,34 @@ function Settings({
         {expandedSections.speech && (
           <div className="settings-expanded-content">
             <div className="settings-two-column">
-              {/* Left Column */}
+              {/* Sol Sutun */}
               <div className="settings-column">
-                {/* Speech Parameters */}
+                {/* Konusma Parametreleri */}
                 <div className="settings-subsection">
                   <div className="settings-subsection-title">
                     <Volume2 size={16} />
-                    Transcription Settings
+                    Yazima Cevirme Ayarlari
                   </div>
                   <div className="m3-field-group">
                     <div className="m3-text-field">
-                      <label className="m3-text-field-label">Default Arka uc</label>
+                      <label className="m3-text-field-label">Varsayilan Arka uc</label>
                       <select
                         className="m3-input"
                         value={speechSettings.backendPreference || "auto"}
                         onChange={(e) => updateSpeechSetting("backendPreference", e.target.value)}
                       >
-                        <option value="auto">Auto - GPU if kuruldu</option>
+                        <option value="auto">Otomatik - GPU kuruluysa</option>
                         <option value="vulkan">Vulkan GPU</option>
                         <option value="metal">Metal GPU</option>
                         <option value="cpu">CPU</option>
                       </select>
                       <span className="settings-option-desc" style={{ marginTop: "4px", display: "block" }}>
-                        Auto uses a GPU whisper.cpp backend when its binary exists, then falls back to CPU.
+                        Otomatik, GPU whisper.cpp arka ucunu ikilisi (binary) mevcut oldugunda kullanir, aksi halde CPU'ya duser.
                       </span>
                     </div>
 
                     <div className="m3-text-field">
-                      <label className="m3-text-field-label">Default Dil</label>
+                      <label className="m3-text-field-label">Varsayilan Dil</label>
                       <select 
                         className="m3-input" 
                         value={speechSettings.language || "auto"} 
@@ -1354,7 +1354,7 @@ function Settings({
                         ))}
                       </select>
                       <span className="settings-option-desc" style={{ marginTop: "4px", display: "block" }}>
-                        Default language for transcribing audio. (Recommended: Auto detect)
+                        Sesi yaziya cevirmek icin varsayilan dil. (Onerilen: Otomatik algila)
                       </span>
                     </div>
 
@@ -1373,27 +1373,27 @@ function Settings({
                         style={getSliderStyle(speechSettings.threads || 4, 1, specs?.cpu_cores_logical || 16)}
                       />
                       <span className="settings-option-desc">
-                        Number of threads to allocate for transcription. (Recommended: 4)
+                        Yazima cevirme icin ayirilacak is parcacigi sayisi. (Onerilen: 4)
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Right Column */}
+              {/* Sag Sutun */}
               <div className="settings-column">
-                {/* Translation options */}
+                {/* Ceviri secenekleri */}
                 <div className="settings-subsection">
                   <div className="settings-subsection-title">
                     <Sparkles size={16} />
-                    Translation Settings
+                    Ceviri Ayarlari
                   </div>
                   <div className="m3-field-group">
                     <PremiumToggle
                       checked={speechSettings.translate === true}
                       onChange={(val) => updateSpeechSetting("translate", val)}
-                      label="Translate to English"
-                      description="Auto-translate foreign languages to English during transcription"
+                      label="Ingilizce'ye Cevir"
+                      description="Yazima cevirme sirasinda yabanci dilleri otomatik olarak Ingilizce'ye cevir"
                     />
                   </div>
                 </div>
@@ -1422,7 +1422,7 @@ function Settings({
       <>
         <SectionHeader
           icon={Volume2}
-          title="Text to Speech"
+          title="Metinden Sese"
           count={2}
           color="#8b5cf6"
           isExpanded={expandedSections.tts}
@@ -1436,7 +1436,7 @@ function Settings({
                 <div className="settings-subsection">
                   <div className="settings-subsection-title">
                     <Volume2 size={16} />
-                    Voice Defaults
+                    Ses Varsayilanlari
                   </div>
                   <div className="m3-field-group">
                     <div className="m3-text-field">
@@ -1453,7 +1453,7 @@ function Settings({
                         ))}
                       </select>
                       <span className="settings-option-desc" style={{ marginTop: "4px", display: "block" }}>
-                        Default Kokoro voice for generated WAV files.
+                        Uretilen WAV dosyalari icin varsayilan Kokoro sesi.
                       </span>
                     </div>
                   </div>
@@ -1464,7 +1464,7 @@ function Settings({
                 <div className="settings-subsection">
                   <div className="settings-subsection-title">
                     <Gauge size={16} />
-                    Speech Timing
+                    Konusma Zamanlamasi
                   </div>
                   <div className="m3-slider-group">
                     <div className="m3-slider-header">
@@ -1482,7 +1482,7 @@ function Settings({
                       style={getSliderStyle(ttsSettings?.speed || 1, 0.5, 2)}
                     />
                     <span className="settings-option-desc">
-                      1.00x is natural speed. Lower values are slower, higher values are faster.
+                      1.00x dogal hizdir. Dusuk degerler daha yavas, yuksek degerler daha hizlidir.
                     </span>
                   </div>
                 </div>
@@ -1498,7 +1498,7 @@ function Settings({
     <>
       <SectionHeader 
         icon={Palette} 
-        title="Appearance & Themes" 
+        title="Gorunum ve Temalar" 
         count={2}
         color="var(--md-sys-color-primary)"
         isExpanded={expandedSections.appearance}
@@ -1508,10 +1508,10 @@ function Settings({
       {expandedSections.appearance && (
         <div className="settings-expanded-content">
           <div className="settings-subsection">
-            {/* Color Themes Sub-section */}
+            {/* Renk Temalari Alt Bolumu */}
             <div className="settings-subsection-title">
               <Palette size={16} />
-              Color Themes
+              Renk Temalari
             </div>
             <div style={{
               display: "grid",
@@ -1561,13 +1561,13 @@ function Settings({
                       )}
                     </div>
                     
-                    {/* Preview circles for primary and secondary colors */}
+                    {/* Birincil ve ikincil renkler icin onizleme daireleri */}
                     <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                      <div style={{ width: "26px", height: "26px", borderRadius: "50%", background: t.primary, border: "2px solid rgba(255,255,255,0.25)", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }} title="Primary" />
-                      <div style={{ width: "26px", height: "26px", borderRadius: "50%", background: t.secondary, border: "2px solid rgba(255,255,255,0.25)", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }} title="Secondary" />
-                      <div style={{ width: "26px", height: "26px", borderRadius: "50%", background: t.bg, border: "1.5px solid rgba(0,0,0,0.12)", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.06)" }} title="Background" />
+                      <div style={{ width: "26px", height: "26px", borderRadius: "50%", background: t.primary, border: "2px solid rgba(255,255,255,0.25)", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }} title="Birincil" />
+                      <div style={{ width: "26px", height: "26px", borderRadius: "50%", background: t.secondary, border: "2px solid rgba(255,255,255,0.25)", boxShadow: "0 2px 6px rgba(0,0,0,0.15)" }} title="Ikincil" />
+                      <div style={{ width: "26px", height: "26px", borderRadius: "50%", background: t.bg, border: "1.5px solid rgba(0,0,0,0.12)", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.06)" }} title="Arka Plan" />
                       <span style={{ marginLeft: "auto", fontSize: "0.7rem", opacity: 0.6, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                        {t.type}
+                        {t.type === "dark" ? "Koyu" : "Acik"}
                       </span>
                     </div>
                   </button>
@@ -1575,21 +1575,21 @@ function Settings({
               })}
             </div>
 
-            {/* Divider separating sub-sections inside the single card */}
+            {/* Kart icindeki alt bolumleri ayiran ayrac */}
             <div style={{
               height: "1px",
               background: "var(--border-color)",
               margin: "24px 0"
             }} />
 
-            {/* Text & Interface Size Sub-section */}
+            {/* Metin ve Arayuz Boyutu Alt Bolumu */}
             <div className="settings-subsection-title">
               <Type size={16} />
-              Text & Interface Size
+              Metin ve Arayuz Boyutu
             </div>
             <div className="m3-slider-group" style={{ maxWidth: "480px", marginTop: "14px" }}>
               <div className="m3-slider-header">
-                <span className="m3-slider-label">Font Size</span>
+                <span className="m3-slider-label">Yazi Boyutu</span>
                 <span className="settings-value-badge">{fontSize || 16}px</span>
               </div>
               <input
@@ -1603,7 +1603,7 @@ function Settings({
                 style={getSliderStyle(fontSize || 16, 12, 24)}
               />
               <span className="settings-option-desc">
-                Adjusts the global font size of the application text, including chat replies and settings labels. Default is 16px.
+                Uygulama metninin genel yazi boyutunu ayarlar; sohbet yanitlari ve ayar etiketleri dahil. Varsayilan 16px'dir.
               </span>
             </div>
           </div>
@@ -1614,28 +1614,28 @@ function Settings({
 
   return (
     <div className="workspace-area">
-      {/* Page Header */}
+      {/* Sayfa Basligi */}
       <div className="workspace-title-section">
-        <h2 className="workspace-title">Ayarlar & Parameters</h2>
-        <p className="workspace-subtitle">
-          Configure your AI models for optimal performance.
-        </p>
+        <h2 className="workspace-title">Ayarlar ve Parametreler</h2>
+          <p className="workspace-subtitle">
+            Yapay zeka modellerinizi en iyi performans icin yapilandirin.
+          </p>
       </div>
 
 
-      {/* Appearance & Themes Section */}
+      {/* Gorunum ve Temalar Bolumu */}
       {renderAppearanceSettings()}
 
-      {/* Image Settings Section */}
+      {/* Gorsel Ayarlari Bolumu */}
       {renderImageSettings()}
 
-      {/* Text Settings Section */}
+      {/* Metin Ayarlari Bolumu */}
       {renderTextSettings()}
 
-      {/* Speech Settings Section */}
+      {/* Konusma Ayarlari Bolumu */}
       {renderSpeechSettings()}
 
-      {/* Text to Speech Settings Section */}
+      {/* Metinden Sese Ayarlari Bolumu */}
       {renderTtsSettings()}
     </div>
   );
