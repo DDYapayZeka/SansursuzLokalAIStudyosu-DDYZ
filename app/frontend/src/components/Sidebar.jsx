@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Image, FolderDown, MessageSquare, Mic, Settings, Shield, Terminal, ChevronDown, ChevronUp, Trash2, Volume2 } from "lucide-react";
+import { Image, FolderDown, MessageSquare, Mic, Settings, Terminal, ChevronDown, ChevronUp, Trash2, Volume2 } from "lucide-react";
 
 function formatSidebarDate(value) {
   const date = new Date(value);
@@ -38,8 +38,8 @@ function Sidebar({
       <div>
         {/* Sidebar Header */}
         <div className="sidebar-logo">
-          <Shield className="sidebar-logo-icon" />
-          <span className="sidebar-logo-text">Local AI Studio</span>
+          <img className="sidebar-logo-icon" src="/logo.png" alt="Sansursuz Lokal AI Studyosu - DD:YZ logosu" />
+          <span className="sidebar-logo-text">Sansursuz Lokal AI Studyosu - DD:YZ</span>
         </div>
 
         {/* Sidebar Navigation Links (Material 3 style) */}
@@ -49,7 +49,7 @@ function Sidebar({
             onClick={() => setActiveTab("generator")}
           >
             <Image size={20} />
-            <span>Image Generator</span>
+            <span>Gorsel Uretici</span>
           </div>
 
           <div className="nav-item-wrapper" style={{ display: "flex", flexDirection: "column" }}>
@@ -60,7 +60,7 @@ function Sidebar({
             >
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <MessageSquare size={20} />
-                <span>Text Chat</span>
+                <span>Metin Sohbeti</span>
               </div>
               <button
                 onClick={(e) => {
@@ -177,7 +177,7 @@ function Sidebar({
             >
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <Mic size={20} />
-                <span>Speech Transcriber</span>
+                <span>Konusma Yazici</span>
               </div>
               <button
                 onClick={(e) => {
@@ -298,7 +298,7 @@ function Sidebar({
             >
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <Volume2 size={20} />
-                <span>Text to Speech</span>
+                <span>Metinden Sese</span>
               </div>
               <button
                 onClick={(e) => {
@@ -416,7 +416,7 @@ function Sidebar({
             onClick={() => setActiveTab("models")}
           >
             <FolderDown size={20} />
-            <span>Model Manager</span>
+            <span>Model Yoneticisi</span>
           </div>
 
           <div
@@ -424,7 +424,7 @@ function Sidebar({
             onClick={() => setActiveTab("settings")}
           >
             <Settings size={20} />
-            <span>Settings</span>
+            <span>Ayarlar</span>
           </div>
         </div>
       </div>
@@ -433,7 +433,7 @@ function Sidebar({
       <div className="sidebar-footer">
         <div className="sidebar-specs-header">
           <Terminal size={12} />
-          <span>Host Specifications</span>
+          <span>Bilgisayar Ozellikleri</span>
         </div>
         <div className="sidebar-specs-item" title={specs.cpu_name}>
           CPU: {specs.cpu_name}

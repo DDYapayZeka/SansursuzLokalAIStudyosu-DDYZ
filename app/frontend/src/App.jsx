@@ -35,7 +35,7 @@ function App() {
     });
   }, []);
 
-  // Theme State
+  // Tema State
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem("theme");
     if (saved) return saved;
@@ -54,7 +54,7 @@ function App() {
   const [prompt, setPrompt] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
 
-  // Model & Server Status
+  // Model & Sunucu Status
   const [activeModel, setActiveModel] = useState(null);
   const [serverRunning, setServerRunning] = useState(false);
   const [isStoppingServer, setIsStoppingServer] = useState(false);
@@ -70,14 +70,14 @@ function App() {
   const [isReadinessBusy, setIsReadinessBusy] = useState(false);
   const [diagnosticsCopied, setDiagnosticsCopied] = useState(false);
 
-  // Gallery History
+  // Gallery Gecmis
   const [generatedImages, setGeneratedImages] = useState([]);
 
-  // Generation status
+  // Uretim status
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
 
-  // System Specifications & Telemetry
+  // Sistem Ozellikler & Telemetry
   const [specs, setSpecs] = useState({
     os_name: "Loading Specs...",
     cpu_name: "Loading Specs...",
@@ -96,7 +96,7 @@ function App() {
     vram_total_gb: 0,
   });
 
-  // Default Image Constraints
+  // Default Gorsel Constraints
   const [constraints, setConstraints] = useState({
     width: 1024,
     height: 1024,
@@ -136,7 +136,7 @@ function App() {
       systemPrompt: "You are a helpful local AI assistant.",
       threads: Math.max(4, Math.min(16, (navigator.hardwareConcurrency || 4) - 2)),
       enableThinking: false,
-      // New performance settings
+      // New performance ayarlar
       gpuLayers: -1,
       maxTokens: 1024,
       responseTokenMode: "auto",
@@ -211,7 +211,7 @@ function App() {
     localStorage.setItem("ttsSettings", JSON.stringify(ttsSettings));
   }, [ttsSettings]);
 
-  // Lifted Chat History States
+  // Lifted Sohbet Gecmis States
   const [conversations, setConversations] = useState([]);
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [showHistory, setShowHistory] = useState(false); // Default hide
@@ -444,7 +444,7 @@ function App() {
     refreshTtsOutputs();
   }, [refreshTtsOutputs]);
 
-  // Load hardware specifications on mount
+  // Yukle hardware ozellikler on mount
   useEffect(() => {
     async function loadSpecs() {
       try {
@@ -452,7 +452,7 @@ function App() {
         const backendInfo = await getBackendOptions();
         setBackendOptions(backendInfo);
         setSpecs(hardware);
-        // Default CPU threads count to match physical cores
+        // Default CPU is parcacigi count to match physical cores
         setConstraints((prev) => ({
           ...prev,
           threads: hardware.cpu_cores_physical || 4,
@@ -529,7 +529,7 @@ function App() {
     loadSavedOutputs();
   }, []);
 
-  // Save active model configuration to localStorage for persistence across reloads
+  // Kaydet aktif model configuration to localStorage for persistence across reloads
   useEffect(() => {
     if (activeModel) {
       localStorage.setItem("active-model", activeModel);
@@ -538,7 +538,7 @@ function App() {
     }
   }, [activeModel]);
 
-  // Check if server is already running on mount (handles page refresh and startup lag)
+  // Check if sunucu is already running on mount (handles page yenile and startup lag)
   useEffect(() => {
     let checkInterval = null;
 
@@ -553,7 +553,7 @@ function App() {
           setActiveModel(savedModel);
           setServerRunning(true);
         } else {
-          // Query the active model from status if possible, otherwise use fallback
+          // Query the aktif model from status if possible, otherwise use fallback
           try {
             if (status && status.settings && status.settings.model) {
               const modelName = status.settings.model.split(/[\\/]/).pop();
@@ -563,7 +563,7 @@ function App() {
           setServerRunning(true);
         }
       } else {
-        // If server is not running, check if they had a simulated model active in browser mode
+        // If sunucu is not running, check if they had a simulated model aktif in browser mode
         const isTauriDesktop = typeof window !== "undefined" && window.__TAURI_INTERNALS__ !== undefined;
         if (!isTauriDesktop) {
           const savedModel = localStorage.getItem("active-model");
@@ -576,7 +576,7 @@ function App() {
     }
 
     checkServerRunning();
-    // Poll every 2 seconds to auto-detect when the backend becomes ready
+    // Poll every 2 seconds to auto-detect when the arka uc becomes hazir
     checkInterval = setInterval(checkServerRunning, 2000);
 
     return () => {
@@ -584,7 +584,7 @@ function App() {
     };
   }, []);
 
-  // Poll system telemetry usage statistics on interval
+  // Poll sistem telemetry kullanim statistics on interval
   useEffect(() => {
     async function updateTelemetry() {
       try {
@@ -610,7 +610,7 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // Sync active model settings default parameters
+  // Sync aktif model ayarlar default parameters
   useEffect(() => {
     if (activeModel) {
       const name = activeModel.toLowerCase();
@@ -662,7 +662,7 @@ function App() {
           height: 1024,
         }));
       } else {
-        // Fallback for custom or SD 1.x models (like CyberRealistic or arbitrary safetensors)
+        // Fallback for custom or SD 1.x modeller (like CyberRealistic or arbitrary safetensors)
         setConstraints((prev) => ({
           ...prev,
           steps: 20,
@@ -675,7 +675,7 @@ function App() {
     }
   }, [activeModel]);
 
-  // Tab contents are kept mounted to preserve loading/generation state when switching tabs
+  // Tab contents are kept mounted to preserve yukleniyor/uretim state when switching tabs
 
   const sidebarContent = useMemo(() => (
     <Sidebar

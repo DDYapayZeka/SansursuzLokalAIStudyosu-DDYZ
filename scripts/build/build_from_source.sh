@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Uncensored AI Studio - Compile backends from source
+# Sansursuz Lokal AI Studyosu - DD:YZ - Compile backends from source
 # For Linux systems with GLIBC < 2.38 or macOS systems that need a local Metal build.
 #
 
@@ -21,7 +21,7 @@ JOBS="$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null |
 # Pinned release tag
 PINNED_TAG="master-685-19bdfe2"
 
-echo "=== Uncensored AI Studio - Build from Source ==="
+echo "=== Sansursuz Lokal AI Studyosu - DD:YZ - Build from Source ==="
 echo "Target directories:"
 echo "  CPU Backend   -> $BACKEND_DIR/cpu"
 echo "  Vulkan Backend -> $BACKEND_DIR/vulkan"

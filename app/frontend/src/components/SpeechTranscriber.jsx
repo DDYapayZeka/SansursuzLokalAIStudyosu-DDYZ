@@ -362,7 +362,7 @@ export default function SpeechTranscriber({
   return (
     <div className="workspace-area speech-workspace">
       <div className="workspace-title-section">
-        <h2 className="workspace-title">Speech Transcriber</h2>
+        <h2 className="workspace-title">Konusma Yazici</h2>
         <p className="workspace-subtitle">
           Record microphone audio or upload a WAV file, then transcribe locally with whisper.cpp.
         </p>
@@ -371,7 +371,7 @@ export default function SpeechTranscriber({
       <div className="speech-grid">
         <section className="m3-card speech-panel">
           <div className="speech-panel-header">
-            <h3>Runtime</h3>
+            <h3>Calistirma ortami</h3>
             <span className={`status-chip ${status.backendInstalled ? "" : "offline"}`}>
               {status.backendInstalled ? (status.ready ? "Ready" : "Installed") : "Backend missing"}
             </span>
@@ -382,7 +382,7 @@ export default function SpeechTranscriber({
           <label className="speech-label">
             Whisper model
             <select className="m3-input" value={selectedModel} onChange={(event) => setSelectedModel(event.target.value)}>
-              {installedModels.length === 0 && <option value="">No downloaded speech models</option>}
+              {installedModels.length === 0 && <option value="">Indirilmis konusma modeli yok</option>}
               {installedModels.map((model) => (
                 <option key={model.id || model.filename} value={model.filename}>
                   {model.name || model.filename}
@@ -395,7 +395,7 @@ export default function SpeechTranscriber({
             <label className="speech-label">
               Backend
               <select className="m3-input" value={backendPreference} onChange={(event) => setBackendPreference(event.target.value)}>
-                <option value="auto">Auto (GPU if installed)</option>
+                <option value="auto">Otomatik (kuruluysa GPU)</option>
                 {(status.backends || []).map((backend) => (
                   <option key={backend.key} value={backend.key}>
                     {backend.label}{backend.installed ? " - installed" : " - missing"}
@@ -429,7 +429,7 @@ export default function SpeechTranscriber({
                 onChange={(event) => setSpeechSettings((prev) => ({ ...prev, translate: event.target.checked }))}
                 style={{ cursor: "pointer", width: "15px", height: "15px" }}
               />
-              <span>Translate to English</span>
+              <span>Ingilizce'ye cevir</span>
             </label>
           </div>
 
@@ -444,7 +444,7 @@ export default function SpeechTranscriber({
             </button>
             <button className="m3-btn m3-btn-outlined" onClick={refresh}>
               <Play size={14} />
-              <span>Refresh</span>
+              <span>Yenile</span>
             </button>
           </div>
 
@@ -457,7 +457,7 @@ export default function SpeechTranscriber({
 
         <section className="m3-card speech-panel">
           <div className="speech-panel-header">
-            <h3>Audio</h3>
+            <h3>Ses</h3>
             <span className="status-chip">{audioName || "No audio selected"}</span>
           </div>
 
@@ -465,7 +465,7 @@ export default function SpeechTranscriber({
             <FileAudio size={42} />
             <div>
               <strong>{audioName || "Record or upload WAV"}</strong>
-              <p>Microphone recordings are converted to 16 kHz mono PCM16 WAV before transcription.</p>
+              <p>Mikrofon kayitlari yaziya dokmeden once 16 kHz mono PCM16 WAV formatina cevrilir.</p>
             </div>
           </div>
 
@@ -475,23 +475,23 @@ export default function SpeechTranscriber({
             {isRecording ? (
               <button className="m3-btn m3-btn-error" onClick={stopRecording}>
                 <Square size={14} />
-                <span>Stop Recording</span>
+                <span>Kaydi Durdur</span>
               </button>
             ) : (
               <button className="m3-btn m3-btn-filled" onClick={startRecording} disabled={isTranscribing}>
                 <Mic size={14} />
-                <span>Record</span>
+                <span>Kaydet</span>
               </button>
             )}
             <label className="m3-btn m3-btn-outlined">
               <Upload size={14} />
-              <span>Upload WAV</span>
+              <span>WAV Yukle</span>
               <input type="file" accept=".wav,audio/wav" onChange={handleUploadAudio} hidden />
             </label>
             {audioBlob && (
               <button className="m3-btn m3-btn-error" onClick={clearCurrentAudio} disabled={isTranscribing || isRecording}>
                 <X size={14} />
-                <span>Remove Audio</span>
+                <span>Sesi Kaldir</span>
               </button>
             )}
           </div>
@@ -500,7 +500,7 @@ export default function SpeechTranscriber({
             {isTranscribing ? (
               <button className="m3-btn m3-btn-error" onClick={handleCancel}>
                 <Square size={14} />
-                <span>Cancel</span>
+                <span>Iptal</span>
               </button>
             ) : (
               <button
@@ -509,7 +509,7 @@ export default function SpeechTranscriber({
                 disabled={!audioBlob || !selectedModel || !status.backendInstalled}
               >
                 <Mic size={14} />
-                <span>Transcribe</span>
+                <span>Yaziya dok</span>
               </button>
             )}
             {isTranscribing && <span className="text-progress"><LoaderCircle className="progress-spinner" size={14} /> Transcribing locally...</span>}
@@ -541,7 +541,7 @@ export default function SpeechTranscriber({
             {status.ready && (
               <button className="m3-btn m3-btn-error" onClick={() => stopSpeech().then(refresh)}>
                 <Square size={14} />
-                <span>Stop Runtime</span>
+                <span>Durdur Calistirma ortami</span>
               </button>
             )}
           </div>

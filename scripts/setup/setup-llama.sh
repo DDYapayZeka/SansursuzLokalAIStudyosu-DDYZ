@@ -20,13 +20,13 @@ download_and_extract() {
   local url="https://github.com/ggml-org/llama.cpp/releases/download/$RELEASE/$asset"
 
   if [[ -x "$dest/llama-server" ]]; then
-    echo "   OK   llama.cpp backend already ready: $dest"
+    echo "   OK   llama.cpp arka ucu zaten hazir: $dest"
     return
   fi
 
   mkdir -p "$TOOLS_DIR" "$dest"
   rm -f "$archive" "$archive.part"
-  echo "   >>   Downloading $asset"
+  echo "   >>   $asset indiriliyor"
   curl -fSL --progress-bar "$url" -o "$archive.part"
   mv "$archive.part" "$archive"
   if command -v python3 >/dev/null 2>&1; then
@@ -38,7 +38,7 @@ download_and_extract() {
   chmod +x "$dest"/llama-* 2>/dev/null || true
 
   if [[ ! -x "$dest/llama-server" ]]; then
-    echo "   XX   llama-server was not found after extracting $asset" >&2
+    echo "   XX   $asset acildiktan sonra llama-server bulunamadi" >&2
     return 1
   fi
 }
@@ -49,7 +49,7 @@ download_and_extract_optional() {
   local reason="$3"
 
   if [[ -x "$dest/llama-server" ]]; then
-    echo "   OK   optional llama.cpp backend already ready: $dest"
+    echo "   OK   istege bagli llama.cpp arka ucu zaten hazir: $dest"
     return 0
   fi
 
@@ -57,7 +57,7 @@ download_and_extract_optional() {
     return 0
   fi
 
-  echo "   !!   Skipping optional llama.cpp backend for $reason ($asset)" >&2
+  echo "   !!   istege bagli llama.cpp arka ucu atlaniyor ($reason - $asset)" >&2
   rm -rf "$dest"
   return 0
 }
@@ -84,18 +84,18 @@ elif [[ "$PLATFORM" == "Linux" ]]; then
     download_and_extract "llama-$RELEASE-bin-ubuntu-arm64.tar.gz" "$APP_DIR/llm-backend/linux/cpu"
   else
     if has_command nvidia-smi || has_linux_gpu_vendor "0x10de"; then
-      download_and_extract_optional "llama-$RELEASE-bin-ubuntu-cuda-12.4-x64.tar.gz" "$APP_DIR/llm-backend/linux/cuda" "NVIDIA CUDA acceleration"
+      download_and_extract_optional "llama-$RELEASE-bin-ubuntu-cuda-12.4-x64.tar.gz" "$APP_DIR/llm-backend/linux/cuda" "NVIDIA CUDA hizlandirmasi"
     fi
     if has_command rocminfo || has_linux_gpu_vendor "0x1002"; then
-      download_and_extract_optional "llama-$RELEASE-bin-ubuntu-rocm-x64.tar.gz" "$APP_DIR/llm-backend/linux/rocm" "AMD ROCm acceleration"
+      download_and_extract_optional "llama-$RELEASE-bin-ubuntu-rocm-x64.tar.gz" "$APP_DIR/llm-backend/linux/rocm" "AMD ROCm hizlandirmasi"
     fi
     if has_linux_gpu_vendor "0x8086"; then
-      download_and_extract_optional "llama-$RELEASE-bin-ubuntu-sycl-fp32-x64.tar.gz" "$APP_DIR/llm-backend/linux/sycl" "Intel SYCL acceleration"
+      download_and_extract_optional "llama-$RELEASE-bin-ubuntu-sycl-fp32-x64.tar.gz" "$APP_DIR/llm-backend/linux/sycl" "Intel SYCL hizlandirmasi"
     fi
     download_and_extract "llama-$RELEASE-bin-ubuntu-vulkan-x64.tar.gz" "$APP_DIR/llm-backend/linux/vulkan"
     download_and_extract "llama-$RELEASE-bin-ubuntu-x64.tar.gz" "$APP_DIR/llm-backend/linux/cpu"
   fi
 else
-  echo "Unsupported platform: $PLATFORM" >&2
+  echo "Desteklenmeyen platform: $PLATFORM" >&2
   exit 1
 fi

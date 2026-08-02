@@ -169,7 +169,7 @@ function Generator({
 
   const handleClearBaseImage = () => setBaseImage(null);
 
-  // Trigger main image generation process
+  // Trigger main gorsel uretim process
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
 
@@ -350,7 +350,7 @@ function Generator({
             }
           }
 
-          // Detect CPU fallback / slow generation if GPU was requested but it runs slow
+          // Detect CPU fallback / slow uretim if GPU was requested but it runs slow
           if (gpuSelected && !cpuFallbackDetected && !isConfirmedGpuBackend) {
             const isSlowItS = speed.includes("it/s") && numericSpeed < 0.2;
             const isSlowSIt = speed.includes("s/it") && numericSpeed > 5.0;
@@ -362,7 +362,7 @@ function Generator({
 
           setEstimatedLeftTime(Math.round(remaining));
         } else {
-          // Creep up slowly while loading the model/preparing
+          // Creep up slowly while yukleniyor the model/preparing
           setGenerationProgress((prev) => Math.min(15, prev + 1));
           setEstimatedLeftTime((prev) => Math.max(1, prev - 1));
         }
@@ -491,7 +491,7 @@ function Generator({
     }
   };
 
-  // Stop/Cancel Generation Handler
+  // Durdur/Iptal Uretim Handler
   const handleCancelGeneration = async () => {
     if (await showConfirm({
       title: "Stop Generation?",
@@ -501,7 +501,7 @@ function Generator({
     })) {
       if (timerRef.current) clearInterval(timerRef.current);
       
-      // Set cancelling state first to keep the progress overlay active in cancelling mode
+      // Set cancelling state first to keep the progress overlay aktif in cancelling mode
       setIsCancelling(true);
       
       if (abortControllerRef.current) {
@@ -535,7 +535,7 @@ function Generator({
     }
   };
 
-  // Copy generated image to clipboard
+  // Copy generated gorsel to clipboard
   const handleCopyImage = async () => {
     if (!outputImage) return;
     try {
@@ -547,7 +547,7 @@ function Generator({
           new ClipboardItem({ [blob.type]: blob })
         ]);
       } else {
-        // Remote Unsplash images fallback (draw on canvas then copy)
+        // Remote Unsplash gorseller fallback (draw on canvas then copy)
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.src = outputImage;
@@ -571,7 +571,7 @@ function Generator({
     }
   };
 
-  // Download generated image
+  // Indir generated gorsel
   const handleDownload = () => {
     if (!outputImage) return;
     const link = document.createElement("a");
@@ -592,7 +592,7 @@ function Generator({
     document.body.removeChild(link);
   };
 
-  // Reuse prompt settings from history
+  // Reuse ipucu ayarlar from gecmis
   const loadHistoryItem = useCallback((item) => {
     setPrompt(item.prompt);
     setNegativePrompt(item.negativePrompt);
@@ -695,7 +695,7 @@ function Generator({
             <div className="m3-field-group">
               {/* Prompt Textarea */}
               <div className="m3-text-field">
-                <label className="m3-text-field-label">Image Prompt</label>
+                <label className="m3-text-field-label">Gorsel Ipucu</label>
                 <textarea
                   className="m3-textarea"
                   value={prompt}
@@ -707,19 +707,19 @@ function Generator({
 
               {constraints.backendType !== "apple-npu" && constraints.backendType !== "openvino-npu" && (
                 <div className="m3-text-field">
-                  <label className="m3-text-field-label">Base Image (Optional)</label>
+                  <label className="m3-text-field-label">Base Gorsel (Optional)</label>
                   {baseImage ? (
                     <div style={{ display: "flex", gap: "12px", alignItems: "center", padding: "12px", background: "var(--md-sys-color-surface-variant)", borderRadius: "var(--md-shape-corner-medium)", border: "1px solid var(--md-sys-color-outline-variant)" }}>
                       <img src={baseImage} alt="Base" style={{ width: "64px", height: "64px", objectFit: "cover", borderRadius: "8px", flexShrink: 0 }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 600, fontSize: "0.85rem" }}>Base image ready</div>
+                        <div style={{ fontWeight: 600, fontSize: "0.85rem" }}>Base gorsel hazir</div>
                         <div style={{ fontSize: "0.75rem", color: "var(--md-sys-color-outline)" }}>
                           The AI will redraw this image guided by your prompt.
                         </div>
                       </div>
                       <button type="button" className="m3-btn m3-btn-error" style={{ height: "34px", flexShrink: 0 }} onClick={handleClearBaseImage} disabled={isGenerating}>
                         <Trash2 size={14} />
-                        <span>Remove</span>
+                        <span>Kaldir</span>
                       </button>
                     </div>
                   ) : (
@@ -732,7 +732,7 @@ function Generator({
                         disabled={isGenerating}
                       />
                       <ImagePlus className="import-icon" />
-                      <span style={{ fontWeight: 600 }}>Upload a base image</span>
+                      <span style={{ fontWeight: 600 }}>Yukle a base gorsel</span>
                       <span style={{ fontSize: "0.75rem", color: "var(--md-sys-color-outline)", textAlign: "center" }}>
                         Optional. Generate a new image based on one of your own.
                       </span>
@@ -742,7 +742,7 @@ function Generator({
                   {baseImage && (
                     <div style={{ marginTop: "12px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", marginBottom: "4px" }}>
-                        <span>Transformation strength</span>
+                        <span>Donusum guclu</span>
                         <span>{constraints.denoisingStrength.toFixed(2)}</span>
                       </div>
                       <input
@@ -765,7 +765,7 @@ function Generator({
 
               {/* Configuration Status Chips (Material 3 style) */}
               <div className="m3-text-field">
-                <label className="m3-text-field-label">Active Image Constraints</label>
+                <label className="m3-text-field-label">Aktif Gorsel Constraints</label>
                 <div className="chips-container">
                   <div className="status-chip">
                     <Sliders size={14} />
@@ -831,7 +831,7 @@ function Generator({
                         </div>
                         {(restartLoadProgress.backendMode || restartLoadProgress.device) && (
                           <div style={{ fontSize: "0.78rem", opacity: 0.8, textAlign: "center", marginTop: "8px" }}>
-                            Loading on {restartLoadProgress.backendMode || "backend"}{restartLoadProgress.device ? ` • ${restartLoadProgress.device}` : ""}
+                            Loading on {restartLoadProgress.backendMode || "backend"}{restartLoadProgress.device ? `  ${restartLoadProgress.device}` : ""}
                           </div>
                         )}
                       </div>
@@ -860,7 +860,7 @@ function Generator({
                     
                     {isCpuFallback && (
                       <div style={{ fontSize: "0.8rem", color: "var(--md-sys-color-primary)", fontWeight: 600, background: "var(--md-sys-color-primary-container)", padding: "4px 12px", borderRadius: "12px", margin: "4px 0 8px 0", animation: "pulse 2s infinite" }}>
-                        ⚠️ CPU Fallback Detected (Running Slower)
+                         CPU Fallback Detected (Running Slower)
                       </div>
                     )}
 
@@ -883,7 +883,7 @@ function Generator({
                     
                     <div style={{ fontSize: "0.85rem", opacity: 0.8, display: "flex", gap: "8px", alignItems: "center" }}>
                       <span>Progress: {generationProgress}%</span>
-                      <span>•</span>
+                      <span></span>
                       <span>Est. remaining: {estimatedLeftTime}s</span>
                     </div>
 
@@ -906,12 +906,12 @@ function Generator({
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
-                <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: "bold" }}>Generation Failed</h3>
+                <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: "bold" }}>Uretim Basarisiz</h3>
                 <p style={{ margin: 0, fontSize: "0.95rem", opacity: 0.9, maxWidth: "320px", lineHeight: "1.4" }}>
                   {errorMsg}
                 </p>
                 <div style={{ marginTop: "8px", fontSize: "0.85rem", opacity: 0.8, color: "var(--md-sys-color-on-surface-variant)" }}>
-                  Hint: Try lowering the resolution in the <strong>Image Constraints</strong> settings (e.g., to 512x512).
+                  Hint: Try lowering the resolution in the <strong>Gorsel Constraints</strong> settings (e.g., to 512x512).
                 </div>
               </div>
             ) : (
@@ -940,7 +940,7 @@ function Generator({
                 </button>
                 <button className="m3-btn m3-btn-outlined" onClick={handleDownload}>
                   <Download size={16} />
-                  <span>Save to USB</span>
+                  <span>USB'ye Kaydet</span>
                 </button>
               </div>
             </>
@@ -951,21 +951,21 @@ function Generator({
       {/* History / Gallery Grid */}
       <div className="gallery-section">
         <div className="gallery-header">
-          <h3 className="m3-card-title" style={{ marginBottom: 0 }}>Recent Outputs Gallery</h3>
+          <h3 className="m3-card-title" style={{ marginBottom: 0 }}>Recent Ciktilar Gallery</h3>
           {selectedGalleryItems.length > 0 && (
             <div className="gallery-selection-actions">
               <span className="gallery-selection-count">{selectedGalleryItems.length} selected</span>
               <button className="m3-btn m3-btn-tonal" onClick={useSelectedGalleryItem}>
                 <Check size={14} />
-                <span>Use</span>
+                <span>Kullan</span>
               </button>
               <button className="m3-btn m3-btn-outlined" onClick={downloadSelectedGalleryItems}>
                 <Download size={14} />
-                <span>Download</span>
+                <span>Indir</span>
               </button>
               <button className="m3-btn m3-btn-error" onClick={deleteSelectedGalleryItems}>
                 <Trash2 size={14} />
-                <span>Delete</span>
+                <span>Sil</span>
               </button>
               <button className="m3-btn m3-btn-outlined" onClick={clearGallerySelection}>
                 Clear
@@ -979,7 +979,7 @@ function Generator({
           </div>
         ) : (
           <>
-            <div className="gallery-hint">Click to select one image. Ctrl-click or Shift-click to select multiple.</div>
+            <div className="gallery-hint">Click to sec one gorsel. Ctrl-click or Shift-click to sec multiple.</div>
             <div className="gallery-grid">
               {generatedImages.map((img, idx) => (
                 <GalleryItem

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Uncensored AI Studio - Linux/macOS Setup Script
-# Self-contained: no apt/yum/pacman, no global Node.js install.
+# Yerel AI Studosu - Linux/macOS Kurulum Betigi
+# Kendi icinde yeterli: apt/yum/pacman yok, global Node.js kurulumu yok.
 #
 
 set -euo pipefail
@@ -16,7 +16,7 @@ PLATFORM="$(uname -s)"
 ARCH="$(uname -m)"
 
 if [[ "$PLATFORM" == "Darwin" ]] && [[ "$(sysctl -in hw.optional.arm64 2>/dev/null || true)" == "1" ]]; then
-  # Under Rosetta, uname reports x86_64 even though arm64 binaries are supported.
+  # Rosetta altinda uname x86_64 rapor eder; arm64 ikililer yine de desteklenir.
   ARCH="arm64"
 fi
 
@@ -33,7 +33,7 @@ fi
 NODE_BIN="$NODE_DIR/bin/node"
 NPM_BIN="$NODE_DIR/bin/npm"
 
-# Check if filesystem supports symlinks
+# Dosya sisteminin sembolik baglari destekleyip desteklemedigini kontrol et
 USE_SYMLINKS=true
 TEST_LINK="$ROOT_DIR/.test_symlink"
 rm -f "$TEST_LINK"
@@ -43,7 +43,7 @@ else
   USE_SYMLINKS=false
 fi
 
-# Release pins
+# Surum sabitleri
 SD_RELEASE="master-685-19bdfe2"
 SD_SHORT_HASH="${SD_RELEASE##*-}"
 SD_BASE_URL="https://github.com/leejet/stable-diffusion.cpp/releases/download/$SD_RELEASE"
@@ -62,18 +62,18 @@ else
 fi
 NODE_URL="https://nodejs.org/dist/v${NODE_VERSION}/$NODE_TARBALL"
 
-# Flags
+# Bayraklar
 MAX_PERF=0
 if [[ "${1:-}" == "--max-perf" ]]; then
   MAX_PERF=1
 fi
 
-# ── Helpers ─────────────────────────────────────────────────────────────────
+# -- Yardimcilar ---------------------------------------------------------------
 print_header() {
   echo ""
   echo "  ============================================================"
-  echo "   UNCENSORED AI STUDIO      -  $PLATFORM_LABEL First-Time Setup"
-  echo "   100% Self-Contained  |  No System Install Required"
+  echo "   YEREL AI STUDYOSU      -  $PLATFORM_LABEL Ilk Kurulum"
+  echo "   100% Kendi Icinde Yeterli  |  Sistem Kurulumu Gerektirmez"
   echo "  ============================================================"
   echo ""
 }
@@ -104,17 +104,17 @@ format_bytes() {
   printf "%s B" "$b"
 }
 
-# Rich download with progress bar
+# Ilerleme cubuguyla zengin indirme
 download_file() {
   local url="$1" dest="$2" label="$3"
-  print_info "Downloading: $label"
+  print_info "Indiriliyor: $label"
   echo ""
 
   local tmp_dest="${dest}.part"
   rm -f "$tmp_dest"
 
   curl -fSL --progress-bar "$url" -o "$tmp_dest" || {
-    print_fail "Download failed: $url"
+    print_fail "Indirme basarisiz: $url"
     rm -f "$tmp_dest"
     return 1
   }
@@ -123,16 +123,16 @@ download_file() {
   echo ""
   local fsize
   fsize="$(stat -c%s "$dest" 2>/dev/null || stat -f%z "$dest" 2>/dev/null || echo 0)"
-  print_ok "Downloaded $(format_bytes "$fsize")"
+  print_ok "Indirildi $(format_bytes "$fsize")"
 }
 
-# Extract ZIP using Python zipfile (preferred), unzip, or Node.js adm-zip
+# Python zipfile (tercih edilen), unzip veya Node.js adm-zip ile ZIP acma
 extract_zip() {
   local zip_path="$1" dest="$2" label="$3"
-  print_info "Extracting: $label"
+  print_info "Aciliyor: $label"
   mkdir -p "$dest"
 
-  # Prefer Python zipfile (most reliable, no host deps beyond python3)
+  # Python zipfile tercih edilir (python3 disinda host bagimliligi yoktur)
   if command -v python3 >/dev/null 2>&1; then
     python3 -c "
 import zipfile, sys, os
@@ -150,35 +150,36 @@ with zipfile.ZipFile(sys.argv[1], 'r') as z:
     python -c "import zipfile, sys; zipfile.ZipFile(sys.argv[1], 'r').extractall(sys.argv[2])" "$zip_path" "$dest" && return 0
   fi
 
-  print_fail "No ZIP extractor available (tried python3, unzip, python)."
+  print_fail "Kullanilabilir ZIP acicisi yok (python3, unzip, python denendi)."
   return 1
 }
 
-# Extract tar.xz
+# tar.xz acma
 extract_tarxz() {
   local tar_path="$1" dest="$2" label="$3"
-  print_info "Extracting: $label"
+  print_info "Aciliyor: $label"
   mkdir -p "$dest"
   if [ "$USE_SYMLINKS" = false ]; then
-    # On filesystems that do not support symlinks, tar will fail when attempting to create symlinks
-    # (e.g. for npm/npx/corepack in Node.js bin/). We allow it to continue but verify key files.
+    # Sembolik baglari desteklemeyen dosya sistemlerinde tar, sembolik bag olusturmaya
+    # calisirken basarisiz olur (ornegin npm/npx/corepack icin Node.js bin/ dizininde).
+    # Devam etmesine izin veriyoruz ama anahtar dosyalari dogruluyoruz.
     local tar_exit=0
     tar -xf "$tar_path" -C "$dest" || tar_exit=$?
     if [[ $tar_exit -ne 0 ]]; then
-      # Check if node binary was extracted successfully
+      # node ikilisinin acildigini kontrol et
       local check_file
       check_file="$(find "$dest" -type f -name "node" | head -n 1)"
       if [[ -n "$check_file" ]]; then
-        print_warn "tar returned exit code $tar_exit due to symlink failures on this filesystem, but bin/node was successfully extracted."
+        print_warn "tar, bu dosya sisteminde sembolik bag hatalari nedeniyle cikis $tar_exit dondurdu, ancak bin/node basariyla acildi."
       else
-        print_fail "tar extraction failed with exit code $tar_exit (could not find bin/node)"
+        print_fail "tar acma islemi $tar_exit koduyla basarisiz oldu (bin/node bulunamadi)"
         exit $tar_exit
       fi
     fi
   else
     tar -xf "$tar_path" -C "$dest"
   fi
-  print_ok "Extracted $label"
+  print_ok "$label acildi"
 }
 
 detect_gpu_vendor() {
@@ -199,9 +200,9 @@ detect_gpu_vendor() {
   echo "$vendor"
 }
 
-# Official Linux binaries are built on Ubuntu 24.04 and link against glibc 2.38+
-# plus libstdc++ with GLIBCXX_3.4.32+. Stop early on older distributions so
-# setup does not appear successful when the backend cannot start.
+# Resmi Linux ikilileri Ubuntu 24.04 uzerine kuruludur ve glibc 2.38+
+# arti GLIBCXX_3.4.32+ baglanti gerektirir. Arka ucun baslatilamayacagi eski
+# dagitimlarda kurulumun basariya ulasmis gibi gozukmesini engellemek icin erken dur.
 version_at_least() {
   local current="$1" required="$2"
   [[ "$(printf '%s\n' "$required" "$current" | sort -V | head -n1)" == "$required" ]]
@@ -238,30 +239,30 @@ check_linux_runtime_abi() {
   current_glibcxx="$(detect_glibcxx_version || true)"
 
   if [[ -z "$current_glibc" ]]; then
-    print_warn "Could not detect glibc version. Prebuilt Linux backends require glibc $required_glibc+ (Ubuntu 24.04)."
+    print_warn "glibc surumu algilanamadi. Onceden derlenmis Linux arka uclari glibc $required_glibc+ (Ubuntu 24.04) gerektirir."
   elif ! version_at_least "$current_glibc" "$required_glibc"; then
-    print_fail "Detected glibc $current_glibc. Prebuilt Linux backends require glibc $required_glibc+ (Ubuntu 24.04 or newer)."
+    print_fail "Algilanan glibc $current_glibc. Onceden derlenmis Linux arka uclari glibc $required_glibc+ (Ubuntu 24.04 veya daha yeni) gerektirir."
     unsupported=1
   fi
 
   if [[ -z "$current_glibcxx" ]]; then
-    print_warn "Could not detect GLIBCXX version. Prebuilt Linux backends require GLIBCXX_$required_glibcxx+."
+    print_warn "GLIBCXX surumu algilanamadi. Onceden derlenmis Linux arka uclari GLIBCXX_$required_glibcxx+ gerektirir."
   elif ! version_at_least "$current_glibcxx" "$required_glibcxx"; then
-    print_fail "Detected GLIBCXX_$current_glibcxx. Prebuilt Linux backends require GLIBCXX_$required_glibcxx+."
+    print_fail "Algilanan GLIBCXX_$current_glibcxx. Onceden derlenmis Linux arka uclari GLIBCXX_$required_glibcxx+ gerektirir."
     unsupported=1
   fi
 
   if [[ $unsupported -ne 0 ]]; then
-    print_info "CyberRealistic and other valid models will fail before loading on this OS because the backend binary cannot start."
-    print_info "Fix: use Ubuntu 24.04+, Fedora 40+, another glibc 2.38+ distro, or build stable-diffusion.cpp from source on this machine."
+    print_info "CyberRealistic ve diger gecerli modeller, arka uc ikilisi baslamadigi icin bu isletim sisteminde yukleme oncesi basarisiz olur."
+    print_info "Cozum: Ubuntu 24.04+, Fedora 40+ veya baska bir glibc 2.38+ dagitimi kullanin ya da stable-diffusion.cpp'i bu makinede kaynaktan derleyin."
     if [[ "${UAIS_ALLOW_UNSUPPORTED_LINUX:-0}" == "1" ]]; then
-      print_warn "Continuing anyway because UAIS_ALLOW_UNSUPPORTED_LINUX=1 is set."
+      print_warn "UAIS_ALLOW_UNSUPPORTED_LINUX=1 ayarli oldugu icin yine de devam ediliyor."
       return 0
     fi
     return 1
   fi
 
-  print_ok "Linux runtime ABI ready: glibc $current_glibc, GLIBCXX_$current_glibcxx"
+  print_ok "Linux calisma ABI hazir: glibc $current_glibc, GLIBCXX_$current_glibcxx"
 }
 
 has_linux_shared_library() {
@@ -274,12 +275,12 @@ has_linux_shared_library() {
 
 check_linux_runtime_dependencies() {
   if ! has_linux_shared_library "libgomp.so.1"; then
-    print_fail "The required OpenMP runtime (libgomp.so.1) is missing."
+    print_fail "Gerekli OpenMP calisma ortami (libgomp.so.1) eksik."
     print_info "Ubuntu/Debian: sudo apt-get update && sudo apt-get install -y libgomp1"
     print_info "Fedora: sudo dnf install libgomp"
     return 1
   fi
-  print_ok "Linux OpenMP runtime ready: libgomp.so.1"
+  print_ok "Linux OpenMP calisma ortami hazir: libgomp.so.1"
 }
 
 linux_backend_is_healthy() {
@@ -312,7 +313,7 @@ copy_binaries_from_extracted() {
     esac
   done < <(find "$extracted_dir" -type f \( -name "sd" -o -name "sd-cli" -o -name "sd-server" \) -print0 2>/dev/null)
 
-  # Copy any .so files
+  # .so dosyalarini kopyala
   find "$extracted_dir" -type f -name "*.so" -exec cp {} "$dest_dir/" \; 2>/dev/null || true
 }
 
@@ -330,7 +331,7 @@ copy_macos_backend_from_extracted() {
   elif [[ -n "$cli_bin" ]]; then
     cp "$cli_bin" "$target"
   else
-    print_fail "No sd-server, sd, or sd-cli binary was found in the macOS backend archive."
+    print_fail "macOS arka uc arsivinde sd-server, sd veya sd-cli ikilisi bulunamadi."
     return 1
   fi
 
@@ -338,43 +339,43 @@ copy_macos_backend_from_extracted() {
   chmod +x "$target" 2>/dev/null || true
 }
 
-# ════════════════════════════════════════════════════════════════════════════
+# ===========================================================================
 print_header
 
 if [[ "$PLATFORM" == "Linux" ]]; then
   if ! check_linux_runtime_abi; then
-    print_fail "Linux setup stopped before downloading incompatible backend binaries."
+    print_fail "Linux kurulumu, uyumsuz arka uc ikilileri indirilmeden durduruldu."
     exit 1
   fi
   if ! check_linux_runtime_dependencies; then
-    print_fail "Linux setup stopped before installing backends with missing runtime libraries."
+    print_fail "Linux kurulumu, eksik calisma zamani kutuphaneleriyle arka uclar kurulmadan durduruldu."
     exit 1
   fi
 fi
 
 TOTAL_STEPS=7
 
-# ── Step 1: Portable Node.js ────────────────────────────────────────────────
-print_step 1 $TOTAL_STEPS "Setting up portable Node.js ($NODE_DIR/)"
+# -- Adim 1: Tasinabilir Node.js -----------------------------------------------
+print_step 1 $TOTAL_STEPS "Tasinabilir Node.js ayarlaniyor ($NODE_DIR/)"
 
 EXPECTED_NODE_ARCH="${NODE_PLATFORM_ARCH##*-}"
 INSTALLED_NODE_ARCH=""
 if [[ -x "$NODE_BIN" ]]; then
-  INSTALLED_NODE_ARCH="$("$NODE_BIN" -p "process.arch" 2>/dev/null || true)"
+  INSTALLED_NODE_ARCH="$($NODE_BIN -p "process.arch" 2>/dev/null || true)"
 fi
 
 if [[ -x "$NODE_BIN" && -x "$NPM_BIN" && "$INSTALLED_NODE_ARCH" == "$EXPECTED_NODE_ARCH" ]]; then
   VERSION=$("$NODE_BIN" --version)
-  print_ok "Portable Node.js already ready: $VERSION"
+  print_ok "Tasinabilir Node.js zaten hazir: $VERSION"
 else
   if [[ -n "$INSTALLED_NODE_ARCH" && "$INSTALLED_NODE_ARCH" != "$EXPECTED_NODE_ARCH" ]]; then
-    print_warn "Replacing portable Node.js $INSTALLED_NODE_ARCH with $EXPECTED_NODE_ARCH for this hardware."
+    print_warn "Tasinabilir Node.js $INSTALLED_NODE_ARCH, bu donanim icin $EXPECTED_NODE_ARCH ile degistiriliyor."
     rm -rf "$NODE_DIR"
   fi
   mkdir -p "$TOOLS_DIR"
   NODE_TAR_PATH="$TOOLS_DIR/$NODE_TARBALL"
 
-  download_file "$NODE_URL" "$NODE_TAR_PATH" "Node.js v${NODE_VERSION} LTS (Portable tarball)"
+  download_file "$NODE_URL" "$NODE_TAR_PATH" "Node.js v${NODE_VERSION} LTS (Tasinabilir arsiv)"
   extract_tarxz "$NODE_TAR_PATH" "$TOOLS_DIR" "Node.js"
   rm -f "$NODE_TAR_PATH"
 
@@ -385,9 +386,9 @@ else
   fi
 
   if [ "$USE_SYMLINKS" = false ]; then
-    print_info "Filesystem does not support symlinks. Creating shell wrappers for npm, npx, and corepack..."
+    print_info "Dosya sistemi sembolik baglari desteklemiyor. npm, npx ve corepack icin kabuk sarmalayicilari olusturuluyor..."
     rm -f "$NODE_DIR/bin/npm" "$NODE_DIR/bin/npx" "$NODE_DIR/bin/corepack"
-    
+
     cat << 'EOF' > "$NODE_DIR/bin/npm"
 #!/bin/sh
 basedir=$(dirname "$0")
@@ -408,91 +409,91 @@ basedir=$(dirname "$0")
 exec "$basedir/node" "$basedir/../lib/node_modules/corepack/dist/corepack.js" "$@"
 EOF
     chmod +x "$NODE_DIR/bin/corepack"
-    
-    print_ok "Created shell wrappers."
+
+    print_ok "Kabuk sarmalayicilari olusturuldu."
   fi
 
   if [[ ! -x "$NODE_BIN" || ! -x "$NPM_BIN" ]]; then
-    print_fail "Portable Node.js install is incomplete."
+    print_fail "Tasinabilir Node.js kurulumu eksik."
     exit 1
   fi
 
   VERSION=$("$NODE_BIN" --version)
-  print_ok "Portable Node.js ready: $VERSION"
+  print_ok "Tasinabilir Node.js hazir: $VERSION"
 fi
 
-# ── Step 2: stable-diffusion.cpp Backends ───────────────────────────────────
+# -- Adim 2: stable-diffusion.cpp Arka Uclari ----------------------------------
 mkdir -p "$BACKEND_DIR"
 
 if [[ "$PLATFORM" == "Darwin" ]]; then
-  print_step 2 $TOTAL_STEPS "Setting up stable-diffusion.cpp Metal backend (app/backend/mac/)"
+  print_step 2 $TOTAL_STEPS "stable-diffusion.cpp Metal arka ucu ayarlaniyor (app/backend/mac/)"
   if [[ "$ARCH" != "arm64" ]]; then
-    print_fail "The official macOS backend binary is Apple Silicon only (arm64)."
-    print_info "macOS Intel hardware is completely unsupported and has not been tested."
+    print_fail "Resmi macOS arka uc ikilisi yalnizca Apple Silicon'dir (arm64)."
+    print_info "macOS Intel donanimi tamamen desteklenmiyor ve test edilmedi."
     exit 1
   fi
 
   MAC_BACKEND="$BACKEND_DIR/sd"
   if [[ -x "$MAC_BACKEND" ]]; then
-    print_ok "macOS Metal backend already ready."
+    print_ok "macOS Metal arka ucu zaten hazir."
   else
     MAC_ZIP="$TOOLS_DIR/sd-mac-metal.zip"
-    download_file "$SD_BASE_URL/sd-master-${SD_SHORT_HASH}-bin-Darwin-macOS-15.7.7-arm64.zip" "$MAC_ZIP" "stable-diffusion.cpp Metal Backend (macOS arm64)"
-    extract_zip "$MAC_ZIP" "$BACKEND_DIR/extracted" "macOS Metal Backend"
+    download_file "$SD_BASE_URL/sd-master-${SD_SHORT_HASH}-bin-Darwin-macOS-15.7.7-arm64.zip" "$MAC_ZIP" "stable-diffusion.cpp Metal Arka Ucu (macOS arm64)"
+    extract_zip "$MAC_ZIP" "$BACKEND_DIR/extracted" "macOS Metal Arka Ucu"
     rm -f "$MAC_ZIP"
     copy_macos_backend_from_extracted "$BACKEND_DIR/extracted" "$BACKEND_DIR"
     rm -rf "$BACKEND_DIR/extracted"
-    print_ok "macOS Metal backend installed."
+    print_ok "macOS Metal arka ucu kuruldu."
   fi
 
-  # CoreML NPU Environment setup (macOS Apple Silicon only)
-  print_info "Setting up CoreML Python virtual environment for Apple Silicon ANE (NPU)..."
+  # CoreML NPU ortam kurulumu (yalnizca macOS Apple Silicon)
+  print_info "Apple Silicon ANE (NPU) icin CoreML Python sanal ortami ayarlaniyor..."
   VENV_DIR="$BACKEND_DIR/coreml_venv"
   PYTHON_BIN="$VENV_DIR/bin/python"
-  
+
   if [[ ! -x "$PYTHON_BIN" ]]; then
-    print_info "Creating Python virtual environment at $VENV_DIR..."
+    print_info "CoreML icin Python sanal ortami olusturuluyor: $VENV_DIR..."
     if ! python3 -m venv "$VENV_DIR"; then
-      print_warn "Could not create the virtual environment for CoreML. CoreML NPU mode will be unavailable."
+      print_warn "CoreML icin sanal ortam olusturulamadi. CoreML NPU modu kullanilamayacak."
     fi
   fi
-  
+
   if [[ -x "$PYTHON_BIN" ]]; then
-    print_info "Installing CoreML dependencies (this may take a couple of minutes)..."
+    print_info "CoreML bagimliliklari kuruluyor (birkac dakika surebilir)..."
     if "$PYTHON_BIN" -m pip install --upgrade pip >/dev/null 2>&1 && \
        "$PYTHON_BIN" -m pip install numpy coremltools diffusers transformers huggingface-hub pillow >/dev/null 2>&1 && \
        "$PYTHON_BIN" -m pip install "git+https://github.com/apple/ml-stable-diffusion.git" >/dev/null 2>&1; then
-      print_ok "CoreML ANE (NPU) environment ready."
+      print_ok "CoreML ANE (NPU) ortami hazir."
     else
-      print_warn "CoreML dependencies installation failed. CoreML NPU mode will be unavailable."
+      print_warn "CoreML bagimliliklari kurulumu basarisiz. CoreML NPU modu kullanilamayacak."
     fi
   fi
 else
   VENDOR="$(detect_gpu_vendor)"
-  print_step 2 $TOTAL_STEPS "Detecting GPU vendor: ${VENDOR:-none}"
+  print_step 2 $TOTAL_STEPS "GPU ureticisi algilaniyor: ${VENDOR:-yok}"
 
-# CPU backend (always)
+# CPU arka ucu (her zaman)
 CPU_BACKEND_DIR="$BACKEND_DIR/cpu"
 if ! linux_backend_is_healthy "$CPU_BACKEND_DIR/sd-server-cpu" "$CPU_BACKEND_DIR"; then
   mkdir -p "$CPU_BACKEND_DIR"
   rm -rf "$CPU_BACKEND_DIR/extracted"
   rm -f "$CPU_BACKEND_DIR"/sd-cpu "$CPU_BACKEND_DIR"/sd-server-cpu "$CPU_BACKEND_DIR"/*.so
   CPU_ZIP="$TOOLS_DIR/sd-cpu.zip"
-  download_file "$SD_BASE_URL/sd-master-${SD_SHORT_HASH}-bin-Linux-Ubuntu-24.04-x86_64.zip" "$CPU_ZIP" "stable-diffusion.cpp CPU Backend (Linux x86_64)"
-  extract_zip "$CPU_ZIP" "$CPU_BACKEND_DIR/extracted" "CPU Backend"
+  download_file "$SD_BASE_URL/sd-master-${SD_SHORT_HASH}-bin-Linux-Ubuntu-24.04-x86_64.zip" "$CPU_ZIP" "stable-diffusion.cpp CPU Arka Ucu (Linux x86_64)"
+  extract_zip "$CPU_ZIP" "$CPU_BACKEND_DIR/extracted" "CPU Arka Ucu"
   rm -f "$CPU_ZIP"
   copy_binaries_from_extracted "$CPU_BACKEND_DIR/extracted" "$CPU_BACKEND_DIR" "sd-cpu" "sd-server-cpu"
   rm -rf "$CPU_BACKEND_DIR/extracted"
-  print_ok "CPU backend installed."
+  print_ok "CPU arka ucu kuruldu."
 else
-  print_ok "CPU backend already ready."
+  print_ok "CPU arka ucu zaten hazir."
 fi
 chmod +x "$CPU_BACKEND_DIR/sd-cpu" "$CPU_BACKEND_DIR/sd-server-cpu" 2>/dev/null || true
 
-# Vulkan backend (always - cross-vendor GPU fallback)
+# Vulkan arka ucu (her zaman - cok ureticili GPU yedegi)
 VULKAN_BACKEND_DIR="$BACKEND_DIR/vulkan"
 if ! has_linux_shared_library "libvulkan.so.1"; then
-  print_warn "Vulkan runtime library libvulkan.so.1 is missing; the CPU backend will remain available."
+  print_warn "Vulkan calisma kutuphanesi libvulkan.so.1 eksik; CPU arka ucu kullanilabilir kalacak."
   print_info "Ubuntu/Debian: sudo apt-get install -y libvulkan1 mesa-vulkan-drivers"
   print_info "Fedora: sudo dnf install vulkan-loader mesa-vulkan-drivers"
 elif ! linux_backend_is_healthy "$VULKAN_BACKEND_DIR/sd-server-vulkan" "$VULKAN_BACKEND_DIR" "hipblas|rocblas|amdhip"; then
@@ -500,176 +501,178 @@ elif ! linux_backend_is_healthy "$VULKAN_BACKEND_DIR/sd-server-vulkan" "$VULKAN_
   rm -rf "$VULKAN_BACKEND_DIR/extracted"
   rm -f "$VULKAN_BACKEND_DIR"/sd-vulkan "$VULKAN_BACKEND_DIR"/sd-server-vulkan "$VULKAN_BACKEND_DIR"/*.so
   VULKAN_ZIP="$TOOLS_DIR/sd-vulkan.zip"
-  download_file "$SD_BASE_URL/sd-master-${SD_SHORT_HASH}-bin-Linux-Ubuntu-24.04-x86_64-vulkan.zip" "$VULKAN_ZIP" "stable-diffusion.cpp Vulkan Backend (Linux x86_64)"
-  extract_zip "$VULKAN_ZIP" "$VULKAN_BACKEND_DIR/extracted" "Vulkan Backend"
+  download_file "$SD_BASE_URL/sd-master-${SD_SHORT_HASH}-bin-Linux-Ubuntu-24.04-x86_64-vulkan.zip" "$VULKAN_ZIP" "stable-diffusion.cpp Vulkan Arka Ucu (Linux x86_64)"
+  extract_zip "$VULKAN_ZIP" "$VULKAN_BACKEND_DIR/extracted" "Vulkan Arka Ucu"
   rm -f "$VULKAN_ZIP"
   copy_binaries_from_extracted "$VULKAN_BACKEND_DIR/extracted" "$VULKAN_BACKEND_DIR" "sd-vulkan" "sd-server-vulkan"
   rm -rf "$VULKAN_BACKEND_DIR/extracted"
-  print_ok "Vulkan backend installed."
+  print_ok "Vulkan arka ucu kuruldu."
 else
-  print_ok "Vulkan backend already ready."
+  print_ok "Vulkan arka ucu zaten hazir."
 fi
 chmod +x "$VULKAN_BACKEND_DIR/sd-vulkan" "$VULKAN_BACKEND_DIR/sd-server-vulkan" 2>/dev/null || true
 
-# ROCm backend (optional --max-perf, or auto-detected AMD)
+# ROCm arka ucu (istege bagli --max-perf ya da otomatik algilanan AMD)
 ROCM_BACKEND_DIR="$BACKEND_DIR/rocm"
 if [[ $MAX_PERF -eq 1 ]] && [[ "$VENDOR" == "amd" || "$VENDOR" == "" ]]; then
   if [[ ! -f "$ROCM_BACKEND_DIR/sd-rocm" || ! -f "$ROCM_BACKEND_DIR/sd-server-rocm" ]]; then
     mkdir -p "$ROCM_BACKEND_DIR"
     ROCM_ZIP="$TOOLS_DIR/sd-rocm.zip"
-    print_warn "ROCm backend is ~1.2 GB. This may take a while..."
-    download_file "$SD_BASE_URL/sd-master-${SD_SHORT_HASH}-bin-Linux-Ubuntu-24.04-x86_64-rocm-7.13.0.zip" "$ROCM_ZIP" "stable-diffusion.cpp ROCm Backend (Linux x86_64)"
-    extract_zip "$ROCM_ZIP" "$ROCM_BACKEND_DIR/extracted" "ROCm Backend"
+    print_warn "ROCm arka ucu ~1.2 GB. Bu biraz zaman alabilir..."
+    download_file "$SD_BASE_URL/sd-master-${SD_SHORT_HASH}-bin-Linux-Ubuntu-24.04-x86_64-rocm-7.13.0.zip" "$ROCM_ZIP" "stable-diffusion.cpp ROCm Arka Ucu (Linux x86_64)"
+    extract_zip "$ROCM_ZIP" "$ROCM_BACKEND_DIR/extracted" "ROCm Arka Ucu"
     rm -f "$ROCM_ZIP"
     copy_binaries_from_extracted "$ROCM_BACKEND_DIR/extracted" "$ROCM_BACKEND_DIR" "sd-rocm" "sd-server-rocm"
     rm -rf "$ROCM_BACKEND_DIR/extracted"
-    print_ok "ROCm backend installed."
+    print_ok "ROCm arka ucu kuruldu."
   else
-    print_ok "ROCm backend already ready."
+    print_ok "ROCm arka ucu zaten hazir."
   fi
   chmod +x "$ROCM_BACKEND_DIR/sd-rocm" "$ROCM_BACKEND_DIR/sd-server-rocm" 2>/dev/null || true
 fi
 
-# CUDA backend on Linux: ask user, download prebuilt first, and compile from source as a fallback.
+# CUDA arka ucu (Linux): kullaniciya sor, once onceden derlenmis ikili indir,
+# yedek olarak kaynaktan derle.
 CUDA_BACKEND_DIR="$BACKEND_DIR/cuda"
 if [[ "$VENDOR" == "nvidia" ]]; then
   if [[ ! -f "$CUDA_BACKEND_DIR/sd-cuda" || ! -f "$CUDA_BACKEND_DIR/sd-server-cuda" ]]; then
     echo ""
     echo "  ============================================================"
-    echo "   NVIDIA GPU Detected"
+    echo "   NVIDIA GPU Algilandi"
     echo "  ============================================================"
-    echo "   To get the best performance, you can use the CUDA backend."
-    echo "   Setting this up can download a prebuilt binary or compile from"
-    echo "   source (which takes 10-15 minutes)."
+    echo "   En iyi performans icin CUDA arka ucunu kullanabilirsiniz."
+    echo "   Bunun ayarlanmasi onceden derlenmis bir ikili indirebilir veya"
+    echo "   kaynaktan derleyebilir (bu 10-15 dakika surer)."
     echo ""
-    echo "   Alternatively, you can use the Vulkan backend which is already"
-    echo "   installed and runs immediately (recommended for GTX cards)."
+    echo "   Alternatif olarak, zaten kurulu olan ve hemen calisan Vulkan"
+    echo "   arka ucunu kullanabilirsiniz (GTX kartlari icin onerilir)."
     echo "  ============================================================"
     echo ""
-    
+
     CHOOSE_CUDA="n"
     if [[ -t 0 ]]; then
-      read -t 30 -rp "   Do you want to proceed with CUDA setup? [y/N]: " CHOOSE_CUDA || CHOOSE_CUDA="n"
+      read -t 30 -rp "   CUDA kurulumuna devam etmek istiyor musunuz? [e/H]: " CHOOSE_CUDA || CHOOSE_CUDA="n"
     else
-      print_info "Non-interactive environment detected; defaulting to Vulkan."
+      print_info "Etkilesimli olmayan ortam algilandi; varsayilan olarak Vulkan kullaniliyor."
     fi
-    
-    if [[ "$CHOOSE_CUDA" =~ ^[Yy]$ ]]; then
+
+    if [[ "$CHOOSE_CUDA" =~ ^[Ee]$ ]]; then
       TRY_DOWNLOAD=1
       PREBUILT_URL="https://github.com/leaxer-ai/leaxer-stable-diffusion/releases/download/v0.1.0/sd-server-x86_64-unknown-linux-gnu-cuda"
       PREBUILT_CLI_URL="https://github.com/leaxer-ai/leaxer-stable-diffusion/releases/download/v0.1.0/sd-x86_64-unknown-linux-gnu-cuda"
-      
+
       mkdir -p "$CUDA_BACKEND_DIR"
-      
-      print_info "Attempting to download prebuilt CUDA binary..."
-      if download_file "$PREBUILT_URL" "$CUDA_BACKEND_DIR/sd-server-cuda" "Prebuilt Linux CUDA Server" && \
-         download_file "$PREBUILT_CLI_URL" "$CUDA_BACKEND_DIR/sd-cuda" "Prebuilt Linux CUDA CLI"; then
-        
+
+      print_info "Onceden derlenmis CUDA ikilisi indirilmeye calisiliyor..."
+      if download_file "$PREBUILT_URL" "$CUDA_BACKEND_DIR/sd-server-cuda" "Onceden Derlenmis Linux CUDA Sunucusu" && \
+         download_file "$PREBUILT_CLI_URL" "$CUDA_BACKEND_DIR/sd-cuda" "Onceden Derlenmis Linux CUDA CLI"; then
+
         chmod +x "$CUDA_BACKEND_DIR/sd-server-cuda" "$CUDA_BACKEND_DIR/sd-cuda" 2>/dev/null || true
-        
-        print_info "Testing downloaded prebuilt CUDA binary..."
+
+        print_info "Indirilen onceden derlenmis CUDA ikilisi test ediliyor..."
         if "$CUDA_BACKEND_DIR/sd-server-cuda" --help >/dev/null 2>&1; then
-          print_ok "Prebuilt CUDA binary verified and works! Skipping compilation."
+          print_ok "Onceden derlenmis CUDA ikilisi dogrulandi ve calisiyor! Derleme atlaniyor."
           TRY_DOWNLOAD=0
         else
-          print_warn "Prebuilt CUDA binary failed verification test (missing libraries or library mismatch)."
+          print_warn "Onceden derlenmis CUDA ikilisi dogrulama testini gecmedi (eksik kutuphane veya uyumsuzluk)."
           rm -f "$CUDA_BACKEND_DIR/sd-server-cuda" "$CUDA_BACKEND_DIR/sd-cuda"
         fi
       else
-        print_warn "Failed to download prebuilt CUDA binary."
+        print_warn "Onceden derlenmis CUDA ikilisi indirilemedi."
         rm -f "$CUDA_BACKEND_DIR/sd-server-cuda" "$CUDA_BACKEND_DIR/sd-cuda"
       fi
-      
+
       if [[ $TRY_DOWNLOAD -eq 1 ]]; then
         if command -v nvcc >/dev/null 2>&1 && command -v cmake >/dev/null 2>&1 && command -v git >/dev/null 2>&1; then
-          print_info "NVIDIA GPU and CUDA compilation tools (nvcc, cmake, git) detected."
-          print_info "Building CUDA backend from source..."
-          
+          print_info "NVIDIA GPU ve CUDA derleme araclari (nvcc, cmake, git) algilandi."
+          print_info "CUDA arka ucu kaynaktan derleniyor..."
+
           BUILD_DIR="$TOOLS_DIR/build-sd"
           JOBS="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)"
-          
+
           if [[ ! -d "$BUILD_DIR" ]]; then
-            print_info "Cloning stable-diffusion.cpp..."
+            print_info "stable-diffusion.cpp klonlaniyor..."
             git clone https://github.com/leejet/stable-diffusion.cpp.git "$BUILD_DIR"
           fi
-          
+
           PUSHED_DIR="$(pwd)"
           cd "$BUILD_DIR"
-          
-          print_info "Checking out pinned tag $SD_RELEASE..."
+
+          print_info "Sabitlenmis etiket $SD_RELEASE kontrol ediliyor..."
           git fetch origin
           git checkout -f "$SD_RELEASE"
           git submodule update --init --recursive
-          
+
           rm -rf build-cuda && mkdir build-cuda && cd build-cuda
-          
-          print_info "Running cmake for CUDA backend..."
+
+          print_info "CUDA arka ucu icin cmake calistiriliyor..."
           if cmake .. -DSD_CUDA=ON -DSD_BUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA_FORCE_MMQ=ON && \
              cmake --build . --config Release -j"$JOBS"; then
-            
+
             mkdir -p "$CUDA_BACKEND_DIR"
             if [[ -f bin/sd-server ]]; then
               cp bin/sd-server "$CUDA_BACKEND_DIR/sd-cuda"
               cp bin/sd-server "$CUDA_BACKEND_DIR/sd-server-cuda"
             else
-              print_fail "CUDA build succeeded but bin/sd-server was not found."
+              print_fail "CUDA derlemesi basariyla tamamlandi ama bin/sd-server bulunamadi."
               cd "$PUSHED_DIR"
               exit 1
             fi
-            
+
             if [[ -f bin/sd ]]; then
               cp bin/sd "$CUDA_BACKEND_DIR/sd-cli-cuda"
             elif [[ -f bin/sd-cli ]]; then
               cp bin/sd-cli "$CUDA_BACKEND_DIR/sd-cli-cuda"
             fi
-            
+
             SO_PATH_CUDA=$(find . -name "libstable-diffusion.so" | head -n 1)
             if [[ -n "$SO_PATH_CUDA" ]]; then
               cp "$SO_PATH_CUDA" "$CUDA_BACKEND_DIR/"
             fi
-            
+
             chmod +x "$CUDA_BACKEND_DIR/sd-cuda" "$CUDA_BACKEND_DIR/sd-server-cuda" 2>/dev/null || true
             if [[ -f "$CUDA_BACKEND_DIR/sd-cli-cuda" ]]; then
               chmod +x "$CUDA_BACKEND_DIR/sd-cli-cuda" 2>/dev/null || true
             fi
-            print_ok "CUDA backend compiled and installed successfully from source."
+            print_ok "CUDA arka ucu kaynaktan derlenip kuruldu."
           else
-            print_warn "CUDA backend build from source failed. Falling back to Vulkan."
+            print_warn "CUDA arka ucu kaynaktan derleme basarisiz. Vulkan'a geri donuluyor."
           fi
           cd "$PUSHED_DIR"
         else
-          print_warn "CUDA compilation tools (nvcc, cmake, and/or git) are missing."
-          print_info "To compile the CUDA backend, install the NVIDIA CUDA Toolkit, cmake, and git."
-          print_info "Falling back to Vulkan."
+          print_warn "CUDA derleme araclari (nvcc, cmake ve/veya git) eksik."
+          print_info "CUDA arka ucunu derlemek icin NVIDIA CUDA Toolkit, cmake ve git kurun."
+          print_info "Vulkan'a geri donuluyor."
         fi
       fi
     else
-      print_info "Declined CUDA setup. Using Vulkan GPU backend instead."
+      print_info "CUDA kurulumu reddedildi. Bunun yerine Vulkan GPU arka ucu kullaniliyor."
     fi
   else
-    print_ok "CUDA backend already ready."
+    print_ok "CUDA arka ucu zaten hazir."
   fi
 fi
 fi
 
-# ── Step 3: npm install ─────────────────────────────────────────────────────
-print_step 3 $TOTAL_STEPS "Setting up llama.cpp text backend"
+# -- Adim 3: npm install ------------------------------------------------------
+print_step 3 $TOTAL_STEPS "llama.cpp metin arka ucu ayarlaniyor"
 bash "$SCRIPT_DIR/setup-llama.sh"
 
-print_step 4 $TOTAL_STEPS "Setting up whisper.cpp speech backend"
+print_step 4 $TOTAL_STEPS "whisper.cpp konusma arka ucu ayarlaniyor"
 bash "$SCRIPT_DIR/setup-whisper.sh"
 
-print_step 5 $TOTAL_STEPS "Setting up Kokoro ONNX text-to-speech runtime"
+print_step 5 $TOTAL_STEPS "Kokoro ONNX metinden sese calistirma ortami ayarlaniyor"
 bash "$SCRIPT_DIR/setup-tts.sh"
 
-print_step 6 $TOTAL_STEPS "Installing frontend dependencies (app/frontend/)"
+print_step 6 $TOTAL_STEPS "On yuze bagimliliklari kuruluyor (app/frontend/)"
 
 if [[ ! -x "$NPM_BIN" ]]; then
-  print_fail "Portable npm was not found at $NPM_BIN"
+  print_fail "Tasinabilir npm surada bulunamadi: $NPM_BIN"
   exit 1
 fi
 
-# Ensure correct OS-specific node_modules folder is symlinked or swapped to avoid conflicts
+# Dogru isletim sistemine ozgu node_modules klasorunun sembolik bagli veya
+# takas edilmis oldugundan emin ol (cakis malarini onlemek icin)
 FRONTEND_NODE_MODULES="$FRONTEND_DIR/node_modules"
 ACTIVE_OS_FILE="$FRONTEND_DIR/.active_modules_os"
 
@@ -683,7 +686,7 @@ else
   CURRENT_OS="linux"
 fi
 
-# Attempt to create a test symlink to check if filesystem supports symlinks
+# Dosya sisteminin sembolik baglari destekleyip desteklemedigini kontrol et
 USE_SYMLINKS=true
 TEST_LINK="$FRONTEND_DIR/.test_symlink"
 rm -f "$TEST_LINK"
@@ -695,7 +698,7 @@ fi
 
 if [ "$USE_SYMLINKS" = true ]; then
   if [[ -d "$FRONTEND_NODE_MODULES" && ! -L "$FRONTEND_NODE_MODULES" ]]; then
-    print_info "Migrating existing node_modules to $OS_LABEL..."
+    print_info "Mevcut node_modules $OS_LABEL konumuna tasiniliyor..."
     if [[ -d "$OS_NODE_MODULES" ]]; then
       rm -rf "$FRONTEND_NODE_MODULES"
     else
@@ -706,37 +709,37 @@ if [ "$USE_SYMLINKS" = true ]; then
   mkdir -p "$OS_NODE_MODULES"
   ln -sf "$OS_LABEL" "$FRONTEND_NODE_MODULES"
 else
-  # Fallback: Filesystem does not support symlinks (e.g. FAT32/exFAT)
-  print_info "Filesystem does not support symlinks. Using directory swapping fallback..."
-  
+  # Yedek: Dosya sistemi sembolik baglari desteklemiyor (orn. FAT32/exFAT)
+  print_info "Dosya sistemi sembolik baglari desteklemiyor. Dizin takas yedegi kullaniliyor..."
+
   if [[ -L "$FRONTEND_NODE_MODULES" || -f "$FRONTEND_NODE_MODULES" ]]; then
     rm -rf "$FRONTEND_NODE_MODULES"
   fi
-  
+
   PREV_OS=""
   if [[ -f "$ACTIVE_OS_FILE" ]]; then
     PREV_OS=$(cat "$ACTIVE_OS_FILE")
   fi
-  
+
   if [[ -d "$FRONTEND_NODE_MODULES" && "$PREV_OS" != "$CURRENT_OS" ]]; then
     if [[ -n "$PREV_OS" ]]; then
-      print_info "Swapping out node_modules to node_modules_$PREV_OS..."
+      print_info "node_modules node_modules_$PREV_OS konumuna takas ediliyor..."
       rm -rf "$FRONTEND_DIR/node_modules_$PREV_OS"
       mv "$FRONTEND_NODE_MODULES" "$FRONTEND_DIR/node_modules_$PREV_OS"
     else
-      print_info "Saving node_modules as node_modules_windows..."
+      print_info "node_modules node_modules_windows olarak kaydediliyor..."
       rm -rf "$FRONTEND_DIR/node_modules_windows"
       mv "$FRONTEND_NODE_MODULES" "$FRONTEND_DIR/node_modules_windows"
     fi
   fi
-  
+
   if [[ -d "$OS_NODE_MODULES" && ! -d "$FRONTEND_NODE_MODULES" ]]; then
-    print_info "Swapping in $OS_LABEL..."
+    print_info "$OS_LABEL takas ediliyor..."
     mv "$OS_NODE_MODULES" "$FRONTEND_NODE_MODULES"
   elif [[ ! -d "$FRONTEND_NODE_MODULES" ]]; then
     mkdir -p "$FRONTEND_NODE_MODULES"
   fi
-  
+
   echo "$CURRENT_OS" > "$ACTIVE_OS_FILE"
 fi
 
@@ -745,53 +748,53 @@ export PATH="$NODE_DIR/bin:$PATH"
 
 if [ "$USE_SYMLINKS" = false ]; then
   if "$NPM_BIN" install --prefer-offline --no-bin-links; then
-    print_ok "Dependencies installed!"
+    print_ok "Bagimliliklar kuruldu!"
   else
-    print_fail "npm install failed."
+    print_fail "npm install basarisiz oldu."
     exit 1
   fi
 else
   if "$NPM_BIN" install --prefer-offline; then
-    print_ok "Dependencies installed!"
+    print_ok "Bagimliliklar kuruldu!"
   else
-    print_fail "npm install failed."
+    print_fail "npm install basarisiz oldu."
     exit 1
   fi
 fi
 
-# ── Step 4: Build frontend ──────────────────────────────────────────────────
-print_step 7 $TOTAL_STEPS "Building frontend -> app/dist/"
+# -- Adim 4: On yuzu derle ---------------------------------------------------
+print_step 7 $TOTAL_STEPS "On yuz derleniyor -> app/dist/"
 
 if [ "$USE_SYMLINKS" = false ]; then
-  # If symlinks are disabled, run vite directly using the local node executable.
+  # Sembolik baglar devre disiysa, vite'i yerel node ikilisiyle dogrudan calistir.
   if "$NODE_BIN" node_modules/vite/bin/vite.js build; then
-    print_ok "Frontend built!"
+    print_ok "On yuz derlendi!"
   else
-    print_fail "Frontend build failed."
+    print_fail "On yuz derlemesi basarisiz oldu."
     exit 1
   fi
 else
   if "$NPM_BIN" run build; then
-    print_ok "Frontend built!"
+    print_ok "On yuz derlendi!"
   else
-    print_fail "Frontend build failed."
+    print_fail "On yuz derlemesi basarisiz oldu."
     exit 1
   fi
 fi
 
-# ── Done ────────────────────────────────────────────────────────────────────
+# -- Bitti -------------------------------------------------------------------
 echo ""
 echo "  ============================================================"
 if [[ "$PLATFORM" == "Darwin" ]]; then
-  echo "   Setup complete! Run ./mac.sh to launch."
+  echo "   Kurulum tamamlandi! Baslatmak icin ./mac.sh calistirin."
 else
-  echo "   Setup complete! Run ./linux.sh to launch."
+  echo "   Kurulum tamamlandi! Baslatmak icin ./linux.sh calistirin."
 fi
 echo "  ============================================================"
 echo ""
 
 if [[ "$PLATFORM" == "Linux" && $MAX_PERF -eq 0 ]] && [[ "$VENDOR" == "nvidia" || "$VENDOR" == "amd" ]]; then
-  echo "  Tip: For maximum GPU performance, re-run with:"
+  echo "  Ipucu: Maksimum GPU performansi icin su komutla tekrar calistirin:"
   echo "       ./scripts/setup/setup.sh --max-perf"
   echo ""
 fi

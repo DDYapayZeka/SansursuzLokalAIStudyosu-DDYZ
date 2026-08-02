@@ -37,7 +37,7 @@ const isSD15OrCustomModel = (modelName) => {
   return true;
 };
 
-// ─── Collapsible Card Component ───
+// --- Collapsible Card Component ---
 function CollapsibleCard({ icon: Icon, title, subtitle, children, defaultExpanded = false, id, badge, badgeColor }) {
   const [isExpanded, setIsExpanded] = useState(() => {
     const saved = localStorage.getItem(`settings_card_${id}`);
@@ -96,14 +96,14 @@ function CollapsibleCard({ icon: Icon, title, subtitle, children, defaultExpande
   );
 }
 
-// ─── Hardware Tier Badge Component ───
+// --- Hardware Tier Badge Component ---
 function HardwareTierBadge({ specs }) {
   if (!specs?.tier) return null;
 
   const tierConfig = {
-    high: { icon: "🚀", label: "High-End PC", color: "tier-high", accent: "#22c55e" },
-    mid: { icon: "⚖️", label: "Balanced PC", color: "tier-mid", accent: "#3b82f6" },
-    low: { icon: "🥔", label: "Potato PC", color: "tier-low", accent: "#f59e0b" },
+    high: { icon: "", label: "High-End PC", color: "tier-high", accent: "#22c55e" },
+    mid: { icon: "", label: "Balanced PC", color: "tier-mid", accent: "#3b82f6" },
+    low: { icon: "", label: "Potato PC", color: "tier-low", accent: "#f59e0b" },
   };
 
   const tier = tierConfig[specs.tier] || tierConfig.low;
@@ -116,9 +116,9 @@ function HardwareTierBadge({ specs }) {
         <div className="hardware-tier-info">
           <div className="hardware-tier-name">{tier.label}</div>
           <div className="hardware-tier-specs">
-            {specs.cpu_name} • {specs.cpu_cores_physical} cores • {specs.ram_total_gb}GB RAM
-            {specs.gpu_name && specs.gpu_name !== "Loading..." && ` • ${specs.gpu_name}`}
-            {specs.gpu_vram_gb > 0 && ` • ${specs.gpu_vram_gb}GB VRAM`}
+            {specs.cpu_name}  {specs.cpu_cores_physical} cores  {specs.ram_total_gb}GB RAM
+            {specs.gpu_name && specs.gpu_name !== "Loading..." && `  ${specs.gpu_name}`}
+            {specs.gpu_vram_gb > 0 && `  ${specs.gpu_vram_gb}GB VRAM`}
           </div>
         </div>
       </div>
@@ -138,7 +138,7 @@ function HardwareTierBadge({ specs }) {
   );
 }
 
-// ─── Premium Toggle Component ───
+// --- Premium Toggle Component ---
 function PremiumToggle({ checked, onChange, label, description }) {
   return (
     <label className="premium-toggle" style={{ cursor: "pointer" }}>
@@ -158,7 +158,7 @@ function PremiumToggle({ checked, onChange, label, description }) {
   );
 }
 
-// ─── Section Header Component ───
+// --- Section Header Component ---
 function SectionHeader({ icon: Icon, title, count, color, isExpanded, onToggle }) {
   return (
     <div
@@ -214,7 +214,7 @@ const getSliderStyle = (value, min, max) => {
   return { "--value": `${pct}%` };
 };
 
-// ─── Main Settings Component ───
+// --- Main Ayarlar Component ---
 function Settings({
   constraints,
   setConstraints,
@@ -426,7 +426,7 @@ function Settings({
     setPendingTextSettings((prev) => {
       const updated = { ...prev, [key]: value };
       
-      // If the user selected a preset performance profile, apply its hardware parameters
+      // If the user secili a preset performance profile, apply its hardware parameters
       if (key === "performanceProfile") {
         const presets = specs?.recommended_text_settings;
         if (presets) {
@@ -452,7 +452,7 @@ function Settings({
           }
         }
       } else {
-        // If the user manually overrides any performance-related setting, auto-switch profile to "custom"
+        // If the user manually overrides any performance-related ayar, auto-switch profile to "custom"
         const isPerformanceKey = [
           "contextSize", "threads", "gpuLayers", "cacheTypeK", "cacheTypeV",
           "flashAttn", "mlock", "mmap", "cachePrompt", "batchSize", "ubatchSize"
@@ -670,7 +670,7 @@ function Settings({
     }
   };
 
-  // ─── Image Settings ───
+  // --- Gorsel Ayarlar ---
   const renderImageSettings = () => (
     <>
       <SectionHeader 
@@ -742,7 +742,7 @@ function Settings({
                       >
                         <div style={{ fontWeight: 700 }}>{ratio.id}</div>
                         <div style={{ fontSize: "0.7rem", opacity: 0.8, marginTop: "2px" }}>
-                          {rw}×{rh}
+                          {rw}{rh}
                         </div>
                       </button>
                     );
@@ -955,7 +955,7 @@ function Settings({
     </>
   );
 
-  // ─── Text Settings ───
+  // --- Metin Ayarlar ---
   const renderTextSettings = () => (
     <>
       <SectionHeader 
@@ -980,7 +980,7 @@ function Settings({
             </div>
             <div className="m3-field-group">
               <div className="m3-text-field">
-                <label className="m3-text-field-label">System Prompt</label>
+                <label className="m3-text-field-label">Sistem Ipucu</label>
                 <textarea
                    className="m3-input"
                    value={pendingTextSettings.systemPrompt || ""}
@@ -1136,7 +1136,7 @@ function Settings({
               {llmBackends.available?.length > 1 && (
                 <div className="m3-slider-group">
                   <div className="m3-slider-header">
-                    <span className="m3-slider-label">Text Backend</span>
+                    <span className="m3-slider-label">Metin Arka uc</span>
                   </div>
                   <div className="m3-segmented-button">
                     {llmBackends.available.map((backend) => (
@@ -1154,7 +1154,7 @@ function Settings({
 
               <div className="m3-slider-group">
                 <div className="m3-slider-header">
-                  <span className="m3-slider-label">CPU Threads</span>
+                  <span className="m3-slider-label">CPU Is parcacigi</span>
                   <span className="settings-value-badge">{pendingTextSettings.threads || 4}</span>
                 </div>
                 <input
@@ -1246,7 +1246,7 @@ function Settings({
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <Brain size={18} style={{ color: "var(--md-sys-color-primary)" }} />
                     <div>
-                      <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>Unsaved Text Generation Settings</div>
+                      <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>Unsaved Metin Uretim Ayarlar</div>
                       <div style={{ fontSize: "0.85rem", opacity: 0.8, marginTop: "2px" }}>
                         {llmStatus.ready
                           ? "Saving will unload the active text model to apply changes."
@@ -1284,7 +1284,7 @@ function Settings({
     </>
   );
 
-  // ─── Speech Settings ───
+  // --- Konusma Ayarlar ---
   const renderSpeechSettings = () => {
     const SPEECH_LANGUAGES = [
       { value: "auto", label: "Auto detect" },
@@ -1324,13 +1324,13 @@ function Settings({
                   </div>
                   <div className="m3-field-group">
                     <div className="m3-text-field">
-                      <label className="m3-text-field-label">Default Backend</label>
+                      <label className="m3-text-field-label">Default Arka uc</label>
                       <select
                         className="m3-input"
                         value={speechSettings.backendPreference || "auto"}
                         onChange={(e) => updateSpeechSetting("backendPreference", e.target.value)}
                       >
-                        <option value="auto">Auto - GPU if installed</option>
+                        <option value="auto">Auto - GPU if kuruldu</option>
                         <option value="vulkan">Vulkan GPU</option>
                         <option value="metal">Metal GPU</option>
                         <option value="cpu">CPU</option>
@@ -1341,7 +1341,7 @@ function Settings({
                     </div>
 
                     <div className="m3-text-field">
-                      <label className="m3-text-field-label">Default Language</label>
+                      <label className="m3-text-field-label">Default Dil</label>
                       <select 
                         className="m3-input" 
                         value={speechSettings.language || "auto"} 
@@ -1360,7 +1360,7 @@ function Settings({
 
                     <div className="m3-slider-group">
                       <div className="m3-slider-header">
-                        <span className="m3-slider-label">CPU Threads</span>
+                        <span className="m3-slider-label">CPU Is parcacigi</span>
                         <span className="settings-value-badge">{speechSettings.threads || 4}</span>
                       </div>
                       <input
@@ -1405,7 +1405,7 @@ function Settings({
     );
   };
 
-  // ─── Appearance Settings ───
+  // --- Appearance Ayarlar ---
   const renderTtsSettings = () => {
     const TTS_VOICES = [
       { value: "af_heart", label: "Heart - Female, US English" },
@@ -1440,7 +1440,7 @@ function Settings({
                   </div>
                   <div className="m3-field-group">
                     <div className="m3-text-field">
-                      <label className="m3-text-field-label">Default Voice</label>
+                      <label className="m3-text-field-label">Default Ses</label>
                       <select
                         className="m3-input"
                         value={ttsSettings?.voice || "af_heart"}
@@ -1468,7 +1468,7 @@ function Settings({
                   </div>
                   <div className="m3-slider-group">
                     <div className="m3-slider-header">
-                      <span className="m3-slider-label">Speed</span>
+                      <span className="m3-slider-label">Hiz</span>
                       <span className="settings-value-badge">{(ttsSettings?.speed || 1).toFixed(2)}x</span>
                     </div>
                     <input
@@ -1616,7 +1616,7 @@ function Settings({
     <div className="workspace-area">
       {/* Page Header */}
       <div className="workspace-title-section">
-        <h2 className="workspace-title">Settings & Parameters</h2>
+        <h2 className="workspace-title">Ayarlar & Parameters</h2>
         <p className="workspace-subtitle">
           Configure your AI models for optimal performance.
         </p>

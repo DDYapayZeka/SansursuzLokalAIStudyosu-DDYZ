@@ -368,7 +368,7 @@ function TextChat({
     }
   }, [supportsVision]);
 
-  // Load conversation messages when activeConversationId changes
+  // Yukle conversation messages when activeConversationId changes
   useEffect(() => {
     if (isBusy) return;
     if (activeConversationId) {
@@ -414,7 +414,7 @@ function TextChat({
     const timer = setInterval(() => {
       getLlmStatus().then((nextStatus) => {
         setStatus(nextStatus);
-        // If it suddenly loaded or became ready externally, update selection and reset loading states
+        // If it suddenly yuklendi or became hazir externally, update selection and reset yukleniyor states
         if (nextStatus.ready && nextStatus.settings?.model) {
           setSelectedModel(nextStatus.settings.model);
           setLoadingModel(null);
@@ -486,7 +486,7 @@ function TextChat({
     setIsBusy(true);
     setLoadingModel(filename);
     try {
-      // Unload active image engine if running
+      // Kaldir aktif gorsel engine if running
       if (setActiveModel) setActiveModel(null);
       if (setServerRunning) setServerRunning(false);
 
@@ -700,7 +700,7 @@ function TextChat({
           : (thinkingStartedAt ? (now - thinkingStartedAt) / 1000 : 0);
 
         // Debounced stats update: only update stats every 250ms for smoother UI
-        // while text still updates per-frame via rAF batching
+        // while metin still updates per-frame via rAF batching
         const currentStats = {
           status: "streaming",
           tokens: streamedTokens,
@@ -792,7 +792,7 @@ function TextChat({
         : finalUsageEstimate
       );
       
-      // Clean up attached files on success
+      // Clean up attached dosyalar on success
       setAttachments([]);
     } catch (err) {
       if (err.name === "AbortError") {
@@ -836,7 +836,7 @@ function TextChat({
   return (
     <div className="text-chat-layout" style={{ display: "flex", height: "100%", width: "100%", boxSizing: "border-box", overflow: "hidden" }}>
       <section className="text-chat-main" style={{ flex: 1, minWidth: 0, height: "100%", display: "flex", flexDirection: "column" }}>
-        {/* ─── Header ─────────────────────────────────────────── */}
+        {/* --- Header ------------------------------------------- */}
         <div className="text-chat-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0, flex: 1 }}>
             <button
@@ -910,7 +910,7 @@ function TextChat({
                         title={m.filename}
                       >
                         <span className="chat-model-name-text">{m.filename}</span>
-                        {isActive && <span className="chat-model-active-badge">Active</span>}
+                        {isActive && <span className="chat-model-active-badge">Aktif</span>}
                       </button>
                     );
                   })}
@@ -978,7 +978,7 @@ function TextChat({
           </div>
         </div>
 
-        {/* ─── Messages area ──────────────────────────────────── */}
+        {/* --- Messages area ------------------------------------ */}
         <div
           ref={chatMessagesRef}
           className="chat-messages"
@@ -992,7 +992,7 @@ function TextChat({
           {loadingModel ? (
             <div className="chat-empty" style={{ maxWidth: "480px", margin: "auto", textAlign: "center", padding: "60px 20px" }}>
               <LoaderCircle className="progress-spinner" size={48} style={{ color: "var(--md-sys-color-primary)", marginBottom: "16px" }} />
-              <h3 style={{ fontWeight: 600, fontSize: "1.25rem", marginBottom: "8px", color: "var(--md-sys-color-on-surface)" }}>Loading Text Model</h3>
+              <h3 style={{ fontWeight: 600, fontSize: "1.25rem", marginBottom: "8px", color: "var(--md-sys-color-on-surface)" }}>Yukleniyor Metin Model</h3>
               <code style={{
                 display: "block", background: "var(--md-sys-color-surface-variant)",
                 color: "var(--md-sys-color-on-surface-variant)", padding: "8px 12px",
@@ -1008,7 +1008,7 @@ function TextChat({
                 style={{ display: "inline-flex", alignItems: "center", gap: "8px", height: "38px", padding: "0 16px", fontSize: "0.85rem", borderRadius: "var(--md-shape-corner-medium)" }}
               >
                 <Square size={14} fill="currentColor" />
-                <span>Cancel Load</span>
+                <span>Iptal Yukle</span>
               </button>
             </div>
           ) : (
@@ -1018,15 +1018,15 @@ function TextChat({
                   <div className="chat-empty-icon">
                     <Bot size={30} />
                   </div>
-                  <h3>Local AI Chat</h3>
-                  <p>Your private, offline AI assistant. Choose a GGUF model above and start a conversation — everything stays on your machine.</p>
+                  <h3>Yerel AI Sohbet</h3>
+                  <p>Your private, offline AI assistant. Choose a GGUF model above and start a conversation - everything stays on your machine.</p>
                   {status.ready && (
                     <div className="chat-suggestions">
                       {[
-                        { icon: "✍️", text: "Write a professional email to reschedule a meeting" },
-                        { icon: "💡", text: "Explain how transformers work in simple terms" },
-                        { icon: "🐛", text: "Help me debug this Python code" },
-                        { icon: "📋", text: "Summarize the key points of a topic" },
+                        { icon: "", text: "Write a professional email to reschedule a meeting" },
+                        { icon: "", text: "Explain how transformers work in simple terms" },
+                        { icon: "", text: "Help me debug this Python code" },
+                        { icon: "", text: "Summarize the key points of a topic" },
                       ].map((s, i) => (
                         <button
                           key={i}
@@ -1136,9 +1136,9 @@ function TextChat({
                           {message.generationStats.status === "starting" ? (
                             <><LoaderCircle size={11} className="progress-spinner" /> {message.generationStats.web ? "Searching web..." : message.generationStats.vision ? "Processing image..." : "Waiting for first token..."}</>
                           ) : message.generationStats.status === "streaming" ? (
-                            <><span style={{ opacity: 0.7 }}>⚡</span> {message.generationStats.tokensPerSecond.toFixed(1)} tok/s</>
+                            <><span style={{ opacity: 0.7 }}></span> {message.generationStats.tokensPerSecond.toFixed(1)} tok/s</>
                           ) : (
-                            <>{message.generationStats.tokens} tokens <span style={{ opacity: 0.5 }}>•</span> {formatGenerationTime(message.generationStats.seconds)}</>
+                            <>{message.generationStats.tokens} tokens <span style={{ opacity: 0.5 }}></span> {formatGenerationTime(message.generationStats.seconds)}</>
                           )}
                           </div>
                         </>
@@ -1152,7 +1152,7 @@ function TextChat({
           <div ref={bottomRef} />
         </div>
 
-        {/* ─── Composer ───────────────────────────────────────── */}
+        {/* --- Composer ----------------------------------------- */}
         <div className="chat-composer">
           {/* Attachment previews */}
           {attachments.length > 0 && (
@@ -1168,7 +1168,7 @@ function TextChat({
                   {att.type === "image" ? (
                     <img src={att.dataUrl} alt={att.name} style={{ width: "24px", height: "24px", objectFit: "cover", borderRadius: "3px" }} />
                   ) : (
-                    <span style={{ fontWeight: 600 }}>📄</span>
+                    <span style={{ fontWeight: 600 }}></span>
                   )}
                   <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--md-sys-color-on-surface-variant)" }} title={att.name}>
                     {att.name}
@@ -1263,7 +1263,7 @@ function TextChat({
               </div>
             </div>
           </div>
-          <div className="chat-composer-hint">Enter to send &nbsp;·&nbsp; Shift+Enter for new line</div>
+          <div className="chat-composer-hint">Enter to send &nbsp;*&nbsp; Shift+Enter for new line</div>
         </div>
       </section>
     </div>

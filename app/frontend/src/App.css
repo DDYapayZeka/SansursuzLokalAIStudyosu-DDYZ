@@ -437,10 +437,11 @@ body {
 }
 
 .sidebar-logo-icon {
-  color: var(--md-sys-color-primary);
-  width: 26px;
-  height: 26px;
-  filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.3));
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  border-radius: 8px;
+  flex-shrink: 0;
 }
 
 .sidebar-logo-text {
@@ -579,7 +580,7 @@ body {
   border: 1px solid color-mix(in srgb, var(--md-sys-color-success) 45%, transparent);
 }
 
-/* ─── Chat Messages Container ─────────────────────────────────── */
+/* --- Chat Messages Container ----------------------------------- */
 .chat-messages {
   flex: 1;
   overflow-y: auto;
@@ -602,7 +603,7 @@ body {
   border-radius: 99px;
 }
 
-/* ─── Empty State ─────────────────────────────────────────────── */
+/* --- Empty State ----------------------------------------------- */
 .chat-empty {
   margin: auto;
   max-width: 460px;
@@ -683,7 +684,7 @@ body {
   transform: translateX(3px);
 }
 
-/* ─── Message Row (avatar + bubble) ──────────────────────────── */
+/* --- Message Row (avatar + bubble) ---------------------------- */
 .chat-message-row {
   display: flex;
   align-items: flex-end;
@@ -709,13 +710,13 @@ body {
   margin-top: 2px;
 }
 
-/* Group spacing: bigger gap between user→ai switches */
+/* Group spacing: bigger gap between user->ai switches */
 .chat-message-row.ai + .chat-message-row.user,
 .chat-message-row.user + .chat-message-row.ai {
   margin-top: 10px;
 }
 
-/* ─── Avatar Chip ─────────────────────────────────────────────── */
+/* --- Avatar Chip ----------------------------------------------- */
 .chat-avatar {
   width: 30px;
   height: 30px;
@@ -744,7 +745,7 @@ body {
   border: 1.5px solid color-mix(in srgb, var(--md-sys-color-primary) 30%, transparent);
 }
 
-/* ─── Bubble ──────────────────────────────────────────────────── */
+/* --- Bubble ---------------------------------------------------- */
 .chat-bubble-wrap {
   display: flex;
   flex-direction: column;
@@ -808,7 +809,7 @@ body {
   line-height: 1.1;
 }
 
-/* ─── Generation Stats ────────────────────────────────────────── */
+/* --- Generation Stats ------------------------------------------ */
 .chat-generation-warning {
   margin-top: 4px;
   padding: 7px 10px;
@@ -862,7 +863,7 @@ body {
   50%       { opacity: 0.45; }
 }
 
-/* ─── Thinking / Progress ─────────────────────────────────────── */
+/* --- Thinking / Progress --------------------------------------- */
 .chat-thinking,
 .text-progress {
   display: flex;
@@ -876,7 +877,7 @@ body {
   color: var(--md-sys-color-error);
 }
 
-/* ─── Composer ────────────────────────────────────────────────── */
+/* --- Composer -------------------------------------------------- */
 .chat-composer {
   display: flex;
   flex-direction: column;

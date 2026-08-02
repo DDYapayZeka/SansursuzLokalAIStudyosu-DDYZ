@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Local AI Studio - Kokoro TTS setup for Linux/macOS
+# Yerel AI Studosu - Kokoro TTS (Linux/macOS) kurulumu
 #
 
 set -euo pipefail
@@ -46,14 +46,14 @@ supports_symlinks() {
 
 echo ""
 echo "  ============================================================"
-echo "   Setting up Kokoro ONNX Text-to-Speech runtime"
+echo "   Kokoro ONNX Metinden Sese calistirma ortami kuruluyor"
 echo "  ============================================================"
 echo ""
 
 mkdir -p "$RUNTIME_DIR" "$MODELS_DIR" "$OUTPUTS_DIR" "$CACHE_DIR"
 
 if [[ ! -x "$NODE_BIN" || ! -x "$NPM_BIN" ]]; then
-  print_fail "Portable Node.js is missing. Run scripts/setup/setup.sh first."
+  print_fail "Tasinabilir Node.js eksik. Once scripts/setup/setup.sh calistirin."
   exit 1
 fi
 
@@ -65,12 +65,12 @@ fi
 
 cd "$RUNTIME_DIR"
 export PATH="$NODE_DIR/bin:$PATH"
-print_info "Installing kokoro-js into app/tts-runtime..."
+print_info "kokoro-js, app/tts-runtime icine kuruluyor..."
 if supports_symlinks "$RUNTIME_DIR"; then
   "$NPM_BIN" install --prefer-offline
 else
-  print_info "Filesystem does not support symlinks; installing without npm bin links..."
+  print_info "Dosya sistemi sembolik baglari desteklemiyor; npm bin baglari olmadan kuruluyor..."
   "$NPM_BIN" install --prefer-offline --no-bin-links
 fi
 
-print_ok "Kokoro TTS runtime is ready."
+print_ok "Kokoro TTS calistirma ortami hazir."
