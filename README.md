@@ -1,7 +1,7 @@
 # Sansursuz Lokal AI Studyosu - DD:YZ
 
 <p align="center">
-  <img src="NOBGLOGO.png" alt="Sansursuz Lokal AI Studyosu - DD:YZ logosu" width="180" />
+  <img src="logo.png" alt="Sansursuz Lokal AI Studyosu - DD:YZ logosu" width="180" />
 </p>
 
 <p align="center">
