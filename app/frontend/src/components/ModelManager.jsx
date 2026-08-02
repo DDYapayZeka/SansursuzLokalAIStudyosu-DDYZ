@@ -1836,7 +1836,7 @@ function ModelManager({
                       onClick={() => handleLibraryDownload(model)}
                       disabled={installed || downloadingModelId === model.id}
                     >
-                      {installed ? <HardDrive size={14} /> : indiriliyor ? <RefreshCw className="progress-spinner" size={14} /> : <DownloadCloud size={14} />}
+                      {installed ? <HardDrive size={14} /> : downloading ? <RefreshCw className="progress-spinner" size={14} /> : <DownloadCloud size={14} />}
                       <span>{installed ? "Downloaded" : downloading ? "Downloading" : needsProjector ? "Download Vision File" : "Download"}</span>
                     </button>
                     <a
