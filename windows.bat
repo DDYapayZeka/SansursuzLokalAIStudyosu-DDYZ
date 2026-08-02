@@ -1,6 +1,7 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
-title Uncensored AI Studio
+chcp 65001 >nul
+title Sansursuz Lokal AI Studyosu - DD:YZ
 cd /d "%~dp0"
 
 set APP=%~dp0app
@@ -21,54 +22,56 @@ set SERVE=%~dp0scripts\server\serve.cjs
 if "%FRONTEND_PORT%"=="" set FRONTEND_PORT=1420
 if "%LLM_PORT%"=="" set LLM_PORT=10086
 set SETUP_REASON=
-set SETUP_MODE=Repair
+set SETUP_MODE=Onarim
 
 :: -- First-time setup check ----------------------------------------------------
-if not exist "%APP%\tools\node-win" set SETUP_MODE=First-Time Setup
+if not exist "%APP%\tools\node-win" set SETUP_MODE=Ilk Kurulum
 if not exist "%NODE%" (
-    set SETUP_REASON=Portable Node.js is missing.
+    set SETUP_REASON=Tasinabilir Node.js eksik.
     goto :run_setup
 )
 if not exist "%NPM%" (
-    set SETUP_REASON=Portable npm is missing.
+    set SETUP_REASON=Tasinabilir npm eksik.
     goto :run_setup
 )
 if not exist "%DIST%" (
-    set SETUP_REASON=Frontend build is missing.
+    set SETUP_REASON=Arayuz derlemesi eksik.
     goto :run_setup
 )
 if not exist "%LLM_CUDA_BACKEND%" if not exist "%LLM_HIP_BACKEND%" if not exist "%LLM_VULKAN_BACKEND%" if not exist "%LLM_SYCL_BACKEND%" if not exist "%LLM_CPU_BACKEND%" (
-    set SETUP_REASON=llama.cpp text backend is missing.
+    set SETUP_REASON=llama.cpp metin motoru eksik.
     goto :run_setup
 )
 if not exist "%SPEECH_BACKEND%" (
-    set SETUP_REASON=whisper.cpp speech backend is missing.
+    set SETUP_REASON=whisper.cpp ses motoru eksik.
     goto :run_setup
 )
 if not exist "%TTS_RUNTIME%" (
-    set SETUP_REASON=Kokoro text-to-speech runtime is missing.
+    set SETUP_REASON=Kokoro metinden sese calisma zamani eksik.
     goto :run_setup
 )
 if exist "%CUDA_BACKEND%" goto :launch
 if exist "%VULKAN_BACKEND%" goto :launch
-set SETUP_REASON=No backend binary is installed.
+set SETUP_REASON=Yuklu motor dosyasi bulunamadi.
 goto :run_setup
 
 :run_setup
 echo.
 echo  ============================================================
-echo   UNCENSORED AI STUDIO      ^|  %SETUP_MODE%
+type "%~dp0logo.txt"
+echo.
+echo       Sansursuz Lokal AI Studyosu - DD:YZ   ^|  %SETUP_MODE%
 echo  ============================================================
 echo.
-if "%SETUP_MODE%"=="First-Time Setup" (
-    echo  This looks like your first run. Setting up automatically...
+if "%SETUP_MODE%"=="Ilk Kurulum" (
+    echo  Bu ilk calistirmeniz gibi gorunuyor. Otomatik olarak kuruluyor...
 ) else (
-    echo  Uncensored AI Studio needs a quick repair before launch.
+    echo  Sansursuz Lokal AI Studyosu - DD:YZ baslatilmadan once hizli bir onarima ihtiyac duyuyor.
 )
-if not "%SETUP_REASON%"=="" echo  Reason: %SETUP_REASON%
-echo  Models are not downloaded during setup. Download or import them in the app.
+if not "%SETUP_REASON%"=="" echo  Neden: %SETUP_REASON%
+echo  Modeller kurulum sirasinda indirilmez. Uygulama icinden indirin veya ice aktarin.
 echo.
-echo  Press any key to continue, or Ctrl+C to cancel.
+echo  Devam etmek icin herhangi bir tusa basin, veya iptal etmek icin Ctrl+C tusuna basin.
 pause >nul
 
 :: Clear old managed backend processes before setup so app/tools/node-win can be replaced.
@@ -79,7 +82,7 @@ for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":%LLM_PORT% "') do ta
 powershell -ExecutionPolicy Bypass -File "%SETUP%"
 if errorlevel 1 (
     echo.
-    echo  [ERROR] Setup failed. Please check the output above.
+    echo  [HATA] Kurulum basarisiz oldu. Lutfen yukaridaki ciktiyi kontrol edin.
     pause
     exit /b 1
 )
@@ -91,35 +94,37 @@ goto :launch
 :launch
 echo.
 echo  ============================================================
-echo   UNCENSORED AI STUDIO      ^|  Launching...
+type "%~dp0logo.txt"
+echo.
+echo       Sansursuz Lokal AI Studyosu - DD:YZ   ^|  Baslatiliyor...
 echo  ============================================================
 echo.
 
 set "REQUESTED_FRONTEND_PORT=%FRONTEND_PORT%"
 call :resolve_frontend_port
 if errorlevel 1 exit /b 1
-if not "%FRONTEND_PORT%"=="%REQUESTED_FRONTEND_PORT%" echo  Frontend port %REQUESTED_FRONTEND_PORT% is busy; using %FRONTEND_PORT% instead.
+if not "%FRONTEND_PORT%"=="%REQUESTED_FRONTEND_PORT%" echo  Arayuz portu %REQUESTED_FRONTEND_PORT% mesgul; yerine %FRONTEND_PORT% kullaniliyor.
 
 :: Clear managed backend ports to prevent stale API conflicts.
-echo  Clearing backend port 8080 and text port %LLM_PORT%...
+echo  Arka plan portu 8080 ve metin portu %LLM_PORT% temizleniyor...
 for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":8080 "') do taskkill /f /pid %%a >nul 2>nul
 for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":%LLM_PORT% "') do taskkill /f /pid %%a >nul 2>nul
 
 :: Start frontend server + backend manager (serve.cjs manages sd-vulkan.exe)
-echo  Starting Uncensored AI Studio...
-echo  Opening browser at http://localhost:%FRONTEND_PORT%...
+echo  Sansursuz Lokal AI Studyosu - DD:YZ baslatiliyor...
+echo  Tarayici http://localhost:%FRONTEND_PORT% adresinde aciliyor...
 start /b cmd /c "timeout /t 2 >nul && start http://localhost:%FRONTEND_PORT%"
 
 echo.
 echo  ============================================================
-echo   Running!
-echo   Web UI:     http://localhost:%FRONTEND_PORT%
-echo   GPU API:    Auto-selected by the app (starts at 8080)
-echo   Text API:   Starts when a GGUF model is loaded (port %LLM_PORT%)
-echo   Speech:     Managed locally by the app
-echo   TTS:        Managed locally by the app
+echo   Calisiyor!
+echo   Web Arayuzu:     http://localhost:%FRONTEND_PORT%
+echo   GPU API:         Uygulama tarafindan otomatik secilir (8080 portunda baslar)
+echo   Metin API:       Bir GGUF modeli yuklendiginde baslar (port %LLM_PORT%)
+echo   Ses Tanima:      Uygulama tarafindan yerel olarak yonetilir
+echo   Metinden Sese:   Uygulama tarafindan yerel olarak yonetilir
 echo.
-echo   Press Ctrl+C in this window to stop all services.
+echo   Tum servisleri durdurmak icin bu pencerede Ctrl+C tuslarina basin.
 echo  ============================================================
 echo.
 
@@ -140,7 +145,7 @@ for /L %%p in (1421,1,1499) do (
     )
 )
 
-echo  [ERROR] No free frontend port found. Tried %FRONTEND_PORT% and 1421-1499.
+echo  [HATA] Bos arayuz portu bulunamadi. %FRONTEND_PORT% ve 1421-1499 portlari denendi.
 exit /b 1
 
 :is_port_available

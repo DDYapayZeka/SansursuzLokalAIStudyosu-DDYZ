@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# Uncensored AI Studio - Linux Launcher
+# Sansursuz Lokal AI Studyosu - DD:YZ - Linux Launcher
 # Double-click or run: ./linux.sh
-# Use --max-perf to enable ROCm backend downloads on Linux first setup.
+# Kullan --max-perf to enable ROCm backend downloads on Linux first setup.
 #
 
 set -euo pipefail
@@ -12,7 +12,7 @@ APP_DIR="$SCRIPT_DIR/app"
 PLATFORM="$(uname -s)"
 
 if [[ "$PLATFORM" != "Linux" ]]; then
-  echo "[ERROR] This script is for Linux only. Please run ./mac.sh on macOS." >&2
+  echo "[Hata] Bu betik yalnizca Linux icindir. Lutfen macOS uzerinde ./mac.sh calistirin." >&2
   exit 1
 fi
 
@@ -29,7 +29,7 @@ SERVE_SCRIPT="$SCRIPT_DIR/scripts/server/serve.cjs"
 FRONTEND_PORT="${FRONTEND_PORT:-1420}"
 LLM_PORT="${LLM_PORT:-10086}"
 SETUP_REASON=""
-SETUP_MODE="Repair"
+SETUP_MODE="Onarim"
 MAX_PERF_FLAG=""
 SETUP_OPENVINO=0
 
@@ -65,7 +65,7 @@ resolve_frontend_port() {
     fi
   done
 
-  echo "[ERROR] No free frontend port found. Tried $preferred and 1421-1499." >&2
+  echo "[Hata] Bos arayuz portu bulunamadi. Denendi $preferred and 1421-1499." >&2
   return 1
 }
 
@@ -79,8 +79,8 @@ for arg in "$@"; do
       SETUP_OPENVINO=1
       ;;
     *)
-      echo "[ERROR] Unknown option: $arg" >&2
-      echo "Usage: ./linux.sh [--max-perf] [--setup-openvino]" >&2
+      echo "[Hata] Bilinmeyen secenek: $arg" >&2
+      echo "Kullanim: ./linux.sh [--max-perf] [--setup-openvino]" >&2
       exit 1
       ;;
   esac
@@ -90,7 +90,7 @@ if [[ $SETUP_OPENVINO -eq 1 ]]; then
   bash "$SCRIPT_DIR/scripts/setup/setup-openvino-npu.sh"
 fi
 
-# ── Setup node_modules to avoid OS conflicts ────────────────────────────────
+# -- Setup node_modules to avoid OS conflicts --------------------------------
 FRONTEND_NODE_MODULES="$APP_DIR/frontend/node_modules"
 LINUX_NODE_MODULES="$APP_DIR/frontend/node_modules_linux"
 ACTIVE_OS_FILE="$APP_DIR/frontend/.active_modules_os"
@@ -107,7 +107,7 @@ fi
 
 if [ "$USE_SYMLINKS" = true ]; then
   if [[ -d "$FRONTEND_NODE_MODULES" && ! -L "$FRONTEND_NODE_MODULES" ]]; then
-    echo "  >> Migrating existing node_modules to node_modules_linux..."
+    echo "  >> Mevcut node_modules node_modules_linux konumuna tasiniliyor..."
     rm -rf "$LINUX_NODE_MODULES"
     mv "$FRONTEND_NODE_MODULES" "$LINUX_NODE_MODULES"
   fi
@@ -116,7 +116,7 @@ if [ "$USE_SYMLINKS" = true ]; then
   ln -sf "node_modules_linux" "$FRONTEND_NODE_MODULES"
 else
   # Fallback: Filesystem does not support symlinks (e.g. FAT32/exFAT)
-  echo "  >> Filesystem does not support symlinks. Using directory swapping fallback..."
+  echo "  >> Dosya sistemi sembolik baglari desteklemiyor. Dizin takas yedegi kullaniliyor..."
   
   if [[ -L "$FRONTEND_NODE_MODULES" || -f "$FRONTEND_NODE_MODULES" ]]; then
     rm -f "$FRONTEND_NODE_MODULES"
@@ -129,18 +129,18 @@ else
   
   if [[ -d "$FRONTEND_NODE_MODULES" && "$PREV_OS" != "linux" ]]; then
     if [[ -n "$PREV_OS" ]]; then
-      echo "  >> Swapping out node_modules to node_modules_$PREV_OS..."
+      echo "  >> node_modules node_modules_ konumuna takas ediliyor$PREV_OS..."
       rm -rf "$APP_DIR/frontend/node_modules_$PREV_OS"
       mv "$FRONTEND_NODE_MODULES" "$APP_DIR/frontend/node_modules_$PREV_OS"
     else
-      echo "  >> Saving node_modules as node_modules_windows..."
+      echo "  >> node_modules node_modules_windows olarak kaydediliyor..."
       rm -rf "$APP_DIR/frontend/node_modules_windows"
       mv "$FRONTEND_NODE_MODULES" "$APP_DIR/frontend/node_modules_windows"
     fi
   fi
   
   if [[ -d "$LINUX_NODE_MODULES" && ! -d "$FRONTEND_NODE_MODULES" ]]; then
-    echo "  >> Swapping in node_modules_linux..."
+    echo "  >> node_modules_linux takas ediliyor..."
     mv "$LINUX_NODE_MODULES" "$FRONTEND_NODE_MODULES"
   elif [[ ! -d "$FRONTEND_NODE_MODULES" ]]; then
     mkdir -p "$FRONTEND_NODE_MODULES"
@@ -149,17 +149,17 @@ else
   echo "linux" > "$ACTIVE_OS_FILE"
 fi
 
-# ── First-time setup check ─────────────────────────────────────────────────
+# -- First-time setup check -------------------------------------------------
 if [[ ! -d "$NODE_DIR" ]]; then
-  SETUP_MODE="First-Time Setup"
+  SETUP_MODE="Ilk Kurulum"
 fi
 
 if [[ ! -x "$NODE_BIN" ]]; then
-  SETUP_REASON="Portable Node.js for Linux is missing."
+  SETUP_REASON="Tasinabilir Node.js (Linux) eksik."
 fi
 
 if [[ ! -f "$DIST_INDEX" ]]; then
-  SETUP_REASON="Frontend build is missing."
+  SETUP_REASON="On yuz derlemesi eksik."
 fi
 
 # At minimum we need CPU or Vulkan backend on Linux, and both CLI and server binaries must be executable
@@ -173,33 +173,35 @@ LLM_CPU_PATH="$APP_DIR/llm-backend/linux/cpu/llama-server"
 SPEECH_BACKEND_PATH="$APP_DIR/speech-backend/linux/cpu/whisper-cli"
 TTS_RUNTIME_PATH="$APP_DIR/tts-runtime/node_modules/kokoro-js"
 if [[ ! -x "$CPU_BACKEND_PATH" || ! -x "$CPU_SERVER_PATH" ]] && [[ ! -x "$BACKEND_PATH" || ! -x "$VULKAN_SERVER_PATH" ]]; then
-  SETUP_REASON="Linux backend binaries are missing or not executable."
+  SETUP_REASON="Linux arka uc ikilileri eksik veya calistirilabilir degil."
 fi
 if [[ ! -x "$LLM_CUDA_PATH" && ! -x "$LLM_ROCM_PATH" && ! -x "$LLM_SYCL_PATH" && ! -x "$LLM_VULKAN_PATH" && ! -x "$LLM_CPU_PATH" ]]; then
-  SETUP_REASON="Linux llama.cpp text backend is missing or not executable."
+  SETUP_REASON="Linux llama.cpp metin arka ucu eksik veya calistirilabilir degil."
 fi
 if [[ ! -x "$SPEECH_BACKEND_PATH" ]]; then
-  SETUP_REASON="Linux whisper.cpp speech backend is missing or not executable."
+  SETUP_REASON="Linux whisper.cpp konusma arka ucu eksik veya calistirilabilir degil."
 fi
 if [[ ! -d "$TTS_RUNTIME_PATH" ]]; then
-  SETUP_REASON="Kokoro text-to-speech runtime is missing."
+  SETUP_REASON="Kokoro metinden sese calmasi zamani eksik."
 fi
 
 if [[ -n "$SETUP_REASON" ]]; then
   echo ""
   echo "  ============================================================"
-  echo "   UNCENSORED AI STUDIO      |  $PLATFORM_LABEL $SETUP_MODE"
+  cat "$SCRIPT_DIR/logo.txt"
+  echo ""
+  echo "       Sansursuz Lokal AI Studyosu - DD:YZ   |  $PLATFORM_LABEL $SETUP_MODE"
   echo "  ============================================================"
   echo ""
-  if [[ "$SETUP_MODE" == "First-Time Setup" ]]; then
-    echo "  This looks like your first run on Linux. Setting up automatically..."
+  if [[ "$SETUP_MODE" == "Ilk Kurulum" ]]; then
+    echo "  Bu, Linux uzerinde ilk calistirmaniz gibi gorunuyor. Otomatik olarak kuruluyor..."
   else
-    echo "  Uncensored AI Studio needs a quick repair before launch."
+    echo "  Sansursuz Lokal AI Studyosu - DD:YZ baslatilmadan once hizli bir onarima ihtiyac duyuyor."
   fi
   echo "  Reason: $SETUP_REASON"
-  echo "  Models are not downloaded during setup. Download or import them in the app."
+  echo "  Modeller kurulum sirasinda indirilmez. Uygulama icinden indirin veya ice aktarin."
   echo ""
-  read -rp "  Press Enter to continue, or Ctrl+C to cancel."
+  read -rp "  Devam etmek icin Enter'e basin, veya iptal etmek icin Ctrl+C tusuna basin."
 
   # Clear managed backend ports before setup. Do not kill the frontend port;
   # launch will select a free frontend port automatically.
@@ -212,24 +214,26 @@ if [[ -n "$SETUP_REASON" ]]; then
 
   if ! bash "$SETUP_SCRIPT" $MAX_PERF_FLAG; then
     echo ""
-    echo "  [ERROR] Setup failed. Please check the output above."
-    read -rp "  Press Enter to close..."
+    echo "  [Hata] Kurulum basarisiz oldu. Lutfen yukaridaki ciktiyi kontrol edin."
+    read -rp "  Kapatmak icin Enter'e basin..."
     exit 1
   fi
 fi
 
-# ── Launch ─────────────────────────────────────────────────────────────────
+# -- Launch -----------------------------------------------------------------
 clear 2>/dev/null || true
 echo ""
 echo "  ============================================================"
-echo "   UNCENSORED AI STUDIO      |  Launching..."
+cat "$SCRIPT_DIR/logo.txt"
+echo ""
+echo "       Sansursuz Lokal AI Studyosu - DD:YZ   |  Baslatiliyor..."
 echo "  ============================================================"
 echo ""
 
 REQUESTED_FRONTEND_PORT="$FRONTEND_PORT"
 FRONTEND_PORT="$(resolve_frontend_port "$REQUESTED_FRONTEND_PORT")"
 if [[ "$FRONTEND_PORT" != "$REQUESTED_FRONTEND_PORT" ]]; then
-  echo "  Frontend port ${REQUESTED_FRONTEND_PORT} is busy; using ${FRONTEND_PORT} instead."
+  echo "  Arayuz portu ${REQUESTED_FRONTEND_PORT} mesgul; su kullaniliyor ${FRONTEND_PORT} yerine."
 fi
 
 # Clear managed backend ports
@@ -241,7 +245,7 @@ elif command -v fuser >/dev/null 2>&1; then
 fi
 
 # Start the server
-echo "  Starting Uncensored AI Studio..."
+echo "  Sansursuz Lokal AI Studyosu - DD:YZ baslatiliyor..."
 export PATH="$NODE_DIR/bin:$PATH"
 export FRONTEND_PORT="$FRONTEND_PORT"
 
@@ -254,35 +258,35 @@ sleep 2
 
 # Open browser
 if command -v xdg-open >/dev/null 2>&1; then
-  echo "  Opening browser at http://localhost:${FRONTEND_PORT}"
+  echo "  Tarayici su adreste aciliyor http://localhost:${FRONTEND_PORT}"
   xdg-open "http://localhost:${FRONTEND_PORT}" >/dev/null 2>&1 &
 else
-  echo "  Open your browser to: http://localhost:${FRONTEND_PORT}"
+  echo "  Tarayicinizi su adreste acin: http://localhost:${FRONTEND_PORT}"
 fi
 
 echo ""
 echo "  ============================================================"
-echo "   Running!"
-echo "   Web UI:     http://localhost:${FRONTEND_PORT}"
-echo "   GPU API:    Auto-selected by the app (starts at 8080)"
-echo "   Text API:   Starts when a GGUF model is loaded (port ${LLM_PORT})"
-echo "   Speech:     Managed locally by the app"
-echo "   TTS:        Managed locally by the app"
+echo "   Calisiyor!"
+echo "   Web Arayuzu:     http://localhost:${FRONTEND_PORT}"
+echo "   GPU API:    Auto-secili by the app (starts at 8080)"
+echo "   Metin API:   Baslats when a GGUF model is yuklendi (port ${LLM_PORT})"
+echo "   Ses Tanima:     Managed locally by the app"
+echo "   Metinden Sese:        Managed locally by the app"
 echo ""
-echo "   Press Ctrl+C in this window to stop all services."
+echo "   Tum servisleri durdurmak icin bu pencerede Ctrl+C tuslarina basin."
 echo "  ============================================================"
 echo ""
 
 # Cleanup on exit
 cleanup() {
   echo ""
-  echo "  Shutting down..."
+  echo "  Kapatiliyor..."
   if kill -0 "$SERVER_PID" >/dev/null 2>&1; then
     kill -TERM "$SERVER_PID" >/dev/null 2>&1 || true
     sleep 1
     kill -KILL "$SERVER_PID" >/dev/null 2>&1 || true
   fi
-  echo "  Done. Goodbye!"
+  echo "  Bitti. Gule gule!"
   exit 0
 }
 trap cleanup SIGINT SIGTERM
