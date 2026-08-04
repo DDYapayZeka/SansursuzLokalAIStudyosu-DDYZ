@@ -5132,6 +5132,7 @@ function startModelDownload(url, overrideFilename = null, targetDir = MODELS, ki
       "Kullanr-Agent": "Sansursuz-Lokal-AI-Studyosu-DDYZ/1.0 (+https://www.youtube.com/@derinedaliyoruzyapayzeka)",
       "Accept": "application/octet-stream, application/x-safetensors, */*",
       "Referer": "https://huggingface.co/",
+      ...(process.env.HF_TOKEN ? { "Authorization": `Bearer ${process.env.HF_TOKEN}` } : {}),
     },
   }, (response) => {
     activeDownload = { request, fileStream, destPath, tempPath };
@@ -5320,16 +5321,18 @@ function getCompatibleModels() {
   };
 
   // Metin: donanim gucline gore boyut sec.
+  // NOT: SmolLM2-7B-Instruct-GGUF reposu bazi bolgelerden (TR IP) 401 donduruyor,
+  // bu yuzden high-tier icin erisilebilir bir 7B model olan Qwen2.5-Coder-7B kullaniliyor.
   let text;
   if (tier === "high") {
     text = {
       kind: "text",
-      name: "SmolLM2 7B Instruct (Uyumlu - Yuksek donanim)",
-      filename: "smollm2-7b-instruct-q4_k_m.gguf",
-      url: "https://huggingface.co/HuggingFaceTB/SmolLM2-7B-Instruct-GGUF/resolve/main/smollm2-7b-instruct-q4_k_m.gguf",
+      name: "Qwen2.5-Coder 7B Instruct (Uyumlu - Yuksek donanim)",
+      filename: "qwen2.5-coder-7b-instruct-q4_k_m.gguf",
+      url: "https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct-GGUF/resolve/main/qwen2.5-coder-7b-instruct-q4_k_m.gguf",
       dir: LLM_MODELS,
-      reason: `${vram} GB VRAM seviyeniz yuksek oldugu icin 7B modeli rahat calistirir.`,
-      installed: fs.existsSync(path.join(LLM_MODELS, "smollm2-7b-instruct-q4_k_m.gguf")),
+      reason: `${vram} GB VRAM seviyeniz yuksek oldugu icin 7B modeli rahat calistirir (Qwen2.5-Coder, TR destekli ve kod+sohbet icin guclu).`,
+      installed: fs.existsSync(path.join(LLM_MODELS, "qwen2.5-coder-7b-instruct-q4_k_m.gguf")),
     };
   } else {
     text = {
@@ -5377,9 +5380,9 @@ const DEFAULT_MODELS = [
   },
   {
     kind: "text",
-    name: "SmolLM2 1.7B Instruct (Varsayilan)",
-    filename: "smollm2-1.7b-instruct-q4_k_m.gguf",
-    url: "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct-GGUF/resolve/main/smollm2-1.7b-instruct-q4_k_m.gguf",
+    name: "Qwen2.5-Coder 7B Instruct (Varsayilan)",
+    filename: "qwen2.5-coder-7b-instruct-q4_k_m.gguf",
+    url: "https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct-GGUF/resolve/main/qwen2.5-coder-7b-instruct-q4_k_m.gguf",
     dir: LLM_MODELS,
   },
   {
@@ -5432,14 +5435,17 @@ function startDefaultModelsDownload() {
     if (!finished) console.log("  [default-models] Indirme kuyrugu bitti.");
   };
 
+  const failedItems = [];
   const runNext = () => {
     if (!defaultModelsQueue || defaultModelsQueue.length === 0) {
       const tts = installDefaultTtsManifest();
       if (!tts.ok) {
-        finishAll(`Varsayilan TTS bildirimi basarisiz: ${tts.error}`);
-        return;
+        failedItems.push(`TTS bildirimi: ${tts.error}`);
       }
-      finishAll(null);
+      const err = failedItems.length > 0
+        ? `Bazi modeller indirilemedi: ${failedItems.join("; ")}`
+        : null;
+      finishAll(err);
       return;
     }
     const item = defaultModelsQueue[0];
@@ -5447,11 +5453,12 @@ function startDefaultModelsDownload() {
     downloadState.speed = `Uyumlu model indiriliyor ${items.length - defaultModelsQueue.length + 1}/${items.length}: ${item.name}`;
     const onComplete = () => {
       if (!defaultModelsQueue) return; // iptal edildi
-      if (downloadState.error) {
-        finishAll(downloadState.error);
-        return;
-      }
       defaultModelsQueue.shift();
+      if (downloadState.error) {
+        // Bir model basarisiz olduysa kuyrugu durdurma; sonraki modele gec.
+        failedItems.push(`${item.name}: ${downloadState.error}`);
+        console.error(`  [default-models] "${item.name}" indirilemedi, sonraki modele geciliyor: ${downloadState.error}`);
+      }
       runNext();
     };
     startModelDownload(item.url, item.filename, item.dir, item.kind);
@@ -5483,7 +5490,7 @@ function waitForDownloadCompletion(callback, attempts = 0) {
     callback();
     return;
   }
-  if (attempts > 6000) { // dosya basina ~10 dk guvenlik siniri
+  if (attempts > 24000) { // dosya basina ~40 dk guvenlik siniri (buyuk GGUF indirmelere yetecek sure)
     downloadState.error = "Varsayilan model indirme zamana asimi.";
     callback();
     return;

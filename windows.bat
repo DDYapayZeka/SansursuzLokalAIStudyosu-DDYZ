@@ -1,6 +1,8 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 chcp 65001 >nul
+:: Hugging Face token (7B/gated modeller icin) - env'e alindi
+if "%HF_TOKEN%"=="" set "HF_TOKEN=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"
 title Sansursuz Lokal AI Studyosu - DD:YZ
 cd /d "%~dp0"
 
