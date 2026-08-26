@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.youtube.com/@derinedaliyoruzyapayzeka">Kurulum ve Tanitim Videosunu Izleyin (DD:YZ Kanal)</a>
+  <a href="https://youtu.be/iykgwvycFio">Kurulum ve Tanitim Videosunu Izleyin (DD:YZ Kanal)</a>
   <!-- VIDEO_LINK: https://youtu.be/iykgwvycFio -- videoyu hazirlayinca buraya video linkini koy -->
 </p>
 
