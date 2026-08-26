@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.youtube.com/@derinedaliyoruzyapayzeka">Kurulum ve Tanitim Videosunu Izleyin (DD:YZ Kanal)</a>
+  <a href="[https://www.youtube.com/@derinedaliyoruzyapayzeka](https://youtu.be/iykgwvycFio)">Kurulum ve Tanitim Videosunu Izleyin (DD:YZ Kanal)</a>
   <!-- VIDEO_LINK: https://www.youtube.com/@derinedaliyoruzyapayzeka -- videoyu hazirlayinca buraya video linkini koy -->
 </p>
 
