@@ -1,356 +1,327 @@
-# Sansursuz Lokal AI Studyosu - DD:YZ
+# Sansürsüz Lokal AI Stüdyosu - DD:YZ
 
 <p align="center">
-  <img src="logo.png" alt="Sansursuz Lokal AI Studyosu - DD:YZ logosu" width="180" />
+  <img src="logo.png" alt="Sansürsüz Lokal AI Stüdyosu - DD:YZ Logosu" width="180" />
 </p>
 
 <p align="center">
-  <strong>Windows, Linux ve macOS icin tamamen cantasiz, kurulum gerektirmeyen ve tamamen yerel bir AI studYosu: Stable Diffusion (Gorsel Uretimi), LLM'ler (Sohbet), Whisper (Sesten Metne) ve Kokoro (Metinden Sese). NVIDIA/AMD/Intel GPU ve Apple NPU hizlandirmasi ile calisir.</strong>
+  <strong>Windows, Linux ve macOS için tamamen taşınabilir (portable), harici kurulum gerektirmeyen ve %100 yerel çalışan yapay zeka stüdyosu: Stable Diffusion (Görsel Üretimi), LLM'ler (Yapay Zeka Sohbeti), Whisper (Sesten Metne) ve Kokoro (Metinden Sese). NVIDIA/AMD/Intel GPU ve Apple Silicon hızlandırmasıyla çalışır.</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Cevrimdisi-100%25-yesil?style=for-the-badge&logo=offline" alt="%100 Cevrimdisi" />
-  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-mavi?style=for-the-badge" alt="Platformlar" />
-  <img src="https://img.shields.io/badge/Lisans-MIT-turuncu?style=for-the-badge" alt="Lisans" />
+  <img src="https://img.shields.io/badge/%C3%87evrimd%C4%B1%C5%9F%C4%B1-100%25-green?style=for-the-badge&logo=offline" alt="%100 Çevrimdışı" />
+  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-blue?style=for-the-badge" alt="Platformlar" />
+  <img src="https://img.shields.io/badge/Lisans-MIT-orange?style=for-the-badge" alt="Lisans" />
 </p>
 
 <p align="center">
-  <a href="https://youtu.be/iykgwvycFio">Kurulum ve Tanitim Videosunu Izleyin (DD:YZ Kanal)</a>
-  <!-- VIDEO_LINK: https://youtu.be/iykgwvycFio -- videoyu hazirlayinca buraya video linkini koy -->
+  <a href="https://youtu.be/iykgwvycFio">📺 Kurulum ve Tanıtım Videosunu İzleyin (DD:YZ Kanalı)</a>
 </p>
 
 ---
 
-## Icerik
+## 📑 İçindekiler
 
-* [Sansursuz Lokal AI Studyosu - DD:YZ Nedir?](#nedir)
-* [One Cikan Ozellikler](#ozellikler)
-* [Calisma Alani ve Motor Mimarisi](#mimari)
+* [Sansürsüz Lokal AI Stüdyosu Nedir?](#nedir)
+* [Öne Çıkan Özellikler](#ozellikler)
+* [Çalışma Alanı ve Motor Mimarisi](#mimari)
 * [Desteklenen Modeller](#modeller)
-* [Klasor Yapisi](#yapi)
-* [Baslarken](#baslarken)
+* [Klasör Yapısı](#yapi)
+* [Başlarken (Kurulum ve Çalıştırma)](#baslarken)
   * [Windows Kurulumu](#windows-kurulumu)
   * [Linux Kurulumu](#linux-kurulumu)
   * [macOS Kurulumu](#macos-kurulumu)
-* [Donanim Uyumlulugu ve Hizlandirma](#donanim)
-* [Sorun Giderme ve SSS](#sss)
-* [Kaynaktan Derleme](#derleme)
+* [Donanım Uyumluluğu ve Hızlandırma](#donanim)
+* [Sorun Giderme ve Sıkça Sorulan Sorular (SSS)](#sss)
+* [Kaynaktan Derleme (Geliştiriciler İçin)](#derleme)
 * [Lisans](#lisans)
+* [Teşekkür ve Atıf](#tesekkur)
+* [İletişim ve Topluluk](#iletisim)
 
 ---
 
-## <a id="nedir"></a> Sansursuz Lokal AI Studyosu - DD:YZ Nedir?
+## <a id="nedir"></a> 💡 Sansürsüz Lokal AI Stüdyosu Nedir?
 
-**Sansursuz Lokal AI Studyosu - DD:YZ**, Windows, Linux ve macOS icin tamamen cevrimdisi, kurulum gerektirmeyen ve kendi icine yeterli bir AI studYosudur. Bulut tabanli sistemlerin aksine; sansur, izleme, abonelik veya giris zorunlulugu olmadan tamamen kendi donaniminiz uzerinde calisir.
+**Sansürsüz Lokal AI Stüdyosu - DD:YZ**, Windows, Linux ve macOS işletim sistemleri için tamamen çevrimdışı, taşınabilir ve kendi kendine yeten (*self-contained*) hepsi-bir-arada yerel yapay zeka merkezidir. Bulut tabanlı sistemlerin aksine; sansür, içerik filtreleme, veri takibi, abonelik ücreti veya giriş zorunluluğu olmadan tamamen kendi bilgisayarınızın donanımı üzerinde çalışır.
 
-Dort ana yerel AI yetenegini tek bir yuksek performansli masaustu arayuzunde birlestirir:
+Dört ana yerel yapay zeka kabiliyetini tek bir kullanıcı dostu masaüstü arayüzünde birleştirir:
 
-1. **Gorsel Uretimi (Stable Diffusion):** `.safetensors`, `.gguf` veya `.ckpt` model agirliklari ile cevrimdisi yuksek kaliteli gorseller uretun ve duzenleyin.
-2. **Metin Sohbeti (LLM'ler):** Resmi ve yuksek performansli `llama.cpp` altyapisi ile acik kaynakli dil modelleriyle (GGUF formatinda) ozel olarak sohbet edin.
-3. **Sesten Metne (Whisper):** Entegre `whisper.cpp` motoru ile ses kayitlarini ve konusmalari gercek zamanli olarak metne donusturun.
-4. **Metinden Sese (Kokoro TTS):** `Kokoro-82M` ONNX modelini kullanarak metin ciktilarini cevrimdisi olarak dogal ve gercekci seslere donusturun.
-
----
-
-## <a id="ozellikler"></a> One Cikan Ozellikler
-
-* **%100 Cevrimdisi ve Ozel:** Cikarimlari yerel olarak calistirin. Internet, telemetri, bulut gunlugu veya API anahtari gerekmez.
-* **Kurulum Gerektirmez:** Tum calisma ortami kendi icinde bagimsizdir.
-* **Otomatik Hizlandirma:** Donanim ozelliklerini otomatik algilayarak CUDA, ROCm, Vulkan, Metal veya OpenVINO motorlarini yukler.
-* **Entegre Model Yoneticisi:** Hugging Face URL'leri ile kolay indirme.
-* **Canli Performans Izleme:** CPU, RAM, GPU ve VRAM kullanimi web arayuzunde.
-* **Yerel Cikti Galerisi:** Uretilen gorselleri ipucu parametreleri ve meta veri JSON dosyalari ile birlikte kaydeder.
+1. 🎨 **Görsel Üretimi (Stable Diffusion):** `.safetensors`, `.gguf` veya `.ckpt` model ağırlıkları ile çevrimdışı, yüksek kaliteli ve sansürsüz görseller üretin ve düzenleyin.
+2. 💬 **Metin Sohbeti (LLM'ler):** Resmi ve yüksek performanslı `llama.cpp` altyapısı sayesinde açık kaynaklı dil modelleriyle (GGUF formatında) tamamen gizli ve sınırsız sohbet edin.
+3. 🎙️ **Sesten Metne (Whisper STT):** Entegre `whisper.cpp` motoru ile ses kayıtlarını, mikrofon girdilerini ve konuşmaları anında metne dönüştürün.
+4. 🔊 **Metinden Sese (Kokoro TTS):** `Kokoro-82M` ONNX modelini kullanarak yapay zekanın verdiği metin yanıtlarını çevrimdışı olarak insan doğallığında seslendirin.
 
 ---
 
-## <a id="mimari"></a> Calisma Alani ve Motor Mimarisi
+## <a id="ozellikler"></a> ✨ Öne Çıkan Özellikler
 
-Sistem RAM'ini veya VRAM'i tuketmemek icin metin ve gorsel motorlari varsayilan olarak karsilikli harictir. Arayuz icinden calisma alanlari arasinda gecis yapabilirsiniz:
-
-* **Gorsel Uretimi Calisma Alani:** Ozel bir `stable-diffusion.cpp` arka uc dugumu kullanir. Model agirliklari `app/models/` icinde tutulur.
-* **Metin Sohbeti Calisma Alani:** Tasinabilir `llama.cpp` sunucu arka ucu kullanir. Model agirliklari (`.gguf`) `app/llm-models/` icinde tutulur.
-* **Konusma Isleyicisi (Whisper):** Sesli girdinizi metne donusturur.
-* **Ses Ciktilari (Kokoro TTS):** `kokoro-js` ile dogal ses uretimi yapar.
+* 🔒 **%100 Çevrimdışı ve Gizli:** Tüm yapay zeka çıkarımları (inference) yerel donanımınızda gerçekleşir. İnternet bağlantısı, telemetri, bulut günlüğü veya API anahtarı gerekmez.
+* 📦 **Sıfır Kurulum Zahmeti (Taşınabilir):** Node.js, Python veya karmaşık paketleri sisteminize global kurmanıza gerek kalmaz. Proje bağımsız bir klasör olarak yaşar; USB bellekten bile çalıştırılabilir.
+* ⚡ **Otomatik Donanım Hızlandırma:** Sistem özelliklerinizi otomatik algılayarak NVIDIA (CUDA), AMD (ROCm / Vulkan), Intel (Vulkan / OpenVINO NPU) veya Apple Silicon (Metal) hızlandırmasını devreye alır.
+* 📥 **Entegre Model Yöneticisi:** Hugging Face üzerindeki açık modelleri tek tıkla doğrudan uygulama içinden indirin ve yönetin.
+* 📊 **Canlı Performans Monitörü:** CPU, RAM, GPU ve VRAM kullanımını web arayüzünde canlı olarak izleyin.
+* 🖼️ **Yerel Çıktı Galerisi:** Üretilen tüm görselleri, prompt (istem) parametrelerini ve JSON meta verilerini otomatik olarak düzenli bir galeride saklar.
 
 ---
 
-## <a id="modeller"></a> Desteklenen Modeller
+## <a id="mimari"></a> 🏗️ Çalışma Alanı ve Motor Mimarisi
 
-Uygulama, paketlenmis arka uc motorlari tarafindan dogrudan yuklenebilen tek dosyalik yerel modeller etrafinda tasarlanmistir.
+Sistem RAM'ini veya ekran kartı belleğini (VRAM) gereksiz yere tüketmemek için metin ve görsel motorları varsayılan olarak birbirini dışlayacak şekilde çalışır. Arayüz içinden çalışma alanları arasında tek tıkla geçiş yapabilirsiniz:
 
-### Gorsel uretimi
+* **Görsel Üretimi Çalışma Alanı:** Optimize edilmiş `stable-diffusion.cpp` motorunu kullanır. İndirilen görsel modelleri `app/models/` klasöründe saklanır.
+* **Metin Sohbeti Çalışma Alanı:** Taşınabilir `llama.cpp` sunucu motorunu kullanır. Dil modelleri (`.gguf`) `app/llm-models/` klasöründe saklanır.
+* **Konuşma Tanıma (Whisper):** Mikrofon veya ses dosyalarını işleyen `whisper.cpp` motorunu kullanır (`app/speech-models/`).
+* **Sesli Yanıt (Kokoro TTS):** Metinleri doğal sese dönüştüren `kokoro-js` çalışma zamanını kullanır (`app/tts-models/`).
 
-| Model tipi | Destekleniyor mu? | Dosyalari suraya koyun | Notlar |
+---
+
+## <a id="modeller"></a> 🧠 Desteklenen Modeller
+
+Uygulama, entegre motorlar tarafından doğrudan yüklenebilen tek dosyalık yerel modeller için optimize edilmiştir.
+
+### Görsel Üretimi Modelleri
+
+| Model Tipi | Destek Durumu | Dosya Konumu | Notlar |
 | :--- | :--- | :--- | :--- |
-| Stable Diffusion 1.5 kontrol noktalari | Evet | `app/models/` | En iyi uyumluluk. `.safetensors` veya `.ckpt` dosyasi kullanin. |
-| SDXL kontrol noktalari | Evet | `app/models/` | Tek dosyalik kontrol noktasi olarak desteklenir. SD 1.5'ten daha fazla RAM/VRAM gerektirir. |
-| Tek dosyalik SD/SDXL GGUF kontrol noktalari | Sinirli | `app/models/` | Yalnizca tamamlanmis tek dosyalik kontrol noktalari desteklenir. |
-| OpenVINO gorsel model klasorleri | Yalnizca Intel NPU | `app/openvino-models/` | OpenVINO kurulumundan sonra Model Yoneticisi'nden indirin. |
-| CoreML gorsel modelleri | Yalnizca Apple Silicon | `app/models/` | macOS uzerinde Apple Silicon ve CoreML kurulum yolu gerektirir. |
-| Flux, HiDream, Hunyuan, Wan, Qwen Image, Z-Image is akislari | Hayir | Yok | Bunlar ayri difuzyon, VAE ve metin kodlayici dosyalari gerektirir; bu uygulamada tek tiklama kontrol noktasi yuklemesi degildir. |
-| LoRA, ControlNet, yalnizca VAE, yalnizca metin kodlayici veya yalnizca difuzyon dosyalari | Hayir | Yok | Yardimci dosyalar bagimsiz gorsel model olarak yuklenmez. |
+| **Stable Diffusion 1.5 Checkpoint** | ✅ Tam Destek | `app/models/` | En yüksek hız ve uyumluluk. `.safetensors` veya `.ckpt` dosyaları kullanılır. |
+| **SDXL Checkpoint** | ✅ Tam Destek | `app/models/` | Yüksek çözünürlük ve kalite. SD 1.5'e göre daha fazla VRAM gerektirir. |
+| **Tek Dosyalı SD/SDXL GGUF** | ⚠️ Sınırlı | `app/models/` | Yalnızca bağımsız tek dosya halinde paketlenmiş GGUF checkpoint'ler desteklenir. |
+| **OpenVINO Görsel Modelleri** | ⚡ Intel NPU | `app/openvino-models/` | Intel Core Ultra NPU kurulumundan sonra Model Yöneticisi'nden indirilebilir. |
+| **CoreML Görsel Modelleri** | 🍎 Apple Silicon | `app/models/` | macOS üzerinde Apple Silicon ve CoreML optimizasyonuyla çalışır. |
+| **Çok Dosyalı Flux, Hunyuan, Wan, Z-Image** | ❌ Desteklenmiyor | - | Ayrı difüzyon, VAE ve text-encoder dosyaları gerektiren karmaşık iş akışları doğrudan tek tıkla yüklenemez. |
+| **LoRA / ControlNet / Tek Başına VAE** | ❌ Desteklenmiyor | - | Yardımcı bileşenler bağımsız model olarak başlatılamaz. |
 
-Model Yoneticisi'nden edinilebilecek bilinen iyi gorsel modeller:
+#### Model Yöneticisi'nden Önerilen Bazı Görsel Modeller:
 
-| Ad | Dosya adi | Tip | Yaklasik boyut | Onerilen kullanim |
+| Model Adı | Dosya Adı | Mimari | Boyut | Önerilen Kullanım Alanı |
 | :--- | :--- | :--- | :--- | :--- |
-| Juggernaut XL v9 Lightning | `Juggernaut_RunDiffusionPhoto2_Lightning_4Steps.safetensors` | SDXL | 6.6 GB | Orta/ust seviye makinelerde yuksek kaliteli fotogercekcilik. |
-| DreamShaper XL Lightning | `DreamShaperXL_Lightning.safetensors` | SDXL | 6.6 GB | Genel SDXL gorselleri, fantezi, render ve illustrasyon. |
-| DreamShaper 8 | `DreamShaper_8_pruned.safetensors` | SD 1.5 | 2.1 GB | Daha hizli, dusuk bellekli gorsel uretimi. |
-| CyberRealistic V8 | `CyberRealistic_V8_FP16.safetensors` | SD 1.5 | 2.0 GB | Gercekci SD 1.5 gorselleri ve dusuk bellekli sistemler. |
-| Rev Animated | `rev-animated-v1-2-2.safetensors` | SD 1.5 | 2.0 GB | Stilize/animasyon SD 1.5 gorselleri. |
-| LCM DreamShaper OpenVINO | `OpenVINO/LCM_Dreamshaper_v7-fp16-ov` | OpenVINO | 2.7 GB | Intel Core Ultra NPU test modeli. |
+| **Juggernaut XL v9 Lightning** | `Juggernaut_RunDiffusionPhoto2_Lightning_4Steps.safetensors` | SDXL | 6.6 GB | Yüksek kaliteli, fotogerçekçi portre ve manzara üretimi (Hızlı 4-8 adım). |
+| **DreamShaper XL Lightning** | `DreamShaperXL_Lightning.safetensors` | SDXL | 6.6 GB | İllüstrasyon, dijital sanat, fantezi ve 3D render tarzı çıktılar. |
+| **DreamShaper 8** | `DreamShaper_8_pruned.safetensors` | SD 1.5 | 2.1 GB | Hızlı, düşük bellek ve orta/giriş seviye GPU'lar için genel amaçlı üretim. |
+| **CyberRealistic V8** | `CyberRealistic_V8_FP16.safetensors` | SD 1.5 | 2.0 GB | Gerçekçi insan ve çevre detayları için hafif SD 1.5 modeli. |
+| **Rev Animated** | `rev-animated-v1-2-2.safetensors` | SD 1.5 | 2.0 GB | Anime, stilize çizim ve animasyon tarzı görsel üretimi. |
 
-### Metin, konusma ve TTS
+---
 
-| Calisma alani | Desteklenen model dosyalari | Dosyalari suraya koyun | Notlar |
+### Metin, Konuşma ve Seslendirme Modelleri
+
+| Çalışma Alanı | Desteklenen Formatlar | Dosya Konumu | Notlar |
 | :--- | :--- | :--- | :--- |
-| Metin Sohbeti | `.gguf` llama.cpp modelleri | `app/llm-models/` | Tek dosyalik GGUF sohbet/ogretim modelleri kullanin. Gorsel modeller uyumlu `mmproj` dosyasi da gerektirebilir. |
-| Sesten Metne | whisper.cpp `.bin` modelleri | `app/speech-models/` | Whisper GGML/whisper.cpp model dosyalari kullanin. |
-| Metinden Sese | Kokoro `.json` bildirimleri ve model varliklari | `app/tts-models/` / `app/tts-runtime/` | Yerlesik Kokoro kurulumunu ve Model Yoneticisi girislerini kullanin. |
-
-> Linux yayin ikilileri Ubuntu 24.04 donemi sistemler icin derlenmistir ve `glibc 2.38+` ile `GLIBCXX_3.4.32+` gerektirir. Eski Ubuntu/Debian uzerinde CyberRealistic gibi gecerli bir model yine de yuklenmeden once arka uc hata verebilir. VM isletim sistemini guncelleyin veya arka ucu kaynaktan derleyin.
+| **Metin Sohbeti (LLM)** | `.gguf` (llama.cpp) | `app/llm-models/` | Qwen 2.5, Llama 3, Mistral, Gemma vb. GGUF formatındaki tüm açık dil modelleri. Görsel anlama (Vision) için uyumlu `mmproj` dosyası da eklenebilir. |
+| **Sesten Metne (STT)** | whisper.cpp `.bin` | `app/speech-models/` | GGML formatındaki Whisper modelleri (`base`, `small`, `medium` vb.). |
+| **Metinden Sese (TTS)** | Kokoro `.json` ve ağırlıklar | `app/tts-models/` | Entegre Kokoro çalışma ortamı ile doğal Türkçe ve çoklu dil desteği. |
 
 ---
 
-## <a id="yapi"></a> Klasor Yapisi
+## <a id="yapi"></a> 📁 Klasör Yapısı
 
-```
-Sansursuz-Lokal-AI-Studyosu-DDYZ/
-+-- windows.bat                # Windows Baslatici (Cift tiklama giris noktasi)
-+-- linux.sh                   # Linux Baslatici (Terminal giris noktasi)
-+-- mac.sh                     # macOS Baslatici (Terminal giris noktasi)
-+-- LICENSE                    # MIT Acik Kaynak Lisansi
-+-- .gitignore                 # Modelleri ve cikti gorsellerini surum kontrolu disinda birakir
-+-- README.md                  # Ayrintili sistem dokumantasyonu
-+-- scripts/
-|   +-- setup/                 # Platform kurulumu ve arka uc yukleyicileri
-|   +-- reset/                 # Temiz kurulum ve ortam onarimi
-|   +-- server/                # UI web sunucusu ve arka uc yasam dongusu yoneticisi
-|   +-- workers/               # Yerel isci surecleri
-|   +-- build/                 # Istege bagli kaynak derleme yardimcilari
-|   +-- config/                # Calisma zamani yapilandirma kataloglari
-+-- app/
-    +-- frontend/              # Arayuz kaynak kodu (Vite + React)
-    +-- models/               # Gorsel agirliklarini buraya koyun (.safetensors, .gguf, .ckpt)
-    +-- llm-models/           # Metin GGUF agirliklarini buraya koyun
-    +-- outputs/              # Kaydedilen gorseller ve parametre meta verileri
+```text
+SansursuzLokalAIStudyosu-DDYZ/
+├── windows.bat                # Windows Başlatıcı (Çift tıklayarak açın)
+├── linux.sh                   # Linux Başlatıcı (Terminal üzerinden çalıştırın)
+├── mac.sh                     # macOS Başlatıcı (Terminal üzerinden çalıştırın)
+├── LICENSE                    # MIT Açık Kaynak Lisansı
+├── README.md                  # Ayrıntılı Türkçe sistem dokümantasyonu
+├── scripts/
+│   ├── setup/                 # Platforma özel otomatik kurulum betikleri
+│   ├── reset/                 # Temiz kurulum ve ortam sıfırlama araçları
+│   ├── server/                # Node.js yerel web sunucusu ve süreç yöneticisi
+│   └── build/                 # İsteğe bağlı kaynaktan derleme yardımcıları
+└── app/
+    ├── frontend/              # Web arayüzü kaynak kodları (React + Vite)
+    ├── models/                # Görsel modelleri (.safetensors, .ckpt)
+    ├── llm-models/            # Dil modelleri (.gguf)
+    ├── speech-models/         # Whisper ses modelleri (.bin)
+    ├── tts-models/            # Kokoro seslendirme modelleri
+    └── outputs/               # Üretilen görseller ve parametre kayıtları
 ```
 
 ---
 
-## <a id="baslarken"></a> Baslarken
+## <a id="baslarken"></a> 🚀 Başlarken (Kurulum ve Çalıştırma)
 
-Modern bir web tarayicisi kurulu oldugundan emin olun. Platformunuz icin asagidaki kilavuzu izleyin:
+Bilgisayarınızda modern bir internet tarayıcısının (Chrome, Edge, Brave, Firefox vb.) kurulu olduğundan emin olun. İşletim sisteminize uygun adımları takip edin:
 
-### Windows Kurulumu
+### 🪟 Windows Kurulumu
 
-1. **Baslatma:** `windows.bat` dosyasina cift tiklayin.
-   > Ilk calistirmada betik, tasinabilir bir Node.js calisma ortami indirecek ve onceden derlenmis GPU/CPU arka uc ikililerini yapilandirir.
-2. **Model Ekleyin:** `.safetensors`, `.gguf` veya `.ckpt` agirliklarini `app/models/` icine birakin (veya bunlari arayuzdeki **Model Yoneticisi** sekmesinden indirin).
-3. **Uretin:** Tarayicinizda `http://localhost:1420` adresini acin, modelinizi secin ve bir ipucu yazin.
+1. **Başlatın:** `windows.bat` dosyasına çift tıklayın.
+   > *İlk çalıştırmada betik, taşınabilir Node.js ortamını ve sisteminize uygun GPU/CPU motorlarını otomatik olarak indirecek ve yapılandıracaktır.*
+2. **Model Ekleyin:** İndirdiğiniz modelleri ilgili klasörlere bırakın veya doğrudan arayüzdeki **Model Yöneticisi** sekmesinden tek tıkla indirin.
+3. **Kullanmaya Başlayın:** Tarayıcınızda otomatik olarak `http://localhost:1420` adresi açılacaktır.
 
-### Linux Kurulumu
+---
 
-#### 🐧 1. Standart Terminal Kurulumu ve Baslatma
-Linux dagitimlarinda (Ubuntu, Debian, Fedora, Arch, Linux Mint vb.) terminal uzerinden kurulum yapmak icin asagidaki adimlari sirasiyla uygulayin:
+### 🐧 Linux Kurulumu
 
-1. **Depoyu Indirin (Clone):**
-   Terminali acin ve projeyi bilgisayariniza indirin:
+#### 1. Standart Terminal Kurulumu ve Başlatma
+Ubuntu, Debian, Fedora, Arch, Linux Mint gibi dağıtımlarda terminalden kurulum yapmak için:
+
+1. **Depoyu İndirin (Clone):**
    ```bash
    git clone https://github.com/DDYapayZeka/SansursuzLokalAIStudyosu-DDYZ.git
    cd SansursuzLokalAIStudyosu-DDYZ
    ```
 
-2. **Calistirma Yetkisi Verin (Gerekli):**
-   Linux guvenlik yapisi geregi indirilen betik dosyalarina calistirma izni (`+x`) tanimlanmalidir:
+2. **Çalıştırma İzni Verin:**
    ```bash
    chmod +x linux.sh scripts/setup/*.sh
    ```
 
-3. **Uygulamayi Baslatin:**
+3. **Uygulamayı Başlatın:**
    ```bash
    ./linux.sh
    ```
    > [!NOTE]
-   > **Ilk Calistirma:** Betik, sisteminize uygun tasinabilir Linux Node.js calisma ortamini ve GPU/CPU motorlarini `app/` klasoru altina otomatik olarak kurar ve arayuzu `http://localhost:1420` adresinde tarayicinizda acar.
-   > - **NVIDIA Kullanicilari:** CUDA hizlandirmasi otomatik algilanir veya kurulur.
-   > - **AMD Radeon GPU:** ROCm destegi eklemek icin `./linux.sh --max-perf` ile calistirabilirsiniz.
-   > - **Intel Core Ultra NPU:** OpenVINO NPU destegi icin `./linux.sh --setup-openvino` kullanabilirsiniz.
+   > **İlk Çalıştırma:** Betik, taşınabilir Linux Node.js ortamını ve GPU/CPU motorlarını `app/` klasörü altına otomatik kurar ve tarayıcınızı açar.
+   > - **NVIDIA Kullanıcıları:** CUDA hızlandırması otomatik algılanır veya kurulur.
+   > - **AMD Radeon GPU:** ROCm desteği eklemek için `./linux.sh --max-perf` ile çalıştırabilirsiniz.
+   > - **Intel Core Ultra NPU:** OpenVINO NPU desteği için `./linux.sh --setup-openvino` kullanabilirsiniz.
 
-4. **Model Yukleme:** Arayuzdeki **Model Yoneticisi** sekmesinden tek tikla model indirebilir veya kendi `.safetensors` / `.gguf` modellerinizi `app/models/` ya da `app/llm-models/` klasorlerine tasiyabilirsiniz.
+4. **Model Yükleyin:** Arayüzdeki **Model Yöneticisi** sekmesinden tek tıkla model indirebilir veya kendi modellerinizi `app/models/` ya da `app/llm-models/` klasörlerine taşıyabilirsiniz.
+
+#### 2. USB Belleğe / Harici Diske Kurulum (Taşınabilir Kullanım)
+Projemiz **%100 bağımsız (self-contained)** mimaridedir; işletim sisteminize global hiçbir paket yüklemez. Tüm motorlar, ayarlar ve indirilen modeller projenin kendi klasörü (`app/`) içinde saklanır. Bu sayede stüdyoyu doğrudan bir USB bellek veya harici SSD üzerinden tak-çalıştır şeklinde kullanabilirsiniz.
+
+* **⚠️ USB Dosya Sistemi Formatı (Önemli):**
+  * **FAT32 Kullanmayın:** FAT32 formatı tek parça **4 GB'tan büyük** dosyaları desteklemez. Yapay zeka modelleri genellikle 4-8 GB+ boyutunda olduğu için indirme yarım kalır.
+  * **Önerilen Formatlar:** Hem Windows hem Linux'ta ortak kullanmak için **exFAT** veya **NTFS**, yalnızca Linux'ta kullanacaksanız **ext4** formatı önerilir (USB 3.0+ veya harici SSD tavsiye edilir).
+
+* **USB Üzerinden Adım Adım Çalıştırma:**
+  1. USB belleğinizi takın ve terminalden USB dizinine geçin:
+     ```bash
+     cd /media/$USER/USB_DISKINIZIN_ADI/
+     ```
+  2. Projeyi doğrudan USB içine klonlayın:
+     ```bash
+     git clone https://github.com/DDYapayZeka/SansursuzLokalAIStudyosu-DDYZ.git
+     cd SansursuzLokalAIStudyosu-DDYZ
+     ```
+  3. Başlatın:
+     ```bash
+     bash linux.sh
+     ```
+     > [!TIP]
+     > **İzin Hatası Alırsanız:** Bazı Linux dağıtımları harici USB diskleri güvenlik amacıyla `noexec` (çalıştırma kısıtlaması) bayrağıyla bağlar. Eğer `./linux.sh` izni reddedilirse, doğrudan `bash linux.sh` komutu ile başlatabilirsiniz.
 
 ---
 
-#### 💾 2. USB Bellege / Harici Diske Kurulum (Tasinabilir / Portable Kullanim)
-Projemiz **%100 bagimsiz (self-contained)** mimaridedir. Yani isletim sisteminize global hicbir paket kurmaz; tum Node.js altyapisi, arka uc motorlari, ayarlar ve indirilen gigabaytlarca yapay zeka modeli tamamen projenin kendi klasoru (`app/`) icinde yasar. Bu sayede studyoyu bir USB bellege veya harici SSD'ye kurup istediginiz bilgisayara takip calistirabilirsiniz.
+### 🍏 macOS Kurulumu
 
-##### ⚠️ Onemli: USB Dosya Sistemi Formati
-* **FAT32 Kullanmayin:** FAT32 dosya formati tek parca **4 GB'tan buyuk** dosyalari desteklemez. Yapay zeka modelleri genellikle 4-8 GB+ boyutunda oldugu icin indirme sirasinda hata alirsiniz.
-* **Onerilen Formatlar:**
-  * **exFAT veya NTFS:** USB belleginizi hem Windows hem de Linux bilgisayarlarda ortak kullanmak istiyorsaniz en ideal secimdir.
-  * **ext4:** USB bellegi yalnizca Linux sistemlerde kullanacaksaniz en yuksek dosya performansini saglar.
-
-##### 🚀 USB'den Adim Adim Calistirma:
-1. USB belleginizi bilgisayara takin ve terminalden USB'nin baglandigi dizine gecin:
-   ```bash
-   cd /media/$USER/USB_DISKINIZIN_ADI/
-   ```
-   *(Dagitiminiza gore bu yol `/run/media/$USER/...` veya `/mnt/...` olabilir.)*
-
-2. Projeyi dogrudan USB bellegin icerisine klonlayin:
-   ```bash
-   git clone https://github.com/DDYapayZeka/SansursuzLokalAIStudyosu-DDYZ.git
-   cd SansursuzLokalAIStudyosu-DDYZ
-   ```
-
-3. Uygulamayi Baslatin:
-   ```bash
-   bash linux.sh
-   ```
-
-> [!TIP]
-> **"Permission Denied" (Izin Hatasi) Alirsaniz:**  
-> Bazi Linux dagitimlari harici USB bellekleri guvenlik amaciyla `noexec` (calistirma kisitlamasi) bayragiyla baglar. Bu durumda `./linux.sh` calistirma izni vermeyebilir. **Cozum:** Dogrudan `bash linux.sh` komutunu kullandiginizda bu kisitlamaya takilmadan uygulama sorunsuz baslar.
-
-### macOS Kurulumu
-
-1. **Calistirilabilir yapin:** Proje klasorunde bir terminal acin ve betigi calistirilabilir yapin:
+1. **Çalıştırma İzni Verin:** Terminali açın ve proje klasöründe betiğe yetki verin:
    ```bash
    chmod +x mac.sh
    ```
-2. **Baslatma:** `./mac.sh` calistirin.
-   > Onceden derlenmis macOS arka ucu **Apple Silicon (M1 veya daha yeni)** icin optimize edilmistir ve **Metal** GPU hizlandirmasi kullanir. (macOS Intel donanimi tamamen desteklenmez).
-3. **Model Ekleyin:** Agirliklarinizi `app/models/` icine birakin veya **Model Yoneticisi** sekmesinden indirin.
-4. **Uretin:** Tarayicinizda `http://localhost:1420` adresini acin.
+2. **Başlatın:**
+   ```bash
+   ./mac.sh
+   ```
+   > Önceden derlenmiş macOS motoru **Apple Silicon (M1, M2, M3, M4 veya daha yeni)** işlemciler için optimize edilmiştir ve **Metal** GPU hızlandırmasını kullanır.
+3. **Kullanmaya Başlayın:** Tarayıcınızda `http://localhost:1420` adresini açın.
 
 ---
 
-## <a id="donanim"></a> Donanim Uyumlulugu ve Hizlandirma
+## <a id="donanim"></a> 🖥️ Donanım Uyumluluğu ve Hızlandırma
 
-### Windows
+### Windows Donanım Desteği
 
-| GPU Ureticisi | Teknoloji | Durum | Notlar |
+| Ekran Kartı / Donanım | Kullanılan Teknoloji | Hızlandırma Durumu | Notlar |
 | :--- | :--- | :--- | :--- |
-| **Nvidia** | CUDA | Yerel | `sd-cuda.exe` dosyasini Nvidia SDK 12 iyilestirmeleriyle esler. |
-| **AMD Radeon** | Vulkan | Yerel | `sd-vulkan.exe` dosyasini Vulkan API hizlandirmasiyla esler. |
-| **Intel Arc** | Vulkan | Yerel | Intel donanimi icin `sd-vulkan.exe` kullanir. |
-| **Entegre / Yok** | CPU | Yedek | Mantik islemci thread'leri uzerinde calisir (yavas). |
+| **NVIDIA RTX / GTX** | CUDA | 🟢 Yerel Donanım | CUDA 12 optimizasyonları ile en yüksek performans (`sd-cuda.exe`). |
+| **AMD Radeon** | Vulkan | 🟢 Yerel Donanım | Vulkan API hızlandırması ile yüksek performans (`sd-vulkan.exe`). |
+| **Intel Arc / Iris Xe** | Vulkan | 🟢 Yerel Donanım | Intel GPU'lar için Vulkan hızlandırması kullanılır. |
+| **Dahili Grafik / Sadece CPU** | CPU | 🟡 İşlemci Modu | Donanım hızlandırma olmadan CPU çekirdekleri üzerinde çalışır (daha yavaş). |
 
-### Linux
+### Linux Donanım Desteği
 
-| GPU Ureticisi | Birincil | Yedek | Notlar |
+| Ekran Kartı / Donanım | Birincil Motor | Yedek Motor | Notlar |
 | :--- | :--- | :--- | :--- |
-| **NVIDIA** | CUDA / Vulkan | Vulkan / CPU | NVIDIA'yi otomatik algilar. CUDA kurulumu onceden derlenmis indirir veya kaynaktan derler. GTX icin Vulkan'a duser. |
-| **AMD Radeon** | ROCm | Vulkan | ROCm, ana makinede ROCm suruculeri varsa en iyi AMD performansini saglar. |
-| **Intel Arc / entegre** | Vulkan | CPU | Cok ureticili Vulkan destegi. |
-| **Intel Core Ultra NPU** | OpenVINO NPU | CPU | Intel Linux NPU surucusu, kernel 6.6+, Python 3 ve `./linux.sh --setup-openvino` gerektirir. |
-| **Entegre / Yok** | CPU | - | Mantik islemci thread'leri uzerinde calisir (yavas). |
+| **NVIDIA** | CUDA / Vulkan | Vulkan / CPU | NVIDIA kartları otomatik algılanır. CUDA hazır ikiliyi kurar veya kaynaktan derler. |
+| **AMD Radeon** | ROCm | Vulkan | ROCm sürücüleri kuruluysa en yüksek AMD performansını sunar. |
+| **Intel Arc / Entegre** | Vulkan | CPU | Çoklu üretici Vulkan API desteği. |
+| **Intel Core Ultra NPU** | OpenVINO NPU | CPU | Intel Linux NPU sürücüsü, kernel 6.6+ ve `./linux.sh --setup-openvino` gerektirir. |
+| **Sadece CPU** | CPU | - | Tüm sistemlerde işlemci üzerinde çalışır. |
 
-### macOS
+### macOS Donanım Desteği
 
-| Donanim | Birincil | Yedek | Notlar |
-| :--- | :--- | :--- | :--- |
-| **Apple Silicon (M1 veya daha yeni)** | Metal | CPU | Resmi Darwin arm64 stable-diffusion.cpp arka ucunu kullanir. |
-
-> **Sistem Gereksinimleri ve Notlar:**
-> - Windows baslatici tarafindan kullanilan tasinabilir Node.js 22 calisma ortami icin **64-bit Windows 10 veya Windows 11** gereklidir.
-> - Onceden derlenmis Linux arka uclari icin **glibc 2.38 veya daha yeni** (Ubuntu 24.04, Fedora 40+ vb.) gereklidir. Kurulum betigi glibc eskiyse sizi uyarir.
-> - Linux calisma zamani kutuphaneleri: Onceden derlenmis arka uclar `libgomp.so.1` gerektirir; Vulkan ayrica `libvulkan.so.1` ve calisan bir GPU surucusu gerektirir. Kurulum betigi bir arka uc yuklemeden once bunlari kontrol eder ve eksik oldugunda tam distro paket komutunu yazar.
-> - Linux OpenVINO NPU: Intel Core Ultra, x86_64 Linux, kernel 6.6+, calisan bir `/dev/accel/accel0` aygiti, Python 3 (venv ile) ve Intel Linux NPU surucusu gereklidir.
+| Donanım Mimarisi | Birincil Hızlandırma | Notlar |
+| :--- | :--- | :--- |
+| **Apple Silicon (M1 - M4)** | Metal GPU / Neural Engine | Resmi ARM64 motoru ile mükemmel bellek ve GPU verimliliği. |
 
 ---
 
-## <a id="sss"></a> Sorun Giderme ve SSS
+## <a id="sss"></a> ❓ Sorun Giderme ve Sıkça Sorulan Sorular
 
-**Ortami Sifirla:** Bir derleme basarisiz olursa veya bagimliliklari temizlemek isterseniz `scripts/reset/reset.ps1` (Windows) veya `scripts/reset/reset.sh` (Linux/macOS) calistirin. Bu, gecici derleme ve paket onbellegini temizleyerek ortaminizi onarir. (Model agirliklariniz ve uretilen cikti gorselleriniz korunur.)
+* **Ortamı Sıfırlama ve Onarma:**  
+  Herhangi bir bileşen eksik inerse veya ortamı temizlemek isterseniz `scripts/reset/reset.ps1` (Windows) veya `scripts/reset/reset.sh` (Linux/macOS) çalıştırabilirsiniz. Bu işlem modellerinizi veya çıktı görsellerinizi **silmez**, sadece motorları ve önbelleği yeniler.
 
-**Linux arka uclari `GLIBC_2.38 not found` ile baslamiyor:** Onceden derlenmis ikililer glibc 2.38+ gerektirir (orn. Ubuntu 24.04). Dagitiminiz daha eski bir glibc surumu kullaniyorsa isletim sistemini guncelleyebilir veya arka ucu kaynaktan derleyebilirsiniz (asagidaki Kaynaktan Derleme kilavuzuna bakin).
+* **Linux `GLIBC_2.38 not found` Hatası:**  
+  Önceden derlenmiş Linux motorları modern `glibc 2.38+` kütüphanelerini (Ubuntu 24.04, Fedora 40+, Mint 22 vb.) gerektirir. Daha eski bir dağıtım kullanıyorsanız işletim sisteminizi güncelleyebilir veya motorları kaynaktan derleyebilirsiniz.
 
-**Port Cakismalari: Varsayilan port adresi mesgul:** Web kullanici arayuzu varsayilan olarak `1420` portunda calisir. GPU arka uc yoneticisi once `8080` portunu baglamayi dener, sonra otomatik olarak bos bir sistem portu algilar ve duser.
+* **Port Çakışması (Port Meşgul Uyarısı):**  
+  Web arayüzü varsayılan olarak `1420` portunda çalışır. Eğer bu port doluysa sistem otomatik olarak bir sonraki boş portu bularak arayüzü başlatır.
 
-**Linux ROCm AMD Radeon GPU'lar icin yuklenmiyor:** AMD GPU donaniminizin ve ana makine kernel'inizin ROCm 7.13 ile tam uyumlu oldugundan emin olun. ROCm dogru baslatilmazsa uygulama otomatik olarak Vulkan hizlandirmaya duser.
+* **Linux'ta Çift GPU / Dahili Ekran Kartı Seçimi:**  
+  Çift ekran kartlı Linux laptoplarda Vulkan motorunun harici kartı kullanmasını zorlamak için uygulamayı şu şekilde başlatabilirsiniz:  
+  `SD_VULKAN_DEVICE=vulkan1 ./linux.sh`
 
-**Linux ayri GPU yerine entegre GPU kullaniyor:** Cift GPU'lu Linux sistemlerinde Vulkan aygit siralamasi entegre Intel GPU'yu `vulkan0`, ayri AMD/NVIDIA GPU'yu `vulkan1` yapabilir. Baslatici, `vulkaninfo --summary` varsa ayri bir Vulkan aygitini tercih etmeye calisir. Aygiti elle zorlamak icin uygulamayi `SD_VULKAN_DEVICE=vulkan1 ./linux.sh` ile calistirin.
-
-**Windows `3221225781` (0xC0000135) kodu ile cikiyor:** Bu kod, Windows'in gerekli bir arka uc DLL'ini bulamadigi anlamina gelir:
-- **AMD/Intel Vulkan icin:** GPU surucunuzu tam Vulkan calisma zamani destegi olan bir surume guncelleyin, sonra kurulum betigini tekrar calistirarak `app/backend/win/vulkan/` klasorunu geri yukleyin.
-- **NVIDIA CUDA icin:** NVIDIA grafik surucunuzu kurun veya guncelleyin, sonra kurulum betigini tekrar calistirarak CUDA calisma zamani DLL'lerini geri yukleyin.
-
-**Uretim "sunucu yanit vermiyor veya coktu" diyor:** Bu, yerel arka uc motoru surecinin sona erdigi anlamina gelir. Baslatma terminalinizde (windows.bat, ./linux.sh veya ./mac.sh calistirdiginiz yer) tam konsol hatasini kontrol edin. Yaygin nedenler glibc surum uyumsuzluklari, eksik Vulkan suruculeri veya sistem bellek yetersizligidir (OOM).
+* **Windows `0xC0000135` (Eksik DLL) Hatası:**  
+  Sisteminizde gerekli ekran kartı sürücüsünün veya Vulkan/CUDA çalışma zamanının eksik olduğunu gösterir. Grafik sürücünüzü (NVIDIA Game Ready / AMD Adrenalin) güncelleyin.
 
 ---
 
-## <a id="derleme"></a> Kaynaktan Derleme
+## <a id="derleme"></a> 🛠️ Kaynaktan Derleme (İleri Düzey)
 
-Kurulum betigi (`scripts/setup/setup.sh`), secildiginde CUDA arka ucunu kaynaktan derlemeyi ve kurmayi otomatiklestirir. Tum arka uclari (CPU, Vulkan ve CUDA) birlikte elle derlemek icin `scripts/build/build_from_source.sh` betigini calistiralabilirsiniz.
-
-macOS icin `scripts/build/build_from_source.sh` Metal arka ucunu derler ve `app/backend/mac/sd` konumuna kopyalar.
+Eski bir Linux dağıtımında veya özel bir donanım üzerinde çalışıyorsanız, arka uç motorlarını kendi sisteminizde sıfırdan derleyebilirsiniz:
 
 ### Gereksinimler
-- `git`, `cmake`, `make` (veya `ninja`) ve bir C++17 derleyici (`g++` / `clang++`).
-- **CUDA icin:** NVIDIA CUDA arac takimi (`nvcc`) PATH'te olmali.
-- **Vulkan icin:** Vulkan SDK/yukleyici, uyumlu surucu ve `glslc` (Ubuntu/Debian paketi: `glslc`).
-- **ROCm icin:** AMD ROCm gelistirme kutuphaneleri.
-- **macOS Metal icin:** Apple Command Line Tools veya Xcode.
+* `git`, `cmake`, `make` (veya `ninja`) ve modern bir C++17 derleyici (`g++` / `clang++`).
+* **CUDA İçin:** NVIDIA CUDA Toolkit (`nvcc`).
+* **Vulkan İçin:** Vulkan SDK ve `glslc` paketi.
 
-### Derleme komutlari
-
+### Derleme Adımları:
 ```bash
-# 1. Ust depoyu kopyalayin
+# 1. Kaynak depoyu klonlayın
 git clone https://github.com/leejet/stable-diffusion.cpp.git
 cd stable-diffusion.cpp
 mkdir build && cd build
 
-# 2. Arka ucunuz icin yapilandirin (bunlardan BIRINI secin)
-# Yalnizca CPU
-cmake .. -DSD_BUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
-
-# CUDA
+# 2. Donanımınıza uygun şekilde yapılandırın (Birini seçin):
+# CUDA (NVIDIA):
 cmake .. -DSD_CUDA=ON -DSD_BUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
 
-# Vulkan
+# Vulkan (AMD / Intel):
 cmake .. -DSD_VULKAN=ON -DSD_BUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
 
-# ROCm
-cmake .. -DSD_HIPBLAS=ON -DSD_BUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
-
-# macOS Metal
+# macOS Metal:
 cmake .. -DSD_METAL=ON -DSD_BUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
 
-# 3. Derleyin
-cmake --build . --config Release -j$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)
+# 3. Derlemeyi başlatın
+cmake --build . --config Release -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
 
-# 4. Ikilileri bu projeye kopyalayin
-cp bin/sd* /yol/Sansursuz-Lokal-AI-Studyosu-DDYZ/app/backend/linux/<arka uc>/
+# 4. Çıkan ikilileri projenin ilgili klasörüne kopyalayın
+cp bin/sd* /yol/SansursuzLokalAIStudyosu-DDYZ/app/backend/linux/vulkan/sd-vulkan
 ```
 
-Kopyaladiktan sonra sunucu ikilisini `scripts/server/serve.cjs` dosyasinin bekledigi ada yeniden adlandirin:
-- Vulkan: `sd` -> `sd-vulkan`
-- ROCm: `sd` -> `sd-rocm`
+---
 
-Ardindan uygulamayi `./linux.sh` (Linux) veya `./mac.sh` (macOS) ile yeniden baslatin.
+## <a id="lisans"></a> 📜 Lisans
+
+Bu proje **[MIT Lisansı](LICENSE)** ile lisanslanmıştır. Projede kullanılan `stable-diffusion.cpp` ve `llama.cpp` projeleri kendi açık kaynak lisanslarına (MIT) sahiptir. İndirdiğiniz yapay zeka modelleri ise ilgili modellerin kendi açık kaynak kullanım koşullarına tabidir.
 
 ---
 
-## <a id="lisans"></a> Lisans
+## <a id="tesekkur"></a> 🤝 Teşekkür ve Atıf
 
-Bu proje MIT Lisansi ile lisanslanmistir - [LICENSE](LICENSE) dosyasina bakin. [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp) (MIT Lisansi) paketlenmistir. Model agirliklari kendi olusturucularinin lisanslarina tabidir.
+Bu proje, [techjarves](https://github.com/techjarves) tarafından geliştirilen özgün **[Uncensored-Local-Studio](https://github.com/techjarves/Uncensored-Local-Studio)** projesi temel alınarak yeniden yapılandırılmış (refactored), Türkçeleştirilmiş ve yeni özelliklerle zenginleştirilmiş bir sürümdür. Açık kaynak dünyasına sağladığı değerli katkılardan dolayı **techjarves**'e teşekkür ederiz.
 
----
-
-## <a id="tesekkur"></a> Tesekkur ve Atif
-
-Bu proje, [techjarves](https://github.com/techjarves)'in ozgun **[Uncensored-Local-Studio](https://github.com/techjarves/Uncensored-Local-Studio)** projesinin yeniden duzenlenmis (refactoring) bir halidir. Ozgun calismasi olmadan bu calma yerel AI araci mumkun olmazdi; emegine ve acik kaynak katkisina ictenlikle tesekkur ederiz.
-
-* Ozgun proje: [https://github.com/techjarves/Uncensored-Local-Studio](https://github.com/techjarves/Uncensored-Local-Studio)
-* Bu repo, ozgun kod tabaninin Turkce (ASCII) yerellestirme, arayuz iyilestirme ve "Tum Varsayilan Modelleri Indir" ozelligi eklenmis surumudur.
+* **Özgün Proje:** [techjarves/Uncensored-Local-Studio](https://github.com/techjarves/Uncensored-Local-Studio)
+* **Bu Sürüm:** Türkçe arayüz yerelleştirmesi, model indirme optimizasyonları, tek tıkla model yönetim iyileştirmeleri ve ek platform desteklerini içerir.
 
 ---
 
-## <a id="iletisim"></a> Iletisim ve Kanal
+## <a id="iletisim"></a> 📢 İletişim ve Topluluk
 
-* YouTube Kanalimiz: [Derine Daliyoruz: Yapay Zeka (DD:YZ)](https://www.youtube.com/@derinedaliyoruzyapayzeka)
-* Iletisim (e-posta): [divingdeep.ai.tr@gmail.com](mailto:divingdeep.ai.tr@gmail.com)
+* 📺 **YouTube Kanalımız:** [Derine Dalıyoruz: Yapay Zeka (DD:YZ)](https://www.youtube.com/@derinedaliyoruzyapayzeka)
+* 📧 **E-posta İletişim:** [divingdeep.ai.tr@gmail.com](mailto:divingdeep.ai.tr@gmail.com)
 
-Orijinal tanitim videosu yakinda kanalimizda yayinlanacaktir; videoyu hazirlayinca buraya baglanti eklenecektir.
+Projeyi beğendiyseniz GitHub üzerinde **⭐ Yıldız (Star)** vererek ve YouTube kanalımıza abone olarak destek olabilirsiniz!
