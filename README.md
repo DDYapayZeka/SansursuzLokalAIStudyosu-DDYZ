@@ -152,16 +152,49 @@ Modern bir web tarayicisi kurulu oldugundan emin olun. Platformunuz icin asagida
 
 ### Linux Kurulumu
 
-1. **Calistirilabilir yapin:** Proje klasorunde bir terminal acin ve betigi calistirilabilir yapin:
+#### 1. Standart Terminal Kurulumu
+1. **Depoyu Klonlayin:** Terminali acin ve projeyi bilgisayariniza indirin:
    ```bash
-   chmod +x linux.sh
+   git clone https://github.com/DDYapayZeka/SansursuzLokalAIStudyosu-DDYZ.git
+   cd SansursuzLokalAIStudyosu-DDYZ
    ```
-2. **Baslatma:** `./linux.sh` calistirin.
-   - **NVIDIA GPU Kullanicilari:** Yuksek performansli **CUDA** arka ucunu kurmak icin size sorulacak (onceden derlenmis ikili indirir veya yedek olarak kaynaktan derler).
+2. **Calistirma Izni Verin:** Betiklere calistirma yetkisi (`+x`) tanimlayin:
+   ```bash
+   chmod +x linux.sh scripts/setup/*.sh
+   ```
+3. **Baslatin:**
+   ```bash
+   ./linux.sh
+   ```
+   > *Ilk calistirmada betik, tasinabilir Linux Node.js ortamini ve sisteminize uygun GPU/CPU arka uclarini otomatik olarak yapilandiracaktir.*
+   - **NVIDIA GPU Kullanicilari:** Yuksek performansli **CUDA** arka ucunu kurmak icin onayiniz istenir.
    - **AMD Radeon Performansi:** ROCm arka ucunu eklemek icin `./linux.sh --max-perf` ile calistirin (~1.3 GB indirme).
    - **Intel Core Ultra NPU:** Intel NPU destegi icin `./linux.sh --setup-openvino` ile calistirin (Intel Linux NPU surucusu gerekir).
-3. **Model Ekleyin:** Agirliklarinizi `app/models/` icine birakin veya **Model Yoneticisi** sekmesinden indirin.
-4. **Uretin:** Tarayicinizda `http://localhost:1420` adresini acin.
+4. **Model Ekleyin:** Agirliklarinizi arayuzdeki **Model Yoneticisi** sekmesinden tek tikla indirin veya `app/models/` (gorsel) / `app/llm-models/` (metin) klasorlerine ekleyin.
+5. **Kullanin:** Tarayicinizda `http://localhost:1420` adresi otomatik acilacaktir.
+
+#### 2. USB Bellege Kurulum ve Tasinabilir (Portable) Calistirma
+Proje **%100 bagimsiz ve tasinabilir (self-contained)** olarak tasarlandigindan, tum bagimliliklari ve modelleri kendi `app/` klasoru icinde tutar. Dogrudan bir USB bellek veya harici SSD uzerinden tak-calistir seklinde kullanilabilir.
+
+* **USB Dosya Sistemi Secimi (Onemli):**
+  * USB belleginiz **FAT32 olmamalidir** (FAT32 tek parca 4 GB uzeri dosyalara izin vermez; yapay zeka modelleri genellikle 4-8 GB+ boyutundadir).
+  * Hem Windows hem Linux'ta ortak kullanmak icin **exFAT** veya **NTFS**, yalnizca Linux'ta kullanacaksaniz **ext4** formati onerilir (USB 3.0+ veya harici SSD tavsiye edilir).
+
+* **USB Uzerinden Calistirma Adimlari:**
+  1. USB belleginizi takin ve terminalden USB dizinine gecin:
+     ```bash
+     cd /media/$USER/USB_SURUCU_ADI/
+     ```
+  2. Projeyi dogrudan USB icine klonlayin:
+     ```bash
+     git clone https://github.com/DDYapayZeka/SansursuzLokalAIStudyosu-DDYZ.git
+     cd SansursuzLokalAIStudyosu-DDYZ
+     ```
+  3. Baslatin:
+     ```bash
+     bash linux.sh
+     ```
+     > **Ipucu:** Bazi Linux dagitimlari harici USB diskleri `noexec` (calistirma kisitlamasi) bayragiyla baglar. Eger `./linux.sh` izni reddedilirse (`Permission denied`), dogrudan `bash linux.sh` komutu ile baslatabilirsiniz.
 
 ### macOS Kurulumu
 
