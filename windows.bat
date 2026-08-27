@@ -1,8 +1,6 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 chcp 65001 >nul
-:: Hugging Face token (7B/gated modeller icin) - env'e alindi
-if "%HF_TOKEN%"=="" set "HF_TOKEN=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"
 title Sansursuz Lokal AI Studyosu - DD:YZ
 cd /d "%~dp0"
 
@@ -52,107 +50,62 @@ if not exist "%TTS_RUNTIME%" (
     set SETUP_REASON=Kokoro metinden sese calisma zamani eksik.
     goto :run_setup
 )
-if exist "%CUDA_BACKEND%" goto :launch
-if exist "%VULKAN_BACKEND%" goto :launch
-set SETUP_REASON=Yuklu motor dosyasi bulunamadi.
-goto :run_setup
-
-:run_setup
-echo.
-echo  ============================================================
-type "%~dp0logo.txt"
-echo.
-echo       Sansursuz Lokal AI Studyosu - DD:YZ   ^|  %SETUP_MODE%
-echo  ============================================================
-echo.
-if "%SETUP_MODE%"=="Ilk Kurulum" (
-    echo  Bu ilk calistirmeniz gibi gorunuyor. Otomatik olarak kuruluyor...
-) else (
-    echo  Sansursuz Lokal AI Studyosu - DD:YZ baslatilmadan once hizli bir onarima ihtiyac duyuyor.
+if not exist "%CUDA_BACKEND%" if not exist "%VULKAN_BACKEND%" (
+    set SETUP_REASON=stable-diffusion gorsel motoru eksik.
+    goto :run_setup
 )
-if not "%SETUP_REASON%"=="" echo  Neden: %SETUP_REASON%
-echo  Modeller kurulum sirasinda indirilmez. Uygulama icinden indirin veya ice aktarin.
-echo.
-echo  Devam etmek icin herhangi bir tusa basin, veya iptal etmek icin Ctrl+C tusuna basin.
-pause >nul
-
-:: Clear old managed backend processes before setup so app/tools/node-win can be replaced.
-:: Do not kill the frontend port; launch will select a free frontend port automatically.
-for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":8080 "') do taskkill /f /pid %%a >nul 2>nul
-for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":%LLM_PORT% "') do taskkill /f /pid %%a >nul 2>nul
-
-powershell -ExecutionPolicy Bypass -File "%SETUP%"
-if errorlevel 1 (
-    echo.
-    echo  [HATA] Kurulum basarisiz oldu. Lutfen yukaridaki ciktiyi kontrol edin.
-    pause
-    exit /b 1
-)
-
-:: After setup, continue to launch
-goto :launch
 
 :: -- Launch -------------------------------------------------------------------
 :launch
+cls
+if exist "%~dp0logo.txt" (
+    type "%~dp0logo.txt"
+)
 echo.
+echo   ============================================================
+echo    Sansursuz Lokal AI Studyosu - DD:YZ
+echo    Baslatiliyor... Tarayiciniz otomatik acilacak.
 echo  ============================================================
-type "%~dp0logo.txt"
 echo.
-echo       Sansursuz Lokal AI Studyosu - DD:YZ   ^|  Baslatiliyor...
-echo  ============================================================
+echo   Tarayici acilmazsa su adrese gidin:
+echo   http://localhost:%FRONTEND_PORT%
 echo.
-
-set "REQUESTED_FRONTEND_PORT=%FRONTEND_PORT%"
-call :resolve_frontend_port
-if errorlevel 1 exit /b 1
-if not "%FRONTEND_PORT%"=="%REQUESTED_FRONTEND_PORT%" echo  Arayuz portu %REQUESTED_FRONTEND_PORT% mesgul; yerine %FRONTEND_PORT% kullaniliyor.
-
-:: Clear managed backend ports to prevent stale API conflicts.
-echo  Arka plan portu 8080 ve metin portu %LLM_PORT% temizleniyor...
-for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":8080 "') do taskkill /f /pid %%a >nul 2>nul
-for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":%LLM_PORT% "') do taskkill /f /pid %%a >nul 2>nul
-
-:: Start frontend server + backend manager (serve.cjs manages sd-vulkan.exe)
-echo  Sansursuz Lokal AI Studyosu - DD:YZ baslatiliyor...
-echo  Tarayici http://localhost:%FRONTEND_PORT% adresinde aciliyor...
-start /b cmd /c "timeout /t 2 >nul && start http://localhost:%FRONTEND_PORT%"
-
-echo.
-echo  ============================================================
-echo   Calisiyor!
-echo   Web Arayuzu:     http://localhost:%FRONTEND_PORT%
-echo   GPU API:         Uygulama tarafindan otomatik secilir (8080 portunda baslar)
-echo   Metin API:       Bir GGUF modeli yuklendiginde baslar (port %LLM_PORT%)
-echo   Ses Tanima:      Uygulama tarafindan yerel olarak yonetilir
-echo   Metinden Sese:   Uygulama tarafindan yerel olarak yonetilir
-echo.
-echo   Tum servisleri durdurmak icin bu pencerede Ctrl+C tuslarina basin.
-echo  ============================================================
+echo   Durdurmak icin bu pencereyi kapatin veya Ctrl+C tuslarina basin.
 echo.
 
 "%NODE%" "%SERVE%"
-exit /b %ERRORLEVEL%
+if %errorlevel% neq 0 (
+    echo.
+    echo [Hata] Sunucu beklenmedik bir sekilde sonlandi. Hata kodu: %errorlevel%
+    pause
+)
+goto :eof
 
-:resolve_frontend_port
-call :is_port_available "%FRONTEND_PORT%"
-if "%PORT_AVAILABLE%"=="1" exit /b 0
+:: -- Run Setup ----------------------------------------------------------------
+:run_setup
+cls
+if exist "%~dp0logo.txt" (
+    type "%~dp0logo.txt"
+)
+echo.
+echo   ============================================================
+echo    Sansursuz Lokal AI Studyosu - DD:YZ   -  %SETUP_MODE%
+echo   ============================================================
+echo.
+if defined SETUP_REASON (
+    echo   Gerekce: %SETUP_REASON%
+    echo.
+)
+echo   Kurulum baslatiliyor, lutfen bekleyin...
+echo.
 
-for /L %%p in (1421,1,1499) do (
-    if not "%%p"=="%FRONTEND_PORT%" (
-        call :is_port_available "%%p"
-        if "!PORT_AVAILABLE!"=="1" (
-            set "FRONTEND_PORT=%%p"
-            exit /b 0
-        )
-    )
+powershell -NoProfile -ExecutionPolicy Bypass -File "%SETUP%"
+if %errorlevel% neq 0 (
+    echo.
+    echo   [XX] Kurulum basarisiz oldu. Lutfen yukaridaki hatalari inceleyin.
+    echo.
+    pause
+    exit /b %errorlevel%
 )
 
-echo  [HATA] Bos arayuz portu bulunamadi. %FRONTEND_PORT% ve 1421-1499 portlari denendi.
-exit /b 1
-
-:is_port_available
-set "PORT_AVAILABLE=1"
-for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":%~1 " ^| findstr /I "LISTENING"') do (
-    set "PORT_AVAILABLE=0"
-)
-exit /b 0
+goto :launch
