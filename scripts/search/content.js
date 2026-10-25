@@ -33,10 +33,17 @@ function isPrivateIpv4(ip) {
 
 function isPrivateIpv6(ip) {
   const value = String(ip || "").toLowerCase();
+  // Handle IPv4-mapped IPv6 addresses (e.g. ::ffff:127.0.0.1)
+  if (value.startsWith("::ffff:") && value.includes(".")) {
+    const ipv4Part = value.slice(7);
+    return isPrivateIpv4(ipv4Part);
+  }
   return value === "::1" ||
     value.startsWith("fc") ||
     value.startsWith("fd") ||
     value.startsWith("fe80:") ||
+    value.startsWith("fec0:") ||
+    value.startsWith("ff00:") ||
     value === "::";
 }
 
@@ -48,13 +55,21 @@ function isPrivateIp(ip) {
 }
 
 async function assertPublicUrl(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== "string") {
+    throw new Error("Invalid URL provided.");
+  }
+  // Mitigate CVE-2026-105482: NUL byte truncation / control char bypass
+  if (rawUrl.includes("\0") || /[\u0000-\u001f\u007f]/.test(rawUrl)) {
+    throw new Error("URL contains illegal characters.");
+  }
   const parsed = new URL(rawUrl);
   if (!["http:", "https:"].includes(parsed.protocol)) {
     throw new Error("Only HTTP and HTTPS URLs can be fetched.");
   }
-  const host = parsed.hostname.toLowerCase();
-  if (host === "localhost" || host.endsWith(".localhost")) {
-    throw new Error("Localhost URLs are blocked.");
+  // Normalize unicode hostname (NFKC) and mitigate CVE-2026-105483
+  const host = parsed.hostname.normalize("NFKC").toLowerCase();
+  if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local") || host.endsWith(".internal")) {
+    throw new Error("Localhost and internal network URLs are blocked.");
   }
   if (net.isIP(host) && isPrivateIp(host)) {
     throw new Error("Private network URLs are blocked.");
@@ -92,9 +107,23 @@ function stripHtml(html) {
 
 function decodeBody(buffer, encoding) {
   const value = String(encoding || "").toLowerCase();
-  if (value.includes("gzip")) return zlib.gunzipSync(buffer).toString("utf8");
-  if (value.includes("br")) return zlib.brotliDecompressSync(buffer).toString("utf8");
-  if (value.includes("deflate")) return zlib.inflateSync(buffer).toString("utf8");
+  if (value.includes("gzip")) {
+    try {
+      return zlib.gunzipSync(buffer).toString("utf8");
+    } catch (_) {}
+  }
+  if (value.includes("deflate")) {
+    try {
+      return zlib.inflateSync(buffer).toString("utf8");
+    } catch (_) {}
+  }
+  if (value.includes("br")) {
+    try {
+      return zlib.brotliDecompressSync(buffer).toString("utf8");
+    } catch (err) {
+      console.warn("  [search] Brotli decompression fallback:", err.message);
+    }
+  }
   return buffer.toString("utf8");
 }
 
@@ -110,7 +139,7 @@ async function fetchPageContent(rawUrl, options = {}, redirects = 0) {
       headers: {
         "User-Agent": USER_AGENT,
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,text/plain;q=0.8,*/*;q=0.2",
-        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Encoding": "gzip, deflate, br;q=0.8",
       },
       timeout: timeoutMs,
     }, async (res) => {

@@ -106,3 +106,25 @@ test("Windows launcher remains ASCII-safe for cmd.exe", () => {
   const launcher = fs.readFileSync(path.join(root, "windows.bat"));
   assert.equal([...launcher].some((byte) => byte > 0x7f), false);
 });
+
+test("Node.js portable installation uses patched security version v22.23.4", () => {
+  const setupSh = read("scripts/setup/setup.sh");
+  const setupPs1 = read("scripts/setup/setup.ps1");
+  assert.match(setupSh, /NODE_VERSION="22\.23\.4"/);
+  assert.match(setupPs1, /node-v22\.23\.4-win-x64\.zip/);
+});
+
+test("serve.cjs validates static file path inside DIST and binds safely to localhost by default", () => {
+  const server = read("scripts/server/serve.cjs");
+  assert.match(server, /pathInside\(filePath,\s*DIST\)/);
+  assert.match(server, /const HOST_FRONTEND = process\.env\.HOST \|\| process\.env\.FRONTEND_HOST \|\| "127\.0\.0\.1"/);
+  assert.match(server, /server\.listen\(PORT_FRONTEND,\s*HOST_FRONTEND/);
+});
+
+test("search content scraper prevents NUL bytes and IPv4-mapped IPv6 SSRF bypasses", () => {
+  const content = read("scripts/search/content.js");
+  assert.match(content, /rawUrl\.includes\("\\0"\)/);
+  assert.match(content, /::ffff:/);
+  assert.match(content, /brotliDecompressSync/);
+});
+

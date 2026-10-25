@@ -24,6 +24,7 @@
 
 * [Sansürsüz Lokal AI Stüdyosu Nedir?](#nedir)
 * [Öne Çıkan Özellikler](#ozellikler)
+* [Güvenlik ve Güncelleme Bildirimi](#guvenlik)
 * [Çalışma Alanı ve Motor Mimarisi](#mimari)
 * [Desteklenen Modeller](#modeller)
 * [Klasör Yapısı](#yapi)
@@ -61,6 +62,33 @@ Dört ana yerel yapay zeka kabiliyetini tek bir kullanıcı dostu masaüstü ara
 * 📥 **Entegre Model Yöneticisi:** Hugging Face üzerindeki açık modelleri tek tıkla doğrudan uygulama içinden indirin ve yönetin.
 * 📊 **Canlı Performans Monitörü:** CPU, RAM, GPU ve VRAM kullanımını web arayüzünde canlı olarak izleyin.
 * 🖼️ **Yerel Çıktı Galerisi:** Üretilen tüm görselleri, prompt (istem) parametrelerini ve JSON meta verilerini otomatik olarak düzenli bir galeride saklar.
+
+---
+
+## <a id="guvenlik"></a> 🛡️ Güvenlik ve Güncelleme Bildirimi (25 Ekim 2026 - 11:25 TSİ)
+
+Projenin güvenliğini en üst düzeyde tutmak amacıyla 21-25 Ekim 2026 tarihlerinde yayımlanan kritik güvenlik bültenleri taranmış ve stüdyo genelinde kapsamlı bir güvenlik denetimi gerçekleştirilerek gerekli tüm önlemler alınmıştır:
+
+### 1. 🟢 Node.js Kritik Güvenlik Yaması (v22.23.4 LTS)
+* **Tespit Edilen Zafiyetler:** Node.js ekibi tarafından 21 Ekim 2026'da yayımlanan bültende yer alan **CVE-2026-111497** (Dahili Brotli decoder üzerinden RCE/DoS riski), **CVE-2026-105482** (DNS çözümlemesinde NUL byte `\0` ile allowlist bypass zafiyeti), **CVE-2026-105483 / CVE-2026-106069** (TLS sertifikası hostname doğrulama bypass'ı) ve güncellenen alt kütüphaneler (OpenSSL, c-ares, SQLite, Undici).
+* **Alınan Önlem:** `scripts/setup/setup.ps1` ve `scripts/setup/setup.sh` dosyalarındaki taşınabilir Node.js sürümü güvenlik açıklarını kapatan güncel **`v22.23.4 LTS`** sürümüne yükseltildi.
+
+### 2. ℹ️ PHP Güvenlik Açıkları Durumu (PHP2Shell - CVE-2026-109618 / CVE-2026-109619)
+* **İnceleme:** 21 Ekim 2026'da PHP çekirdeğinde tespit edilen "PHP2Shell" uzaktan kod yürütme açıkları incelenmiştir.
+* **Sonuç:** Sansürsüz Lokal AI Stüdyosu tamamen çevrimdışı JavaScript (Node.js) ve Python/C++ mimarisi üzerinde geliştirilmiş olup bünyesinde **hiçbir PHP bileşeni veya kodu barındırmamaktadır**. Dolayısıyla bu açıklar projeyi doğrudan etkilememektedir.
+
+### 3. 🛡️ Vite Bağımlılığı Güvenlik Güncellemesi
+* **Tespit Edilen Zafiyetler:** Vite geliştirme sunucusunda tespit edilen `GHSA-9jrq-w75r-8gcw` ve `GHSA-8g5g-mxqh-grgj` dizin aşımı ve script çalıştırma riskleri.
+* **Alınan Önlem:** `app/frontend/package.json` içerisindeki `vite` bağımlılığı güvenlik yamalarını içeren **`^8.3.3`** sürümüne yükseltildi.
+
+### 4. 🔒 Sunucu Sertleştirmesi ve Dizin Aşımı (Path Traversal) Koruması (`serve.cjs`)
+* **Tespit Edilen Zafiyetler:** Statik dosya sunucusu üzerinden üst dizinlere erişim (`/../../`) riski ve sunucunun yerel ağa (`0.0.0.0`) kontrolsüz açılması.
+* **Alınan Önlemler:**
+  - `pathInside(filePath, DIST)` kontrolü eklenerek yalnızca derlenmiş `app/dist` dizini içerisindeki dosyaların sunulması garanti altına alındı; üst dizin istekleri engellendi.
+  - Sunucu dinleme adresi varsayılan olarak güvenli yerel döngüye (`127.0.0.1` / localhost) bağlandı. İhtiyaç duyan kullanıcılar `HOST=0.0.0.0` ortam değişkeni ile yerel ağ paylaşımını bilinçli olarak aktif edebilmektedir.
+
+### 5. 🌐 Web Arama ve SSRF Sertleştirmesi (`content.js`)
+* **Alınan Önlemler:** Web asistanı arama motoru içerik çekicisine NUL byte denetimi, Unicode (`NFKC`) normalizasyonu, IPv4-mapped IPv6 (`::ffff:x.x.x.x`) SSRF engeli ve Brotli decompress güvenli istisna yakalama (fallback) korumaları entegre edildi.
 
 ---
 

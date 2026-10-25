@@ -7363,9 +7363,15 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
   }
 
   // -- Static frontend files -------------------------------------------------
-  let filePath = path.join(DIST, req.url === "/" ? "index.html" : req.url);
-  filePath = filePath.split("?")[0];
-  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+  let cleanUrl = req.url.split("?")[0].split("#")[0];
+  try {
+    cleanUrl = decodeURIComponent(cleanUrl);
+  } catch (_) {}
+  const safeRelative = path.normalize(cleanUrl).replace(/^(\.\.[\/\\])+/, "");
+  const trimmed = safeRelative.startsWith("/") || safeRelative.startsWith("\\") ? safeRelative.slice(1) : safeRelative;
+  let filePath = path.resolve(DIST, (!trimmed || trimmed === ".") ? "index.html" : trimmed);
+
+  if (!pathInside(filePath, DIST) || !fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     filePath = path.join(DIST, "index.html");
   }
 
@@ -7381,12 +7387,14 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
 
 server.timeout = 0; // Disable socket timeout for large model uploads/downloads
 
-server.listen(PORT_FRONTEND, "0.0.0.0", () => {
+const HOST_FRONTEND = process.env.HOST || process.env.FRONTEND_HOST || "127.0.0.1";
+
+server.listen(PORT_FRONTEND, HOST_FRONTEND, () => {
   console.log("");
   console.log("  ============================================================");
   console.log("   Sansursuz Lokal AI Studyosu - DD:YZ   |  Calisiyor");
   console.log("   Server Build: " + SERVER_BUILD);
-  console.log("   Frontend : http://localhost:" + PORT_FRONTEND);
+  console.log("   Frontend : http://" + (HOST_FRONTEND === "0.0.0.0" ? "localhost" : HOST_FRONTEND) + ":" + PORT_FRONTEND);
   console.log("   Image API: http://127.0.0.1:" + PORT_BACKEND);
   console.log("   Text API : starts on http://127.0.0.1:" + PREFERRED_LLM_PORT);
   console.log("   Speech   : managed locally, API on frontend port");

@@ -47,7 +47,7 @@ fi
 SD_RELEASE="master-685-19bdfe2"
 SD_SHORT_HASH="${SD_RELEASE##*-}"
 SD_BASE_URL="https://github.com/leejet/stable-diffusion.cpp/releases/download/$SD_RELEASE"
-NODE_VERSION="22.12.0"
+NODE_VERSION="22.23.4"
 
 if [[ "$PLATFORM" == "Darwin" ]]; then
   if [[ "$ARCH" == "arm64" ]]; then

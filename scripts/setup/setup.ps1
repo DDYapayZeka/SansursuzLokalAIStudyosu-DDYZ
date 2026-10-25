@@ -222,9 +222,9 @@ if (-not $nodeReady) {
     New-Item -ItemType Directory -Force -Path $toolsDir | Out-Null
 
     $ok = Invoke-RichDownload `
-        -Url  "https://nodejs.org/dist/v22.12.0/node-v22.12.0-win-x64.zip" `
+        -Url  "https://nodejs.org/dist/v22.23.4/node-v22.23.4-win-x64.zip" `
         -Dest $nodeZip `
-        -Label "Node.js v22.12.0 LTS (Portable ZIP)"
+        -Label "Node.js v22.23.4 LTS (Portable ZIP)"
 
     if (-not $ok) { Print-Fail "Cannot download Node.js."; Read-Host; exit 1 }
 
