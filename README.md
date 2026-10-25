@@ -18,6 +18,19 @@
   <a href="https://youtu.be/iykgwvycFio">📺 Kurulum ve Tanıtım Videosunu İzleyin (DD:YZ Kanalı)</a>
 </p>
 
+> [!IMPORTANT]
+> ### ⚠️ Daha Önce İndirmiş Olanlar İçin Hızlı Güncelleme Adımı (25 Ekim 2026)
+> **Eğer projeyi 25 Ekim 2026 tarihinden sonra indirdiyseniz bu kısmı dikkate almayınız; sisteminiz zaten en güncel ve yamalı sürümdür.**
+>
+> Projeyi **25 Ekim 2026'dan önce** indirdiyseniz; yayımlanan Node.js (CVE-2026-111497, CVE-2026-105482 vb.) ve sunucu güvenlik yamalarını almak için şu **3 kolay adımı** uygulamanız yeterlidir *(İndirmiş olduğunuz yapay zeka modelleriniz ve çıktılar kesinlikle silinmez)*:
+>
+> 1. **Dosyaları Güncelleyin:** `git pull` yapın veya GitHub'dan yeni kodları indirip mevcut klasörünüzün üzerine kopyalayın.
+> 2. **Eski Node.js Klasörünü Silin:**
+>    * **Windows:** `app/tools/node-win` klasörünü silin.
+>    * **Linux:** `app/tools/node-linux` klasörünü silin.
+>    * **macOS:** `app/tools/node-mac` klasörünü silin.
+> 3. **Projeyi Başlatın:** `windows.bat` (veya `linux.sh` / `mac.sh`) dosyasını çalıştırın. Sistem eksik klasörü algılayıp otomatik olarak yamalı **Node.js v22.23.4 LTS** sürümünü indirecek ve güvenli şekilde çalışacaktır.
+
 ---
 
 ## 📑 İçindekiler
