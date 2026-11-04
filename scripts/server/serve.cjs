@@ -9,7 +9,7 @@ const fs       = require("fs");
 const net      = require("net");
 const os       = require("os");
 const path     = require("path");
-const { spawn, spawnSync, execSync, exec, execFile } = require("child_process");
+const { spawn, spawnSync, execSync, execFileSync, exec, execFile } = require("child_process");
 const { comprehensiveWebSearch } = require("../search/core");
 
 // HTTP keep-alive agent for llama-server (eliminates TCP handshake per request)
@@ -3450,7 +3450,6 @@ function proxyImageBackendRequest(req, res) {
   }, (proxyRes) => {
     res.writeHead(proxyRes.statusCode || 502, {
       ...proxyRes.headers,
-      "Access-Control-Allow-Origin": "*",
     });
     proxyRes.pipe(res);
   });
@@ -5040,7 +5039,7 @@ function describeDownloadHttpError(statusCode, url, headers = {}) {
   const host = (() => {
     try { return new URL(url).hostname; } catch (_) { return ""; }
   })();
-  const isHuggingFace = host.includes("huggingface.co") || host.includes("hf.co");
+  const isHuggingFace = isHuggingFaceHost(host);
   const hfErrorCode = headers["x-error-code"];
   const hfErrorMessage = headers["x-error-message"];
 
@@ -5060,6 +5059,35 @@ function describeDownloadHttpError(statusCode, url, headers = {}) {
     return `HTTP 404: Model file not found. Check that the URL points directly to a .safetensors, .gguf, or .ckpt file.`;
   }
   return `HTTP ${statusCode}`;
+}
+
+// File name and address checks shared by every model download route.
+const BLOCKED_DOWNLOAD_EXT = /\.(exe|dll|msi|scr|com|bat|cmd|ps1|psm1|vbs|js|mjs|cjs|jar|py|pyw|sh|lnk|hta|reg)$/i;
+
+function safeDownloadFilename(value) {
+  const name = path.basename(String(value || "").replace(/\\/g, "/")).trim();
+  if (!name || name === "." || name === ".." || /[<>:"|?*\x00-\x1f]/.test(name)) return "";
+  return name;
+}
+
+function downloadRequestError(url, filename) {
+  let parsed;
+  try {
+    parsed = new URL(String(url));
+  } catch (_) {
+    return "Geçersiz indirme adresi.";
+  }
+  if (parsed.protocol !== "https:") return "Modeller yalnızca https:// adreslerinden indirilebilir.";
+  const name = safeDownloadFilename(filename || parsed.pathname);
+  if (!name) return "Geçersiz dosya adı.";
+  if (BLOCKED_DOWNLOAD_EXT.test(name)) return "Bu dosya türü model olarak indirilemez.";
+  return "";
+}
+
+// The Hugging Face token may only go to Hugging Face itself; a partial match would also accept huggingface.co.evil.example.
+function isHuggingFaceHost(host) {
+  const value = String(host || "").toLowerCase();
+  return value === "huggingface.co" || value.endsWith(".huggingface.co") || value === "hf.co" || value.endsWith(".hf.co");
 }
 
 function startModelDownload(url, overrideFilename = null, targetDir = MODELS, kind = "image", redirectCount = 0) {
@@ -5084,7 +5112,17 @@ function startModelDownload(url, overrideFilename = null, targetDir = MODELS, ki
     }
   }
 
+  // Last line of defence for every caller and for redirects: https only, and the file stays in its folder.
+  filename = safeDownloadFilename(filename);
   const destPath = path.join(targetDir, filename);
+  if (!/^https:\/\//i.test(String(url || "")) || !filename || !pathInside(destPath, targetDir)) {
+    const message = "İndirme reddedildi: adres https değil ya da dosya adı geçersiz.";
+    downloadState = { ...downloadState, active: false, error: message };
+    activeDownload = null;
+    console.error("  [download] " + message);
+    return;
+  }
+
   const tempPath = `${destPath}.part`;
   try { fs.unlinkSync(tempPath); } catch (_) {}
   downloadState = {
@@ -5132,7 +5170,7 @@ function startModelDownload(url, overrideFilename = null, targetDir = MODELS, ki
       "User-Agent": "Sansursuz-Lokal-AI-Studyosu-DDYZ/1.0 (+https://www.youtube.com/@derinedaliyoruzyapayzeka)",
       "Accept": "application/octet-stream, application/x-safetensors, */*",
       "Referer": "https://huggingface.co/",
-      ...(process.env.HF_TOKEN ? { "Authorization": `Bearer ${process.env.HF_TOKEN}` } : {}),
+      ...(process.env.HF_TOKEN && isHuggingFaceHost(new URL(url).hostname) ? { "Authorization": `Bearer ${process.env.HF_TOKEN}` } : {}),
     },
   }, (response) => {
     activeDownload = { request, fileStream, destPath, tempPath };
@@ -5229,8 +5267,7 @@ function startModelDownload(url, overrideFilename = null, targetDir = MODELS, ki
 
           if (destPath.toLowerCase().endsWith(".zip")) {
             try {
-              const { execSync } = require("child_process");
-              execSync(`unzip -o "${destPath}" -d "${path.dirname(destPath)}"`, { stdio: "ignore" });
+              execFileSync("unzip", ["-o", destPath, "-d", path.dirname(destPath)], { stdio: "ignore" });
               fs.unlinkSync(destPath);
             } catch(err) {
               console.error("Failed to unzip", err);
@@ -5979,15 +6016,67 @@ function streamModelUpload(req, filename, targetDir = MODELS, mode = "image") {
 
 function json(res, code, obj) {
   const body = JSON.stringify(obj);
-  res.writeHead(code, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+  res.writeHead(code, { "Content-Type": "application/json" });
   res.end(body);
 }
 
 // -- HTTP Server ---------------------------------------------------------------
+// Hosts allowed to talk to the management API. Blocks DNS-rebinding style access from web pages;
+// LAN access must be opted into explicitly with HOST / ALLOWED_HOSTS.
+const EXTRA_ALLOWED_HOSTS = String(process.env.ALLOWED_HOSTS || "")
+  .split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
+
+function isAllowedHostHeader(hostHeader) {
+  const host = String(hostHeader || "").toLowerCase().replace(/:\d+$/, "").replace(/^\[|\]$/g, "");
+  if (!host) return true;
+  if (host === "localhost" || host === "127.0.0.1" || host === "::1") return true;
+  if (EXTRA_ALLOWED_HOSTS.includes(host)) return true;
+  return HOST_FRONTEND !== "127.0.0.1" && HOST_FRONTEND !== "localhost" && EXTRA_ALLOWED_HOSTS.length === 0 && net.isIP(host) !== 0;
+}
+
+// The management API has no login of its own, so browsers may only reach it from the studio's own page.
+// Otherwise any web page open while the studio runs could send it commands: the browser hides the reply, not the request.
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
+const DEV_UI_PORT = String(readPort(process.env.DEV_UI_PORT, 1420));
+
+function isAllowedBrowserRequest(req) {
+  const isApi = /^\/(api|v1|sdapi)\//.test(String(req.url || "").split("?")[0]);
+  const site = String(req.headers["sec-fetch-site"] || "").toLowerCase();
+  const mode = String(req.headers["sec-fetch-mode"] || "").toLowerCase();
+  if ((site === "cross-site" || site === "same-site") && (isApi || mode !== "navigate")) return false;
+  const origin = req.headers.origin;
+  if (!origin) return true;
+  try {
+    const parsed = new URL(origin);
+    if (parsed.host.toLowerCase() === String(req.headers.host || "").toLowerCase()) return true;
+    const hostname = parsed.hostname.replace(/^\[|\]$/g, "").toLowerCase();
+    const port = parsed.port || (parsed.protocol === "https:" ? "443" : "80");
+    return LOOPBACK_HOSTS.has(hostname) && (port === String(PORT_FRONTEND) || port === DEV_UI_PORT);
+  } catch (_) {
+    return false;
+  }
+}
+
 const server = http.createServer(async (req, res) => {
-  // CORS preflight
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+
+  if (!isAllowedHostHeader(req.headers.host)) {
+    res.writeHead(403, { "Content-Type": "text/plain" });
+    res.end("Forbidden host");
+    return;
+  }
+
+  if (!isAllowedBrowserRequest(req)) {
+    res.writeHead(403, { "Content-Type": "text/plain" });
+    res.end("Forbidden origin");
+    return;
+  }
+
+  // Cross-origin requests are not supported (the UI is same-origin).
   if (req.method === "OPTIONS") {
-    res.writeHead(204, { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Allow-Methods": "GET,POST" });
+    res.writeHead(204);
     res.end(); return;
   }
 
@@ -6262,6 +6351,8 @@ const server = http.createServer(async (req, res) => {
     if (!url || !filename || !filename.toLowerCase().endsWith(".bin")) {
       return json(res, 400, { ok: false, error: "Bir konusma modeli .bin URL'i veya katalog model kimligi gereklidir." });
     }
+    const requestError = downloadRequestError(url, filename);
+    if (requestError) return json(res, 400, { ok: false, error: requestError });
     startModelDownload(url, filename, SPEECH_MODELS, "speech");
     return json(res, 200, { ok: true, message: "Speech model download started", filename });
   }
@@ -7056,6 +7147,9 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
     const { url } = body;
     if (!url) return json(res, 400, { error: "URL is required" });
     
+    const requestError = downloadRequestError(url);
+    if (requestError) return json(res, 400, { ok: false, error: requestError });
+
     startModelDownload(url);
     return json(res, 200, { ok: true, message: "Download started" });
   }
@@ -7073,6 +7167,8 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
       if (!filename.toLowerCase().endsWith(".gguf")) {
         return json(res, 400, { ok: false, error: "Text model URL must point to a .gguf file." });
       }
+      const urlError = downloadRequestError(directUrl, filename);
+      if (urlError) return json(res, 400, { ok: false, error: urlError });
       const projector = body.projectorUrl && body.projectorFilename
         ? { url: String(body.projectorUrl), filename: path.basename(String(body.projectorFilename)) }
         : await resolveHuggingFaceProjector(directUrl, filename);
@@ -7190,7 +7286,7 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
     const ext = path.extname(filePath).toLowerCase();
     fs.readFile(filePath, (err, data) => {
       if (err) return json(res, 500, { error: err.message });
-      res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream", "Access-Control-Allow-Origin": "*" });
+      res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream" });
       res.end(data);
     });
     return;
@@ -7214,7 +7310,6 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
         res.writeHead(416, {
           "Content-Range": `bytes */${stat.size}`,
           "Accept-Ranges": "bytes",
-          "Access-Control-Allow-Origin": "*",
         });
         res.end();
         return;
@@ -7232,7 +7327,6 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
         res.writeHead(416, {
           "Content-Range": `bytes */${stat.size}`,
           "Accept-Ranges": "bytes",
-          "Access-Control-Allow-Origin": "*",
         });
         res.end();
         return;
@@ -7243,7 +7337,6 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
         "Content-Length": end - start + 1,
         "Content-Range": `bytes ${start}-${end}/${stat.size}`,
         "Accept-Ranges": "bytes",
-        "Access-Control-Allow-Origin": "*",
       });
       fs.createReadStream(filePath, { start, end }).pipe(res);
       return;
@@ -7253,7 +7346,6 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
       "Content-Type": contentType,
       "Content-Length": stat.size,
       "Accept-Ranges": "bytes",
-      "Access-Control-Allow-Origin": "*",
     });
     fs.createReadStream(filePath).pipe(res);
     return;
@@ -7380,7 +7472,7 @@ async function getLlmfitRecommendations(useCase = "chat", limit = 10) {
 
   fs.readFile(filePath, (err, data) => {
     if (err) { res.writeHead(404); res.end("Not found"); return; }
-    res.writeHead(200, { "Content-Type": mime, "Access-Control-Allow-Origin": "*" });
+    res.writeHead(200, { "Content-Type": mime });
     res.end(data);
   });
 });
